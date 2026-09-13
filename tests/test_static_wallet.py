@@ -46,7 +46,7 @@ import money     # noqa: E402
 APP = os.path.join(ROOT, "docs", "app")
 FIXTURE = os.path.join(APP, "cases.json")
 FX_JS = os.path.join(APP, "fx.js")
-RATES = os.path.join(APP, "rates.csv")
+RATES = os.path.join(APP, "fx_rates.csv")
 
 BROWSERS = (
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -144,8 +144,16 @@ def test_the_shipped_rates_are_the_ones_the_app_uses(rates_csv):
 
 
 def test_the_python_side_still_matches_the_fixture(cases):
-    """So the fixture cannot rot while fxrates.py moves on."""
-    data = os.path.join(ROOT, "data")
+    """So the fixture cannot rot while fxrates.py moves on.
+
+    Read against the *shipped* rate file rather than the working cache in
+    data/. Two reasons, and the second one is why CI went red: both sides
+    then answer from the same bytes, so a stale snapshot cannot pass here
+    and fail in the browser -- and data/ is gitignored, so on a fresh clone
+    it does not exist at all and every lookup raised RateError.
+    """
+    fxrates.reset()
+    data = APP
 
     for case in cases["lookups"]:
         on = dt.date.fromisoformat(case["on"])

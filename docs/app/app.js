@@ -411,7 +411,7 @@ function boot() {
   load();
   drawLimits();
 
-  fetch('rates.csv').then(function (r) {
+  fetch('fx_rates.csv').then(function (r) {
     if (!r.ok) { throw new Error('the rate file did not load (' + r.status + ')'); }
     return r.text();
   }).then(function (text) {

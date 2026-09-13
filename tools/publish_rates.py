@@ -3,7 +3,10 @@
     python tools/publish_rates.py
 
 The page at docs/app/ has no server, so it ships its own copy of the ECB
-history: a purchase is converted in the browser against `docs/app/rates.csv`.
+history: a purchase is converted in the browser against
+`docs/app/fx_rates.csv` -- the same filename fxrates.py reads, so the test
+suite can point at the shipped file rather than at a working cache that a
+fresh clone does not have.
 That file is a snapshot, and the page says which day it runs to — a purchase
 after that date on a weekday is refused rather than converted at a stale
 rate, which is the same refusal the server makes.
@@ -35,7 +38,7 @@ import paths      # noqa: E402
 
 APP = os.path.join(ROOT, "docs", "app")
 CASES = os.path.join(APP, "cases.json")
-SHIPPED = os.path.join(APP, "rates.csv")
+SHIPPED = os.path.join(APP, fxrates.CACHE_NAME)
 
 # Each case is a way of being wrong rather than a sample. The dates are fixed
 # so the fixture keeps covering the same hazards as the file moves on.
@@ -168,8 +171,9 @@ def main():
     io.open(CASES, "w", encoding="utf-8", newline="\n").write(
         json.dumps(cases, indent=1, ensure_ascii=False))
 
-    print("  rates.csv  %s-> %d rows, newest %s"
-          % ("%d " % was if was else "", now, fxrates.newest(directory)))
+    print("  %s  %s-> %d rows, newest %s"
+          % (fxrates.CACHE_NAME, "%d " % was if was else "", now,
+             fxrates.newest(directory)))
     print("  cases.json %d lookups, %d conversions, %d estimates, %d parses"
           % (len(cases["lookups"]), len(cases["conversions"]),
              len(cases["estimates"]), len(cases["parses"])))

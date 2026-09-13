@@ -18,7 +18,7 @@ data/
 # The rule above exists to keep spending out of a public repository, and
 # there is none in this file. Without this line the page would publish with
 # its rate file silently missing and every conversion on it would fail.
-!docs/app/rates.csv
+!docs/app/fx_rates.csv
 
 # Python
 __pycache__/
