@@ -250,6 +250,44 @@ def test_no_page_carries_an_id_nothing_uses(bundle):
         f"nothing in the {bundle['name']} bundle uses these ids: {unused}")
 
 
+def _css_code(source):
+    """CSS with its comments removed.
+
+    The same reason _code() strips them from JavaScript: the comment
+    explaining why a declaration is there contains the declaration, so a
+    check that greps the file passes on the prose after somebody deletes the
+    rule. That is not hypothetical -- the comment on .card names
+    `min-width: 0` in the course of explaining it.
+    """
+    return re.sub(r"/\*.*?\*/", "", source, flags=re.DOTALL)
+
+
+def test_a_scrolling_table_can_actually_scroll(bundle):
+    """`overflow-x: auto` on a wrapper does nothing if its grid-item
+    ancestor cannot shrink.
+
+    A grid item's min-width defaults to `auto`, meaning "no narrower than my
+    content's minimum" -- and a seven-column table's minimum is wide. So the
+    card grew, `main` grew, and the whole page ran off the side of a phone
+    with every paragraph clipped mid-sentence, while the wrapper that was
+    supposed to scroll sat there doing nothing. It only showed once the
+    table had rows, which is how it survived unnoticed in a published page.
+
+    min-width: 0 on the card is what lets the overflow land on the table.
+    """
+    css = _css_code(bundle["css"])
+    if "overflow-x: auto" not in css:
+        pytest.skip("this bundle has no horizontally scrolling wrapper")
+
+    card = re.search(r"\.card\s*\{(.*?)\}", css, re.DOTALL)
+    assert card, (
+        f"{bundle['name']} scrolls a wrapper but has no .card rule to check")
+    assert re.search(r"min-width:\s*0", card.group(1)), (
+        f"{bundle['name']}: .card holds a scrolling wrapper but does not set "
+        "min-width: 0, so the wrapper cannot shrink and the page overflows "
+        "sideways on a narrow screen instead")
+
+
 def test_the_stylesheet_has_one_type_scale(bundle):
     """The transit app grew a second scale by accident -- a 10px label among
     11.5px figures. Every font-size must come from a variable."""

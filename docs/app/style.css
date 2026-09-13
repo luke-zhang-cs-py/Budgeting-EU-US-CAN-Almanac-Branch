@@ -85,6 +85,18 @@ main { padding: var(--gap) 16px 28px; display: grid; gap: var(--gap); }
 .card {
   background: var(--panel); border: 1px solid var(--line);
   border-radius: var(--radius); padding: 14px 16px;
+
+  /* A grid item's min-width is `auto` -- "at least as wide as my content
+     refuses to shrink below" -- and a seven-column table refuses a long
+     way. That made .tableWrap's overflow-x: auto do nothing at all: rather
+     than the table scrolling inside the card, the card grew, main grew, and
+     the whole page ran off the right of a phone screen with every paragraph
+     clipped mid-sentence. It only appeared once the table had rows in it,
+     which is why it went unnoticed.
+
+     min-width: 0 lets the card shrink to its column, so the overflow lands
+     where it was meant to: on the table, which scrolls. */
+  min-width: 0;
 }
 .card h2 { margin: 0 0 8px; font-size: var(--t-mid); font-weight: 600; }
 .cardHead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
