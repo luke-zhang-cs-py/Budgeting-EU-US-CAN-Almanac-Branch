@@ -227,6 +227,12 @@ function drawStorage() {
   el('limits').innerHTML = LIMITS.map(function (line) {
     return '<li>' + esc(line) + '</li>';
   }).join('');
+
+  el('importNote').textContent =
+    'Import reads the Date and CAD columns only, and adds to what is already ' +
+    'here rather than replacing it. The GBP, Markup and “Rate from” columns ' +
+    'an export writes are derived, so they are recomputed from this file’s ' +
+    'own rates instead of being trusted.';
 }
 
 var LIMITS = [
@@ -401,6 +407,118 @@ function field(text) {
   return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
 
+/* ---------------------------------------------------------------- import */
+
+/* The column names this will read, in the order it prefers them. `CAD` is
+ * what this page's own export writes; `Amount` is what the euro wallet and
+ * most bank exports call it, and accepting both costs one line. */
+var READS = {
+  date: ['Date'],
+  amount: ['CAD', 'Amount'],
+  description: ['Description', 'What'],
+  category: ['Category']
+};
+
+function columnAt(header, names) {
+  for (var i = 0; i < names.length; i++) {
+    var found = header.indexOf(names[i]);
+    if (found >= 0) { return found; }
+  }
+  return -1;
+}
+
+/* Read a CSV back in.
+ *
+ * Only the dollars are read. The GBP, Markup and "Rate from" columns the
+ * export writes are *derived*, and they are recomputed here rather than
+ * trusted: a file exported one week and imported the next should show what
+ * those dollars convert to under the rates this copy actually has, not a
+ * figure copied out of a stale file. Where the two could disagree, the
+ * recomputed one is the one that can be checked against the rate history.
+ *
+ * The limit is not enforced here, and that is deliberate. record() refuses a
+ * conversion that would break the limit, because that is a decision you are
+ * about to make and can still decide not to. An import is a record of
+ * decisions already taken -- refusing it, or quietly dropping the rows that
+ * did not fit, would make the page say something untrue about what was
+ * spent. So everything is read, and the total is allowed to land over, where
+ * the bar turns red and says so. remaining() reports a negative for exactly
+ * the same reason.
+ */
+function importCsv(text) {
+  var lines = String(text).replace(/^﻿/, '').trim().split(/\r?\n/);
+  if (!lines.length || !lines[0]) {
+    say('That file was empty.', 'bad');
+    return;
+  }
+
+  var header = splitCsvLine(lines[0]).map(function (h) { return h.trim(); });
+  var at = {};
+  Object.keys(READS).forEach(function (key) {
+    at[key] = columnAt(header, READS[key]);
+  });
+
+  if (at.date < 0 || at.amount < 0) {
+    say('That file has no Date and CAD columns, so there is nothing to ' +
+        'read. The export from this page has the right ones.', 'bad');
+    return;
+  }
+
+  var before = spent();
+  var added = 0, skipped = 0;
+  for (var i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) { continue; }
+    var cells = splitCsvLine(lines[i]);
+    var cents = FX.parseMoney(cells[at.amount] || '');
+    var when = (cells[at.date] || '').trim();
+    if (!cents || !/^\d{4}-\d{2}-\d{2}$/.test(when)) { skipped++; continue; }
+
+    state.rows.push({
+      id: String(Date.now()) + i + Math.random().toString(36).slice(2, 5),
+      added: Date.now() + i,
+      date: when,
+      description: ((at.description >= 0 ? cells[at.description] : '') || '')
+                     .trim() || '—',
+      category: ((at.category >= 0 ? cells[at.category] : '') || '').trim(),
+      cadMinor: Math.abs(cents)
+    });
+    added++;
+  }
+
+  save();
+  draw();
+
+  var after = spent();
+  var note = 'Imported ' + added + ' row(s)' +
+    (skipped ? ', skipped ' + skipped + ' without a readable date and amount'
+             : '') + '. That is ' + pounds(after - before) + ' more.';
+  var over = GBP.remaining(after) < 0;
+  if (over) {
+    note += ' The total is now ' + pounds(-GBP.remaining(after)) + ' over ' +
+      'the ' + pounds(GBP.LIMIT_MINOR) + ' limit — imported anyway, because ' +
+      'a record of what was spent should not be trimmed to fit a budget.';
+  }
+  say(note, over ? 'warn' : (added ? 'good' : 'warn'));
+}
+
+/* Quoted fields with commas in them, and doubled quotes inside. The one rule
+ * every CSV reader agrees on, and the same one the export writes. */
+function splitCsvLine(line) {
+  var out = [], field = '', quoted = false, i;
+  for (i = 0; i < line.length; i++) {
+    var ch = line.charAt(i);
+    if (quoted) {
+      if (ch === '"' && line.charAt(i + 1) === '"') { field += '"'; i++; }
+      else if (ch === '"') { quoted = false; }
+      else { field += ch; }
+    } else if (ch === '"') { quoted = true; }
+    else if (ch === ',') { out.push(field); field = ''; }
+    else { field += ch; }
+  }
+  out.push(field);
+  return out;
+}
+
 function download() {
   if (!state.rows.length) { say('There is nothing to export.', ''); return; }
   var blob = new Blob([csv()], { type: 'text/csv;charset=utf-8' });
@@ -477,6 +595,21 @@ el('rows').addEventListener('click', function (event) {
 
 el('export').addEventListener('click', download);
 el('export2').addEventListener('click', download);
+
+el('importBtn').addEventListener('click', function () {
+  el('importFile').click();
+});
+el('importFile').addEventListener('change', function () {
+  var file = this.files && this.files[0];
+  /* Cleared before reading, so picking the same file twice still fires a
+   * change event -- otherwise a failed import cannot be retried. */
+  this.value = '';
+  if (!file) { return; }
+  var reader = new FileReader();
+  reader.onload = function () { importCsv(String(reader.result)); };
+  reader.onerror = function () { say('That file could not be read.', 'bad'); };
+  reader.readAsText(file);
+});
 
 el('clear').addEventListener('click', function () {
   if (!state.rows.length) { say('There is nothing stored.', ''); return; }
