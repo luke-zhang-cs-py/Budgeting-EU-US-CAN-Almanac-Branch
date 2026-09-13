@@ -406,24 +406,39 @@ function drawLimits() {
 
 /* ---------------------------------------------------------------- boot */
 
+function started(text) {
+  var info = FX.loadRates(text);
+  el('rateNote').textContent =
+    info.days.toLocaleString() + ' business days of ECB rates, ' +
+    FX.oldestDate() + ' to ' + info.newest + '. A snapshot shipped with ' +
+    'this page — a purchase after that date is refused rather than ' +
+    'converted at a stale rate.';
+  draw();
+  drawEstimate();
+}
+
 function boot() {
   el('date').value = today();
   load();
   drawLimits();
 
+  /* The rates arrive one of two ways, and the page has to work both.
+   *
+   * Built as a single file, they are already here as RATES_CSV — which is
+   * not an optimisation but the only thing that works: a file opened by
+   * double-clicking has a file:// origin, and fetch is refused there. As a
+   * folder served over HTTP, they are fetched. One app.js either way,
+   * because a second copy of this page would be a second copy of every rule
+   * in it. */
+  if (typeof RATES_CSV === 'string') {
+    started(RATES_CSV);
+    return;
+  }
+
   fetch('fx_rates.csv').then(function (r) {
     if (!r.ok) { throw new Error('the rate file did not load (' + r.status + ')'); }
     return r.text();
-  }).then(function (text) {
-    var info = FX.loadRates(text);
-    el('rateNote').textContent =
-      info.days.toLocaleString() + ' business days of ECB rates, ' +
-      FX.oldestDate() + ' to ' + info.newest + '. A snapshot shipped with ' +
-      'this page — a purchase after that date is refused rather than ' +
-      'converted at a stale rate.';
-    draw();
-    drawEstimate();
-  }).catch(function (bad) {
+  }).then(started).catch(function (bad) {
     say('No rates: ' + bad.message + '. Everything else still works, but ' +
         'nothing can be converted.', 'bad');
     draw();

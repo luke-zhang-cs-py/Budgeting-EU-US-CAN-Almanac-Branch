@@ -492,7 +492,8 @@ var TESTS = [
   { file: 'test_published_figures.py', n: 10, of: 'the numbers on this page, against the measurement' },
   { file: 'test_deployment.py',        n:  7, of: 'that the two host configs agree with the Dockerfile and the app' },
   { file: 'test_static_wallet.py',     n:  6, of: 'the rate lookup in both languages, and the file between them' },
-  { file: 'test_shared_rules.py',      n:  5, of: 'the parser in both languages, against one shared fixture' }
+  { file: 'test_shared_rules.py',      n:  5, of: 'the parser in both languages, against one shared fixture' },
+  { file: 'test_single_file.py',       n:  5, of: 'the standalone build: one file, opened from disk, no network' }
 ];
 
 /* Authored prose with intentional markup, kept out of esc() deliberately --
@@ -620,7 +621,7 @@ var RATE_HISTORY_DAYS = 7089;
 var TABLES = 6;
 var ROUTE_COUNT = 38;
 var ROUTE_GROUPS = 18;
-var TEST_LINES = 8873;
+var TEST_LINES = 9034;
 
 /* Which interpreter produced the statement counts above. It matters: coverage
  * counts a `with` block or a multi-line call differently between versions, so
