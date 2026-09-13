@@ -1,0 +1,444 @@
+{
+ "lookups": [
+  {
+   "on": "2026-09-08",
+   "why": "an ordinary weekday: its own rate, no lag",
+   "rates": {
+    "CAD": {
+     "rate": "1.6033",
+     "from": "2026-09-08"
+    },
+    "USD": {
+     "rate": "1.1614",
+     "from": "2026-09-08"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2026-09-08"
+    }
+   }
+  },
+  {
+   "on": "2026-09-06",
+   "why": "a Sunday: back to Friday",
+   "rates": {
+    "CAD": {
+     "rate": "1.6038",
+     "from": "2026-09-04"
+    },
+    "USD": {
+     "rate": "1.1622",
+     "from": "2026-09-04"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2026-09-06"
+    }
+   }
+  },
+  {
+   "on": "2026-09-05",
+   "why": "a Saturday: back to Friday",
+   "rates": {
+    "CAD": {
+     "rate": "1.6038",
+     "from": "2026-09-04"
+    },
+    "USD": {
+     "rate": "1.1622",
+     "from": "2026-09-04"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2026-09-05"
+    }
+   }
+  },
+  {
+   "on": "2026-04-05",
+   "why": "Easter Sunday 2026: the longest gap in the series",
+   "rates": {
+    "CAD": {
+     "rate": "1.603",
+     "from": "2026-04-02"
+    },
+    "USD": {
+     "rate": "1.1525",
+     "from": "2026-04-02"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2026-04-05"
+    }
+   }
+  },
+  {
+   "on": "2026-04-06",
+   "why": "Easter Monday 2026",
+   "rates": {
+    "CAD": {
+     "rate": "1.603",
+     "from": "2026-04-02"
+    },
+    "USD": {
+     "rate": "1.1525",
+     "from": "2026-04-02"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2026-04-06"
+    }
+   }
+  },
+  {
+   "on": "2025-12-26",
+   "why": "Boxing Day 2025",
+   "rates": {
+    "CAD": {
+     "rate": "1.6128",
+     "from": "2025-12-24"
+    },
+    "USD": {
+     "rate": "1.1787",
+     "from": "2025-12-24"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2025-12-26"
+    }
+   }
+  },
+  {
+   "on": "2025-12-28",
+   "why": "the Sunday inside the Christmas gap",
+   "rates": {
+    "CAD": {
+     "rate": "1.6128",
+     "from": "2025-12-24"
+    },
+    "USD": {
+     "rate": "1.1787",
+     "from": "2025-12-24"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2025-12-28"
+    }
+   }
+  },
+  {
+   "on": "2026-01-01",
+   "why": "New Year's Day",
+   "rates": {
+    "CAD": {
+     "rate": "1.6088",
+     "from": "2025-12-31"
+    },
+    "USD": {
+     "rate": "1.175",
+     "from": "2025-12-31"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2026-01-01"
+    }
+   }
+  },
+  {
+   "on": "1999-01-04",
+   "why": "the first day the ECB published",
+   "rates": {
+    "CAD": {
+     "rate": "1.8004",
+     "from": "1999-01-04"
+    },
+    "USD": {
+     "rate": "1.1789",
+     "from": "1999-01-04"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "1999-01-04"
+    }
+   }
+  },
+  {
+   "on": "2026-09-09",
+   "why": "the newest rate in the shipped file",
+   "rates": {
+    "CAD": {
+     "rate": "1.6043",
+     "from": "2026-09-09"
+    },
+    "USD": {
+     "rate": "1.1652",
+     "from": "2026-09-09"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2026-09-09"
+    }
+   }
+  },
+  {
+   "on": "2026-09-12",
+   "why": "a Saturday past the newest rate: allowed, walks back",
+   "rates": {
+    "CAD": {
+     "rate": "1.6043",
+     "from": "2026-09-09"
+    },
+    "USD": {
+     "rate": "1.1652",
+     "from": "2026-09-09"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2026-09-12"
+    }
+   }
+  },
+  {
+   "on": "2026-09-13",
+   "why": "a Sunday past the newest rate: allowed, walks back",
+   "rates": {
+    "CAD": {
+     "rate": "1.6043",
+     "from": "2026-09-09"
+    },
+    "USD": {
+     "rate": "1.1652",
+     "from": "2026-09-09"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2026-09-13"
+    }
+   }
+  },
+  {
+   "on": "2026-09-10",
+   "why": "a weekday past the newest rate: refused",
+   "rates": {
+    "CAD": {
+     "error": "RateError"
+    },
+    "USD": {
+     "error": "RateError"
+    },
+    "EUR": {
+     "rate": "1",
+     "from": "2026-09-10"
+    }
+   }
+  }
+ ],
+ "conversions": [
+  {
+   "cents": 5230,
+   "on": "2026-09-08",
+   "why": "the worked example: 52.30 EUR",
+   "out": {
+    "CAD": {
+     "minor": 8385,
+     "rate": "1.6033",
+     "rateDate": "2026-09-08"
+    },
+    "USD": {
+     "minor": 6074,
+     "rate": "1.1614",
+     "rateDate": "2026-09-08"
+    }
+   }
+  },
+  {
+   "cents": 5230,
+   "on": "2026-09-06",
+   "why": "the same amount on a Sunday",
+   "out": {
+    "CAD": {
+     "minor": 8388,
+     "rate": "1.6038",
+     "rateDate": "2026-09-04"
+    },
+    "USD": {
+     "minor": 6078,
+     "rate": "1.1622",
+     "rateDate": "2026-09-04"
+    }
+   }
+  },
+  {
+   "cents": 1,
+   "on": "2026-09-08",
+   "why": "one cent, where rounding shows",
+   "out": {
+    "CAD": {
+     "minor": 2,
+     "rate": "1.6033",
+     "rateDate": "2026-09-08"
+    },
+    "USD": {
+     "minor": 1,
+     "rate": "1.1614",
+     "rateDate": "2026-09-08"
+    }
+   }
+  },
+  {
+   "cents": -5230,
+   "on": "2026-09-08",
+   "why": "a refund: half away from zero, not towards it",
+   "out": {
+    "CAD": {
+     "minor": -8385,
+     "rate": "1.6033",
+     "rateDate": "2026-09-08"
+    },
+    "USD": {
+     "minor": -6074,
+     "rate": "1.1614",
+     "rateDate": "2026-09-08"
+    }
+   }
+  },
+  {
+   "cents": 250,
+   "on": "2026-09-08",
+   "why": "a rounding boundary",
+   "out": {
+    "CAD": {
+     "minor": 401,
+     "rate": "1.6033",
+     "rateDate": "2026-09-08"
+    },
+    "USD": {
+     "minor": 290,
+     "rate": "1.1614",
+     "rateDate": "2026-09-08"
+    }
+   }
+  },
+  {
+   "cents": 100000000,
+   "on": "2026-09-08",
+   "why": "a million euro, for the integer range",
+   "out": {
+    "CAD": {
+     "minor": 160330000,
+     "rate": "1.6033",
+     "rateDate": "2026-09-08"
+    },
+    "USD": {
+     "minor": 116140000,
+     "rate": "1.1614",
+     "rateDate": "2026-09-08"
+    }
+   }
+  }
+ ],
+ "estimates": [
+  {
+   "base": 5230,
+   "rate": "1.6043",
+   "feeBp": 250,
+   "why": "CIBC's published 2.5% on the worked example",
+   "converted": 8390,
+   "fee": 210,
+   "total": 8600,
+   "effective": "1.644359"
+  },
+  {
+   "base": 5230,
+   "rate": "1.6043",
+   "feeBp": 0,
+   "why": "a card with no foreign fee",
+   "converted": 8390,
+   "fee": 0,
+   "total": 8390,
+   "effective": "1.604207"
+  },
+  {
+   "base": 350,
+   "rate": "1.6043",
+   "feeBp": 250,
+   "why": "a coffee, where the fee rounds",
+   "converted": 562,
+   "fee": 14,
+   "total": 576,
+   "effective": "1.645714"
+  },
+  {
+   "base": 100000,
+   "rate": "1.6043",
+   "feeBp": 199,
+   "why": "a flight at 1.99%",
+   "converted": 160430,
+   "fee": 3193,
+   "total": 163623,
+   "effective": "1.636230"
+  }
+ ],
+ "parses": [
+  {
+   "text": "1.234,56",
+   "why": "the German convention",
+   "minor": 123456
+  },
+  {
+   "text": "1,234.56",
+   "why": "the Irish one",
+   "minor": 123456
+  },
+  {
+   "text": "1,234",
+   "why": "three digits and one separator: grouping, not a fraction",
+   "minor": 123400
+  },
+  {
+   "text": "3.50",
+   "why": "the ordinary case",
+   "minor": 350
+  },
+  {
+   "text": "-52,30",
+   "why": "a refund",
+   "minor": -5230
+  },
+  {
+   "text": "€52.30",
+   "why": "with a symbol on it",
+   "minor": 5230
+  },
+  {
+   "text": "1.2345",
+   "why": "a longer fraction is truncated, not refused",
+   "minor": 123
+  },
+  {
+   "text": "(12,34)",
+   "why": "an accounting negative",
+   "minor": -1234
+  },
+  {
+   "text": "1 234,56",
+   "why": "space grouping",
+   "minor": 123456
+  },
+  {
+   "text": "1.234.567,89",
+   "why": "two grouping marks and a decimal comma",
+   "minor": 123456789
+  },
+  {
+   "text": "12.3",
+   "why": "a single decimal digit",
+   "minor": 1230
+  },
+  {
+   "text": "EUR 5",
+   "why": "a currency word in front of it",
+   "minor": 500
+  }
+ ]
+}

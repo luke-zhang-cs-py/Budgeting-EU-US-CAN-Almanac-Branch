@@ -174,6 +174,38 @@ So it says what it could not settle, and why:
 | Prefers what the bank disclosed | `Foreign currency 52.30 EUR @ 1.64321` is the bank stating what it actually did — and 52.30 × 1.64321 is exactly the CA$85.94 it billed. |
 | Matches `••4417` to a card | So the right foreign-transaction fee applies. Two cards sharing a mask match neither. |
 
+### The whole thing with no server: the published wallet
+
+There is a browser-only build of this app at
+**[the static wallet](https://luke-zhang-cs-py.github.io/Budgeting-EU-to-CAD-USD-Automatic/app/)**.
+It does the part this project is actually about — a purchase converted at the
+rate that applied **on the day it was spent**, with the business-day
+walk-back and the lag shown on every row — and it does it with no server, no
+account and nothing to install.
+
+It works because the rate history is a file. `docs/app/rates.csv` is the ECB
+series shipped with the page, and `docs/app/fx.js` is a port of
+`fxrates.py`, `money.py` and `fxcost.py` that reads it in the browser. That
+is the second deliberate duplication in this project, and it is allowed on
+the same terms as the first: `tests/test_static_wallet.py` holds both
+implementations to one fixture, in Python and in a real browser, over the
+weekends, the Easter and Christmas gaps, a refund, and a date past the
+newest rate.
+
+| | The app | The published wallet |
+|---|---|---|
+| Needs | Python, and a machine running it | a browser |
+| Converts at the spend-date rate | yes | yes |
+| Rate history | fetched and refreshed | a snapshot shipped with the page |
+| Bank exports, OFX/QFX, watched folder | yes | no |
+| Reconciling against a statement | yes | no |
+| Where purchases go | SQLite, on your machine | this browser's `localStorage` |
+
+The snapshot is the honest limit: the page says which day its rates run to,
+and a purchase after that date on a weekday is **refused** rather than
+converted at a stale rate — the same refusal the server makes, for the same
+reason. Re-run `python tools/publish_rates.py` to move it forward.
+
 ### The same job with no server: the capture page
 
 There is a published version of just this one thing, at
@@ -490,7 +522,7 @@ pytest -q --cov=. --cov-report=term-missing
 python -m flake8 . --select=E9,F63,F7,F82,F401,F402,F811,F841,E722,E741
 ```
 
-813 tests, 100% of 2,358 statements. Those two figures are themselves
+835 tests, 100% of 2,358 statements. Those two figures are themselves
 checked — `tests/test_published_figures.py` measures them and compares, here
 and on the published page, because both had already gone stale once. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for the conventions and the one thing that

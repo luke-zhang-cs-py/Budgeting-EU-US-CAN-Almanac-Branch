@@ -12,6 +12,14 @@ data/
 # something to import.
 !sample-statement.csv
 
+# ...and except the rate history the published page ships, which is the one
+# CSV here that is not yours. It is the ECB's own daily reference series --
+# public data about the euro, with nothing in it derived from a transaction.
+# The rule above exists to keep spending out of a public repository, and
+# there is none in this file. Without this line the page would publish with
+# its rate file silently missing and every conversion on it would fail.
+!docs/app/rates.csv
+
 # Python
 __pycache__/
 *.py[cod]

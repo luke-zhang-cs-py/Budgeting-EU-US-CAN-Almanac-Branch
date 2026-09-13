@@ -188,8 +188,10 @@ footer { margin-top: 28px; color: var(--ink-muted); font-size: 12.5px; max-width
     <!-- First, and the only one of the three that works from here: the
          capture page is a static file beside this one, so it opens on a
          phone with nothing installed and nothing running. -->
-    <a class="btn primary" href="capture/"
-       title="Photograph a purchase and record it, in the browser">Open the capture page</a>
+    <a class="btn primary" href="app/"
+       title="The wallet itself, converting in the browser">Open the wallet</a>
+    <a class="btn" href="capture/"
+       title="Photograph a purchase and record it, in the browser">Capture page</a>
     <a class="btn" href="https://github.com/luke-zhang-cs-py/Budgeting-EU-to-CAD-USD-Automatic">Repository</a>
     <a class="btn" id="localBtn" href="http://127.0.0.1:5004/"
        title="Only works on a machine that is running the app">Open app (local)</a>
@@ -471,11 +473,11 @@ var TESTS = [
   { file: 'test_app_finance.py',       n: 55, of: 'routes for screenshots, rates, cards and planning' },
   { file: 'test_cibc.py',              n: 54, of: 'the headerless CIBC exports, all three layouts' },
   { file: 'test_cards.py',             n: 53, of: 'fees, balances, and the exact-vs-estimated split' },
+  { file: 'test_frontend.py',          n: 53, of: 'escaping, dead ids and the type scale, over both bundles' },
   { file: 'test_planning.py',          n: 49, of: 'trends, subscriptions and goals' },
   { file: 'test_app.py',               n: 41, of: 'the original HTTP surface' },
   { file: 'test_rate_date.py',         n: 40, of: 'weekends, Easter, Christmas, and the lookback' },
   { file: 'test_edges.py',             n: 39, of: 'the network ladder and malformed rate files' },
-  { file: 'test_frontend.py',          n: 37, of: 'escaping, dead ids and the type scale, over both bundles' },
   { file: 'test_money.py',             n: 37, of: 'both decimal conventions, and never a silent zero' },
   { file: 'test_ofx.py',               n: 37, of: 'both OFX dialects and the disclosed rate' },
   { file: 'test_ledger.py',            n: 33, of: 'the duplicate rule and recurring detection' },
@@ -489,6 +491,7 @@ var TESTS = [
   { file: 'test_ocr.py',               n: 14, of: 'the engine wrapper, and life without it' },
   { file: 'test_published_figures.py', n: 10, of: 'the numbers on this page, against the measurement' },
   { file: 'test_deployment.py',        n:  7, of: 'that the two host configs agree with the Dockerfile and the app' },
+  { file: 'test_static_wallet.py',     n:  6, of: 'the rate lookup in both languages, and the file between them' },
   { file: 'test_shared_rules.py',      n:  5, of: 'the parser in both languages, against one shared fixture' }
 ];
 
@@ -617,7 +620,7 @@ var RATE_HISTORY_DAYS = 7089;
 var TABLES = 6;
 var ROUTE_COUNT = 38;
 var ROUTE_GROUPS = 18;
-var TEST_LINES = 8524;
+var TEST_LINES = 8873;
 
 /* Which interpreter produced the statement counts above. It matters: coverage
  * counts a `with` block or a multi-line call differently between versions, so

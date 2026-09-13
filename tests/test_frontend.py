@@ -67,7 +67,24 @@ CAPTURE = {
     "font_literals": {"10.5"},
 }
 
-BUNDLES = (APP, CAPTURE)
+# The published static wallet. Like the capture page it is served by GitHub
+# Pages with no Flask behind it, so it carries its own el/esc/say — and it
+# carries fx.js, which is the checked port of the rate lookup and the money.
+STATIC_WALLET = {
+    "name": "static wallet",
+    "pages": [_at("docs", "app", "index.html")],
+    "scripts": [_at("docs", "app", name) for name in ("fx.js", "app.js")],
+    "styles": [_at("docs", "app", "style.css")],
+    "in_page": r'<script src="([A-Za-z0-9_.-]+)"',
+    "created": set(),
+    # rateCell is built and escaped in drawRows before it is composed into
+    # the row, and width is a percentage computed from two integers -- the
+    # same two allowances rowsHtml and width have in the app bundle.
+    "fragments": r"esc\(|rateCell|width|authoredHtml",
+    "font_literals": {"10.5", "10"},
+}
+
+BUNDLES = (APP, CAPTURE, STATIC_WALLET)
 
 
 def _read(paths):

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12141a">
+<meta name="robots" content="noindex, nofollow">
+<title>Wallet — euro spending in CAD and USD</title>
+
+<!-- Everything here runs in this browser. The one thing fetched is the rate
+     file beside this page, which is why connect-src names 'self' and nothing
+     else: there is no server to send a purchase to. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'none';
+  script-src 'self';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data:;
+  connect-src 'self';
+  base-uri 'none';
+  form-action 'none';
+  frame-ancestors 'none'">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div>
+    <h1>Wallet</h1>
+    <p class="sub" id="monthLabel">—</p>
+  </div>
+  <div class="acts">
+    <button type="button" id="export" class="ghost">Export CSV</button>
+  </div>
+</header>
+
+<section class="totals">
+  <div class="total">
+    <span class="label">Spent this month</span>
+    <strong class="figure" id="spentEur">—</strong>
+  </div>
+  <div class="total">
+    <span class="label">In Canadian dollars</span>
+    <strong class="figure" id="spentCad">—</strong>
+  </div>
+  <div class="total">
+    <span class="label">In US dollars</span>
+    <strong class="figure" id="spentUsd">—</strong>
+  </div>
+</section>
+
+<p class="notice" id="notice" hidden></p>
+
+<main>
+
+<section class="card">
+  <h2>Record a purchase</h2>
+  <p class="hint">
+    Converted at the rate the European Central Bank published
+    <strong>on the day it was spent</strong> — or the most recent business day
+    before it, which is said on every row rather than hidden.
+  </p>
+
+  <form id="addForm">
+    <div class="row">
+      <label class="field">
+        <span>Date</span>
+        <input id="date" type="date" required>
+      </label>
+      <label class="field">
+        <span>Amount (EUR)</span>
+        <input id="amount" inputmode="decimal" placeholder="52,30" required>
+      </label>
+      <label class="field grow">
+        <span>What was it</span>
+        <input id="description" autocomplete="off" placeholder="REWE SAGT DANKE" required>
+      </label>
+      <label class="field">
+        <span>Category</span>
+        <input id="category" list="categories" autocomplete="off" placeholder="Groceries">
+      </label>
+    </div>
+    <div class="row actions">
+      <button type="submit">Record it</button>
+      <span class="hint" id="preview"></span>
+    </div>
+  </form>
+</section>
+
+<section class="card">
+  <div class="cardHead">
+    <h2>What the next one will cost</h2>
+    <span class="hint">at the newest rate, with your card's fee</span>
+  </div>
+  <div class="row">
+    <label class="field">
+      <span>Amount (EUR)</span>
+      <input id="estAmount" inputmode="decimal" value="52,30">
+    </label>
+    <label class="field">
+      <span>Card fee</span>
+      <input id="estFee" inputmode="decimal" value="2.50">
+    </label>
+    <label class="field">
+      <span>Currency</span>
+      <select id="estCurrency">
+        <option value="CAD">CAD</option>
+        <option value="USD">USD</option>
+      </select>
+    </label>
+  </div>
+  <pre id="estimate"></pre>
+</section>
+
+<section class="card">
+  <div class="cardHead">
+    <h2>Recorded</h2>
+    <span class="hint" id="recentNote"></span>
+  </div>
+  <div class="tableWrap">
+    <table>
+      <thead>
+        <tr><th>Date</th><th>What</th><th class="num">EUR</th>
+            <th class="num">CAD</th><th class="num">USD</th>
+            <th class="num">Rate from</th><th></th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>This month by category</h2>
+  <div id="categoryBars" class="bars"></div>
+  <p class="hint" id="categoryNote"></p>
+</section>
+
+<section class="card">
+  <h2>Where this lives, and what it cannot do</h2>
+  <p class="hint" id="storageNote"></p>
+  <ul class="limits" id="limits"></ul>
+  <div class="row actions">
+    <button type="button" id="export2">Export CSV</button>
+    <button type="button" class="ghost" id="importBtn">Import CSV</button>
+    <input type="file" id="importFile" accept=".csv,text/csv" hidden>
+    <button type="button" class="ghost" id="clear">Delete everything</button>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <span id="rateNote">—</span>
+  <span><a href="../">About the wallet app &rarr;</a></span>
+</footer>
+
+<datalist id="categories"></datalist>
+
+<script src="fx.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
