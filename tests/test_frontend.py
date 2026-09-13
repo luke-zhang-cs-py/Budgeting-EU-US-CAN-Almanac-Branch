@@ -84,7 +84,31 @@ STATIC_WALLET = {
     "font_literals": {"10.5", "10"},
 }
 
-BUNDLES = (APP, CAPTURE, STATIC_WALLET)
+# The pound wallet. A fourth bundle rather than a variant of the third: it
+# shares fx.js and style.css with the static wallet and adds gbp.js, its own
+# app.js and a handful of rules for the limit bar. Sharing files is exactly
+# why it needs its own entry -- the guards read the *concatenation* a page
+# actually loads, and this page loads a different set from any other.
+POUND_WALLET = {
+    "name": "pound wallet",
+    "pages": [_at("standalone", "pounds", "index.html")],
+    "scripts": [_at("docs", "app", "fx.js"),
+                _at("standalone", "pounds", "gbp.js"),
+                _at("standalone", "pounds", "app.js")],
+    "styles": [_at("docs", "app", "style.css"),
+               _at("standalone", "pounds", "limit.css")],
+    # This page is not published, so it reaches back into docs/ for the two
+    # files it shares with the wallet. The pattern allows that one prefix and
+    # captures the basename either way.
+    "in_page": r'<script src="(?:\.\./\.\./docs/app/)?([A-Za-z0-9_.-]+)"',
+    "created": set(),
+    # rateCell is built and escaped in drawRows before it is composed into
+    # the row -- the same allowance, and the same name, as the static wallet.
+    "fragments": r"esc\(|rateCell",
+    "font_literals": {"10.5", "10"},
+}
+
+BUNDLES = (APP, CAPTURE, STATIC_WALLET, POUND_WALLET)
 
 
 def _read(paths):
@@ -346,7 +370,11 @@ def test_every_page_in_the_project_belongs_to_a_bundle():
     claimed = {os.path.abspath(page)
                for spec in BUNDLES for page in spec["pages"]}
     found = []
-    for folder in ("templates", "docs", "static"):
+    # standalone/ is in this list even though nothing under it is served.
+    # A page that is only ever a build input still puts descriptions into
+    # innerHTML, and moving it out of docs/ to keep it off the website would
+    # otherwise have quietly moved it out of every check in this file too.
+    for folder in ("templates", "docs", "static", "standalone"):
         for here, _, names in os.walk(_at(folder)):
             found.extend(os.path.join(here, name) for name in names
                          if name.endswith(".html"))

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12141a">
+<meta name="robots" content="noindex, nofollow">
+<title>Pound wallet — Canadian dollars into pounds, against £1,000</title>
+
+<!-- Everything here runs in this browser. The one thing fetched is the rate
+     file beside this page, which is why connect-src names 'self' and nothing
+     else: there is no server to send a conversion to. The standalone build
+     inlines the rates and drops connect-src entirely. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'none';
+  script-src 'self';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data:;
+  connect-src 'self';
+  base-uri 'none';
+  form-action 'none';
+  frame-ancestors 'none'">
+
+<link rel="stylesheet" href="../../docs/app/style.css">
+<link rel="stylesheet" href="limit.css">
+</head>
+<body>
+
+<header class="top">
+  <div>
+    <h1>Pound wallet</h1>
+    <p class="sub" id="limitLabel">—</p>
+  </div>
+  <div class="acts">
+    <button type="button" id="export" class="ghost">Export CSV</button>
+  </div>
+</header>
+
+<section class="totals">
+  <div class="total">
+    <span class="label">Spent of the limit</span>
+    <strong class="figure" id="spentGbp">—</strong>
+  </div>
+  <div class="total">
+    <span class="label">Left</span>
+    <strong class="figure" id="leftGbp">—</strong>
+  </div>
+  <div class="total">
+    <span class="label">Canadian dollars converted</span>
+    <strong class="figure" id="spentCad">—</strong>
+  </div>
+</section>
+
+<div class="limitWrap">
+  <span class="limitBar" id="limitBar"><span id="limitFill"></span></span>
+  <p class="limitLine">
+    <span class="state" id="limitState">—</span>
+    <span id="limitFigures">—</span>
+  </p>
+</div>
+
+<p class="notice" id="notice" hidden></p>
+
+<main>
+
+<section class="card">
+  <h2>Convert Canadian dollars</h2>
+  <p class="hint">
+    There is no CAD&nbsp;&rarr;&nbsp;GBP rate published, so this crosses two
+    that are: the European Central Bank's euro rates for both currencies
+    <strong>on the day it was spent</strong> — or the most recent business day
+    before it, which is said on every row rather than hidden. CIBC's 2.5%
+    conversion markup is taken off, because it is charged whether or not a
+    budget mentions it.
+  </p>
+
+  <form id="addForm">
+    <div class="row">
+      <label class="field">
+        <span>Date</span>
+        <input id="date" type="date" required>
+      </label>
+      <label class="field">
+        <span>Amount (CAD)</span>
+        <input id="amount" inputmode="decimal" placeholder="250.00" required>
+      </label>
+      <label class="field grow">
+        <span>What was it</span>
+        <input id="description" autocomplete="off" placeholder="Tesco Metro" required>
+      </label>
+      <label class="field">
+        <span>Category</span>
+        <input id="category" list="categories" autocomplete="off" placeholder="Groceries">
+      </label>
+    </div>
+    <div class="row actions">
+      <button type="submit">Record it</button>
+      <span class="hint" id="preview"></span>
+    </div>
+  </form>
+</section>
+
+<section class="card">
+  <div class="cardHead">
+    <h2>What this actually gets you</h2>
+    <span class="hint">CIBC's markup, shown rather than buried</span>
+  </div>
+  <div class="row">
+    <label class="field">
+      <span>Amount (CAD)</span>
+      <input id="estAmount" inputmode="decimal" value="1000.00">
+    </label>
+    <label class="field">
+      <span>On</span>
+      <input id="estDate" type="date">
+    </label>
+    <label class="field">
+      <span>Markup</span>
+      <input id="estFee" inputmode="decimal" value="2.50">
+    </label>
+  </div>
+  <dl class="breakdown" id="breakdown"></dl>
+  <p class="hint" id="estNote"></p>
+</section>
+
+<section class="card">
+  <div class="cardHead">
+    <h2>Converted</h2>
+    <span class="hint" id="recentNote"></span>
+  </div>
+  <div class="tableWrap">
+    <table>
+      <thead>
+        <tr><th>Date</th><th>What</th><th class="num">CAD</th>
+            <th class="num">£</th><th class="num">Markup</th>
+            <th class="num">Rate from</th><th></th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Where this lives, and what it cannot do</h2>
+  <p class="hint" id="storageNote"></p>
+  <ul class="limits" id="limits"></ul>
+  <div class="row actions">
+    <button type="button" id="export2">Export CSV</button>
+    <button type="button" class="ghost" id="clear">Delete everything</button>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <span id="rateNote">—</span>
+  <span>One file. Nothing here reaches the network.</span>
+</footer>
+
+<datalist id="categories"></datalist>
+
+<script src="../../docs/app/fx.js"></script>
+<script src="gbp.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

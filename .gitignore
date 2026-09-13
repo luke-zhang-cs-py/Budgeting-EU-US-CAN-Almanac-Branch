@@ -20,6 +20,15 @@ data/
 # its rate file silently missing and every conversion on it would fail.
 !docs/app/fx_rates.csv
 
+# ...and the pound wallet's own copy, for the same reason. It carries the CAD
+# and GBP legs rather than CAD and USD, and it is the same public ECB series
+# with nothing of yours in it. It lives under standalone/ rather than docs/
+# because docs/ is what GitHub Pages publishes and that file is only ever a
+# build input. Listed separately rather than widening the rule to a glob:
+# these exceptions should stay a list somebody can read and check, because
+# the cost of one wrong pattern here is publishing a ledger.
+!standalone/pounds/fx_rates.csv
+
 # Python
 __pycache__/
 *.py[cod]

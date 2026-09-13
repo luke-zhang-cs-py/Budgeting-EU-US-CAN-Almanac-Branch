@@ -40,6 +40,7 @@ var FX = (function () {
   var MINOR_UNITS = 2;
 
   var rates = null;             // { 'YYYY-MM-DD': { CAD: '1.6043', ... } }
+  var columns = [];             // the currencies that table carries
   var newest = null;
 
   /* ------------------------------------------------------------- errors */
@@ -146,7 +147,7 @@ var FX = (function () {
     return negative ? -minor : minor;
   }
 
-  var SYMBOL = { EUR: '€', CAD: 'CA$', USD: 'US$' };
+  var SYMBOL = { EUR: '€', CAD: 'CA$', USD: 'US$', GBP: '£' };
 
   /* The machine-readable form: no symbol, no grouping. money.py has the same
    * pair for the same reason -- the grouped one is for a person reading a
@@ -175,6 +176,8 @@ var FX = (function () {
     rates = {};
     var lines = text.trim().split(/\r?\n/);
     var header = lines[0].split(',');       // date,CAD,USD
+    columns = header.slice(1).map(function (name) { return name.trim(); })
+                    .filter(function (name) { return name; });
     for (var i = 1; i < lines.length; i++) {
       var cells = lines[i].split(',');
       if (cells.length < 2) { continue; }
@@ -195,10 +198,15 @@ var FX = (function () {
   /* fxrates.rate: [rate, the date it is from]. */
   function rate(on, currency) {
     if (currency === BASE) { return { rate: '1', from: on }; }
-    if (TARGETS.indexOf(currency) < 0) {
+    if (!rates) { throw new RateError('no rate cache loaded'); }
+    /* The honest question is whether the loaded table has this currency,
+     * not whether it is on a list written here. For the app's own file the
+     * two answers are the same; the pound wallet loads date,CAD,GBP into
+     * this same reader. A typo is still refused outright rather than
+     * walking back ten days for a column that does not exist. */
+    if (columns.indexOf(currency) < 0) {
       throw new RateError('not a currency this app converts to: ' + currency);
     }
-    if (!rates) { throw new RateError('no rate cache loaded'); }
 
     /* Rule 3: refused only if a rate for it could still arrive. */
     if (on > newest && weekday(on) < 5) {
@@ -272,7 +280,7 @@ var FX = (function () {
     newestDate: newestDate, oldestDate: oldestDate,
     rate: rate, convert: convert, convertOn: convertOn, convertAll: convertAll,
     estimate: estimate, parseMoney: parseMoney, format: format,
-    plain: plain,
+    plain: plain, divHalfUp: divHalfUp, columns: function () { return columns.slice(); },
     RateError: RateError
   };
 }());

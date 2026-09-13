@@ -49,7 +49,9 @@ MAX_LOOKBACK_DAYS = 10
 _DATE = "%Y-%m-%d"
 
 _lock = threading.Lock()
-_cache = None          # {date: {"CAD": Decimal, "USD": Decimal}}
+_cache = None                # {date: {"CAD": Decimal, "USD": Decimal}}
+_columns = None              # the currencies that cache carries
+_columns_for = None          # the cache _columns was computed from
 _cache_path = None
 
 
@@ -72,11 +74,15 @@ def cache_path(directory=None):
     return os.path.join(paths.data_dir(directory), CACHE_NAME)
 
 
-def _parse_history(raw):
+def _parse_history(raw, wanted=None):
     """{date: {currency: Decimal}} from the ECB history zip.
 
-    Only the currencies this app uses are kept. The file carries 40-odd, and
-    holding the rest would be 40 times the cache for no reader.
+    Only the currencies asked for are kept, `money.TARGETS` by default. The
+    file carries 41, and holding the rest would be 20 times the cache for no
+    reader -- but the ones it leaves out are real, so `wanted` is a parameter
+    rather than a constant. tools/publish_pound_rates.py passes ("CAD", "GBP")
+    to build the pound wallet's own file; nothing else passes anything, and
+    the default keeps every existing caller identical.
 
     Two shapes in the file to be careful of: it appends a trailing comma, so
     every row has a final empty cell and the header has a phantom column; and
@@ -87,9 +93,10 @@ def _parse_history(raw):
         with archive.open(name) as handle:
             rows = csv.reader(io.TextIOWrapper(handle, encoding="utf-8"))
             header = [cell.strip() for cell in next(rows)]
-            columns = {cur: header.index(cur) for cur in money.TARGETS
+            wanted = tuple(wanted or money.TARGETS)
+            columns = {cur: header.index(cur) for cur in wanted
                        if cur in header}
-            missing = set(money.TARGETS) - set(columns)
+            missing = set(wanted) - set(columns)
             if missing:
                 raise RateError(f"ECB file has no column for {sorted(missing)}")
 
@@ -158,13 +165,18 @@ def load(directory=None):
         try:
             with open(path, encoding="utf-8", newline="") as handle:
                 reader = csv.DictReader(handle)
+                # Whatever the file's header carries, not a fixed pair. For
+                # the app's own cache that is exactly money.TARGETS; the
+                # pound wallet ships a date,CAD,GBP file to the same reader.
+                columns = [name for name in (reader.fieldnames or [])
+                           if name and name.strip() != "date"]
                 for row in reader:
                     try:
                         on = dt.datetime.strptime(row["date"].strip(), _DATE).date()
                     except (ValueError, KeyError, AttributeError):
                         continue
                     day = {}
-                    for cur in money.TARGETS:
+                    for cur in columns:
                         text = (row.get(cur) or "").strip()
                         if text:
                             try:
@@ -181,11 +193,26 @@ def load(directory=None):
         return _cache
 
 
+def columns_of(rates):
+    """The currencies a loaded cache actually carries.
+
+    Memoised on the cache object it describes: `rate` asks on every lookup
+    and the answer only changes when the cache is replaced.
+    """
+    global _columns, _columns_for
+    with _lock:
+        if _columns_for is not rates:
+            _columns = {cur for day in rates.values() for cur in day}
+            _columns_for = rates
+        return _columns
+
+
 def reset():
     """Forget the in-memory cache. For tests and after a refresh."""
-    global _cache, _cache_path
+    global _cache, _cache_path, _columns, _columns_for
     with _lock:
         _cache, _cache_path = None, None
+        _columns, _columns_for = None, None
 
 
 def available(directory=None):
@@ -201,12 +228,16 @@ def rate(on, currency, directory=None):
     """
     if currency == money.BASE:
         return Decimal(1), on
-    if currency not in money.TARGETS:
-        raise RateError(f"not a currency this app converts to: {currency}")
 
     rates = load(directory)
     if rates is None:
         raise RateError("no rate cache; run a refresh first")
+
+    # The honest question is "do I have rates for this", not "is it on a
+    # list" -- the cache is what can answer, and a typo still gets a clear
+    # refusal instead of ten days of fruitless walking back.
+    if currency not in columns_of(rates):
+        raise RateError(f"not a currency this app converts to: {currency}")
 
     if isinstance(on, dt.datetime):
         on = on.date()

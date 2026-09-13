@@ -32,6 +32,7 @@ import money      # noqa: E402
 import layout     # noqa: E402
 import ocr        # noqa: E402
 import paths      # noqa: E402
+import pounds     # noqa: E402
 import ofx        # noqa: E402
 import receipts   # noqa: E402
 import sources    # noqa: E402
@@ -48,7 +49,7 @@ import upcoming   # noqa: E402
 # passing for the wrong reason.
 MODULES = (money, paths, fetch, ocr, auth, db, fxrates, fxcost, fxlive,
            layout, ledger, cards, receipts, importers, budgets, trends,
-           upcoming, goals, export, app, ofx, sources)
+           upcoming, goals, export, app, ofx, sources, pounds)
 
 # The one module that cannot be in the tuple above. Importing wsgi.py builds
 # the application for 0.0.0.0, and auth.guard refuses to do that without a

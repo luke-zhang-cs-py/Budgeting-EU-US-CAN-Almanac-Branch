@@ -1,0 +1,74 @@
+/* limit.css — the few rules the pound wallet needs on top of the wallet's
+ * own stylesheet.
+ *
+ * Everything else on this page is style.css from docs/app/, unchanged. What
+ * is genuinely new is the limit: a 1,000 ceiling wants a bar you can read at
+ * a glance, and it has to say "getting close" and "over" in something other
+ * than colour, because colour alone is not a signal everyone receives. The
+ * bar changes colour *and* the figure beside it changes wording.
+ */
+
+.limitWrap { margin: 0 0 14px; }
+
+.limitBar {
+  display: block;
+  height: 8px;
+  background: var(--panel-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.limitBar > span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width .2s, background .2s;
+}
+
+/* Four fifths spent. Not an alarm, a heads-up. */
+.limitBar.near > span { background: var(--warn); }
+
+/* Past the ceiling. The bar pins at full and the wording carries the rest. */
+.limitBar.over > span { background: var(--bad); }
+
+.limitLine {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+  color: var(--ink-faint);
+  font-size: var(--t-small);
+  font-family: var(--mono);
+}
+
+.limitLine .state { color: var(--ink-dim); }
+.limitLine .state.near { color: var(--warn); }
+.limitLine .state.over { color: var(--bad); }
+
+/* The conversion breakdown. A definition list rather than a <pre> block:
+ * the wallet's estimate box is monospace prose, but this is four labelled
+ * figures and a table of them reads better and copies cleanly. */
+.breakdown {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px 14px;
+  margin: 12px 0 0;
+  font-size: var(--t-small);
+}
+
+.breakdown dt { color: var(--ink-faint); }
+
+.breakdown dd {
+  margin: 0;
+  text-align: right;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* The line that matters most of the four. */
+.breakdown dt.lead, .breakdown dd.lead { color: var(--ink); font-weight: 600; }
+
+/* The fee, which is the reason this page exists rather than a calculator. */
+.breakdown dd.cost { color: var(--warn); }
