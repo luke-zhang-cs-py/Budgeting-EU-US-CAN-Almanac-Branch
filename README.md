@@ -522,7 +522,7 @@ pytest -q --cov=. --cov-report=term-missing
 python -m flake8 . --select=E9,F63,F7,F82,F401,F402,F811,F841,E722,E741
 ```
 
-902 tests, 100% of 2,449 statements. Those two figures are themselves
+904 tests, 100% of 2,449 statements. Those two figures are themselves
 checked — `tests/test_published_figures.py` measures them and compares, here
 and on the published page, because both had already gone stale once. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for the conventions and the one thing that
