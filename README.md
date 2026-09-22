@@ -5,6 +5,8 @@
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.12-blue.svg)](https://www.python.org/)
 
 **[Read the overview →](https://luke-zhang-cs-py.github.io/Budgeting-EU-to-CAD-USD-Automatic/)**
+(or open [`docs/index.html`](docs/index.html) directly if the live page
+won't load — it's the same file GitHub Pages serves)
 — how the screenshot reader decides what an amount is, why "real time" is the
 wrong promise for a card rate, and every bug this thing has had.
 
@@ -177,7 +179,9 @@ So it says what it could not settle, and why:
 ### The whole thing with no server: the published wallet
 
 There is a browser-only build of this app at
-**[the static wallet](https://luke-zhang-cs-py.github.io/Budgeting-EU-to-CAD-USD-Automatic/app/)**.
+**[the static wallet](https://luke-zhang-cs-py.github.io/Budgeting-EU-to-CAD-USD-Automatic/app/)**
+(or open [`docs/app/index.html`](docs/app/index.html) directly if the live
+page won't load).
 It does the part this project is actually about — a purchase converted at the
 rate that applied **on the day it was spent**, with the business-day
 walk-back and the lag shown on every row — and it does it with no server, no
@@ -209,7 +213,9 @@ reason. Re-run `python tools/publish_rates.py` to move it forward.
 ### The same job with no server: the capture page
 
 There is a published version of just this one thing, at
-**[the capture page](https://luke-zhang-cs-py.github.io/Budgeting-EU-to-CAD-USD-Automatic/capture/)**.
+**[the capture page](https://luke-zhang-cs-py.github.io/Budgeting-EU-to-CAD-USD-Automatic/capture/)**
+(or open [`docs/capture/index.html`](docs/capture/index.html) directly if
+the live page won't load).
 Open it on a phone, photograph a purchase, and it is read and recorded —
 nothing to install, nothing running anywhere. It is a static file on GitHub
 Pages, which is both why it is worth having and what limits it:
