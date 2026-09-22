@@ -206,35 +206,79 @@ def log_out():
 
 # ---------------------------------------------------------------- backoff
 
-def blocked_for(now=None):
-    """Seconds until another attempt is allowed. 0 when one is."""
-    now = now if now is not None else time.monotonic()
-    with _lock:
-        return max(0, int(round(_failures["until"] - now)))
+def _db_read(connection):
+    """(count, until) from the shared table, or (0, 0.0) for a fresh one."""
+    row = connection.execute(
+        "SELECT count, until FROM login_backoff WHERE id = 1").fetchone()
+    return (row["count"], row["until"]) if row else (0, 0.0)
 
 
-def note_failure(now=None):
-    """Record a wrong password and extend the refusal window."""
+def _db_write(connection, count, until):
+    connection.execute(
+        "INSERT INTO login_backoff (id, count, until) VALUES (1, ?, ?) "
+        "ON CONFLICT(id) DO UPDATE SET count = excluded.count, "
+        "until = excluded.until",
+        (count, until))
+    connection.commit()
+
+
+def blocked_for(now=None, connection=None):
+    """Seconds until another attempt is allowed. 0 when one is.
+
+    `_failures["until"]` is on time.monotonic(), which is only meaningful
+    within this one process -- exactly the process-local state wsgi.py's own
+    docstring reasons about for the folder watcher, and gunicorn forks
+    several of these. `connection` is how a caller shares the count across
+    them: `login_backoff` holds the same figures on a wall-clock timestamp,
+    which -- unlike monotonic time -- means the same thing in every worker
+    that opens this database file. Optional, so a script or a unit test with
+    no database can still use the process-local counter on its own.
+    """
     now = now if now is not None else time.monotonic()
     with _lock:
-        _failures["count"] += 1
-        over = _failures["count"] - FREE_ATTEMPTS
+        local_wait = _failures["until"] - now
+        if connection is None:
+            return max(0, int(round(local_wait)))
+        _db_count, db_until = _db_read(connection)
+        db_wait = (db_until - time.time()) if db_until else 0.0
+        return max(0, int(round(max(local_wait, db_wait))))
+
+
+def note_failure(now=None, connection=None):
+    """Record a wrong password and extend the refusal window.
+
+    When `connection` is given, the new count is the higher of this
+    process's own tally and whatever the shared table already holds, so a
+    guess spread across several gunicorn workers is still counted once
+    rather than once per worker.
+    """
+    now = now if now is not None else time.monotonic()
+    with _lock:
+        db_count = _db_read(connection)[0] if connection is not None else 0
+        count = max(_failures["count"], db_count) + 1
+        _failures["count"] = count
+        over = count - FREE_ATTEMPTS
+        wait = 0
         if over > 0:
             wait = min(MAX_BACKOFF_SECONDS,
                        FIRST_BACKOFF_SECONDS * (2 ** (over - 1)))
             _failures["until"] = now + wait
-        return _failures["count"]
+        if connection is not None:
+            _db_write(connection, count, time.time() + wait if wait else 0.0)
+        return count
 
 
-def note_success():
+def note_success(connection=None):
     with _lock:
         _failures["count"] = 0
         _failures["until"] = 0.0
+        if connection is not None:
+            _db_write(connection, 0, 0.0)
 
 
-def reset_failures():
+def reset_failures(connection=None):
     """For tests, and for a process that has just started."""
-    note_success()
+    note_success(connection)
 
 
 # ------------------------------------------------------------------- CSRF

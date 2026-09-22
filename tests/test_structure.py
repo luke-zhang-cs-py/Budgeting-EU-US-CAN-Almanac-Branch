@@ -414,6 +414,6 @@ def test_the_schema_docstring_counts_its_own_tables():
     in this family had one describing a fix as finished when half of it was
     still outstanding."""
     declared = len(re.findall(r"CREATE TABLE", db.SCHEMA))
-    words = {3: "three", 4: "four", 5: "five", 6: "six"}
+    words = {3: "three", 4: "four", 5: "five", 6: "six", 7: "seven"}
     assert words[declared] in inspect.getdoc(db).lower(), (
         f"the docstring does not say {words[declared]} for {declared} tables")

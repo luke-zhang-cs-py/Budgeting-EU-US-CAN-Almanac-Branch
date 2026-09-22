@@ -3,9 +3,10 @@ db.py
 -----
 SQLite schema and connections.
 
-Six tables and no ORM: purchases, the cards that paid for them, a cap per
-category, keyword rules, savings goals, and the files the watched folder has
-already read. An ORM would be more machinery than the problem has.
+Seven tables and no ORM: purchases, the cards that paid for them, a cap per
+category, keyword rules, savings goals, the files the watched folder has
+already read, and the login backoff counter shared across worker processes.
+An ORM would be more machinery than the problem has.
 
 The important part of the schema is the UNIQUE constraint on
 transactions.fingerprint. Re-importing a statement that overlaps one already
@@ -145,6 +146,21 @@ CREATE TABLE IF NOT EXISTS imports (
     duplicate   INTEGER NOT NULL DEFAULT 0,
     unreadable  INTEGER NOT NULL DEFAULT 0,
     at          TEXT    NOT NULL
+);
+
+-- The login-attempt backoff counter, shared across every process that has
+-- this file open -- see auth.py. gunicorn forks several worker processes,
+-- each with its own copy of Python's in-memory state, which is exactly the
+-- hazard wsgi.py's own docstring reasons about for the folder watcher. A
+-- counter kept only in one worker's memory is only ever a fraction of the
+-- real attempt count, so "three tries then a wait" becomes three tries per
+-- worker. One row here, updated by whichever worker handles the request,
+-- closes that gap the same way the transactions table already does for
+-- concurrent writers: through the file every worker already has open.
+CREATE TABLE IF NOT EXISTS login_backoff (
+    id    INTEGER PRIMARY KEY CHECK (id = 1),
+    count INTEGER NOT NULL DEFAULT 0,
+    until REAL    NOT NULL DEFAULT 0
 );
 """
 

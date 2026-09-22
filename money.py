@@ -137,6 +137,22 @@ def convert(cents, rate):
                                                 rounding=ROUND_HALF_UP))
 
 
+def round_half_up(value, places=0):
+    """`value` rounded to `places` decimal digits, half away from zero.
+
+    The one rounding rule this project uses, factored out so nothing else
+    reaches for the builtin `round()` or an un-parameterised `Decimal.quantize`
+    -- both of which default to banker's rounding (half-to-even), the exact
+    thing this module's docstring says this project deliberately does not do.
+    `convert` above inlines the zero-place case for its own reasons; this is
+    for everything else that rounds a fee, a share or a percentage rather than
+    a plain minor-unit amount.
+    """
+    value = value if isinstance(value, Decimal) else Decimal(str(value))
+    exponent = Decimal(1).scaleb(-places) if places else Decimal(1)
+    return value.quantize(exponent, rounding=ROUND_HALF_UP)
+
+
 def format(cents, currency=BASE, symbol=True, grouping=True):
     """For display and for the CSV. Always two decimals, never truncated.
 

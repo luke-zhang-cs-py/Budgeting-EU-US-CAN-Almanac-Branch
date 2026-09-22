@@ -26,7 +26,7 @@ reported as unavailable rather than estimated, because an FX cost computed
 from a guessed original amount is worse than none.
 """
 import re
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 
 import money
 
@@ -100,9 +100,8 @@ def estimate(base_minor, rate, fee_bp=TYPICAL_CARD_FEE_BP):
         raise money.MoneyError(f"a card fee cannot be negative: {fee_bp}")
 
     converted = money.convert(base_minor, rate)
-    fee = int((Decimal(converted) * Decimal(fee_bp)
-               / Decimal(BASIS_POINTS)).quantize(Decimal("1"),
-                                                 rounding=ROUND_HALF_UP))
+    fee = int(money.round_half_up(
+        Decimal(converted) * Decimal(fee_bp) / Decimal(BASIS_POINTS)))
     return {
         "base_minor": base_minor,
         "rate": str(rate),
@@ -112,9 +111,13 @@ def estimate(base_minor, rate, fee_bp=TYPICAL_CARD_FEE_BP):
         "total_minor": converted + fee,
         # The all-in rate, which is the figure that makes the fee real: it is
         # what you can hold against the mid-market rate you looked up.
+        #
+        # Rounded with money.round_half_up rather than a bare `.quantize()`,
+        # which defaults to banker's rounding -- the same half-to-even that
+        # money.py's own docstring says this project deliberately avoids.
         "effective_rate": (
-            str((Decimal(converted + fee) / Decimal(base_minor))
-                .quantize(Decimal("0.000001")))
+            str(money.round_half_up(
+                Decimal(converted + fee) / Decimal(base_minor), 6))
             if base_minor else None),
     }
 
@@ -141,8 +144,10 @@ def compare(charged_minor, charged_currency, base_minor, rate):
         "reference_text": money.format(reference, charged_currency),
         "cost_minor": cost,
         "cost_text": money.format(cost, charged_currency),
-        "share": float(round(share, 6)),
-        "percent": float(round(share * 100, 2)),
+        # money.round_half_up, not the builtin round(): round() is banker's
+        # rounding, and this project's rule is half away from zero, everywhere.
+        "share": float(money.round_half_up(share, 6)),
+        "percent": float(money.round_half_up(share * 100, 2)),
         "plausible": abs(share) <= IMPLAUSIBLE_MARKUP,
     }
 
@@ -171,6 +176,7 @@ def summarise(rows):
         "reference_text": money.format(reference, currency),
         "cost_minor": cost,
         "cost_text": money.format(cost, currency),
-        "percent": float(round(Decimal(cost) / Decimal(reference) * 100, 2))
+        "percent": float(money.round_half_up(
+            Decimal(cost) / Decimal(reference) * 100, 2))
         if reference else None,
     }

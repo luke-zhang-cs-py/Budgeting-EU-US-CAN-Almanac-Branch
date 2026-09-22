@@ -123,9 +123,24 @@ def _gatekeeping(app, ctx):
         # itself a state-changing POST. A forged one does little harm, but
         # "little harm" is not a reason to leave the one door unlatched.
         if request.method in UNSAFE_METHODS and not auth.csrf_ok():
-            return jsonify({
-                "error": "this request did not carry a valid session token; "
-                         "reload the page and try again"}), 403
+            # The same split the "not logged in" branch below makes: an API
+            # caller gets JSON it can act on, and a page gets HTML back.
+            # login.html is a plain form post with no fetch() behind it, so a
+            # stale or missing token there has to come back as the login
+            # screen with an error, not a raw JSON body dumped in the
+            # browser.
+            if request.path.startswith("/api/"):
+                return jsonify({
+                    "error": "this request did not carry a valid session "
+                             "token; reload the page and try again"}), 403
+            if request.endpoint == "log_in":
+                target = _safe_next(request.args.get("next")
+                                    or request.form.get("next"))
+                return render_template(
+                    "login.html", csrf_token=auth.csrf_token(), next=target,
+                    error="Your session expired. Please try again.",
+                    wait=0), 403
+            return redirect(url_for("log_in", next=request.path))
 
         if request.endpoint in OPEN_ENDPOINTS:
             return None
@@ -161,20 +176,25 @@ def _sessions(app, ctx):
             return render_template("login.html", csrf_token=auth.csrf_token(),
                                    next=target, error=None, wait=0)
 
-        wait = auth.blocked_for()
-        if wait:
-            return render_template(
-                "login.html", csrf_token=auth.csrf_token(), next=target,
-                error=f"Too many attempts. Try again in {wait} seconds.",
-                wait=wait), 429
+        # The backoff counter is kept in the database, not only in this
+        # worker's memory: gunicorn runs several of these, and a count held
+        # only in memory would give an attacker three free guesses per
+        # worker instead of three in total.
+        with ctx.connect() as conn:
+            wait = auth.blocked_for(connection=conn)
+            if wait:
+                return render_template(
+                    "login.html", csrf_token=auth.csrf_token(), next=target,
+                    error=f"Too many attempts. Try again in {wait} seconds.",
+                    wait=wait), 429
 
-        if auth.password_matches(request.form.get("password"),
-                                 app.config["WALLET_PASSWORD_HASH"]):
-            auth.note_success()
-            auth.log_in()
-            return redirect(target)
+            if auth.password_matches(request.form.get("password"),
+                                     app.config["WALLET_PASSWORD_HASH"]):
+                auth.note_success(connection=conn)
+                auth.log_in()
+                return redirect(target)
 
-        auth.note_failure()
+            auth.note_failure(connection=conn)
         # One message however it was wrong, so this cannot be used to learn
         # anything about the password.
         return render_template(

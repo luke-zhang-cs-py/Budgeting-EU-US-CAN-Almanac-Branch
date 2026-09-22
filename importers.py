@@ -195,14 +195,26 @@ def _amount_of(row, mapping):
         spent = (row.get(out_name) or "").strip() if out_name else ""
         received = (row.get(in_name) or "").strip() if in_name else ""
         if spent and received:
-            # Both filled is usually a zero in one of them.
+            # Both filled is usually a zero in one of them. When both are
+            # genuinely non-zero the row is anomalous, and picking one over
+            # the other would be exactly the silent sign-convention mistake
+            # this module exists to prevent -- so that case is refused
+            # outright rather than quietly keeping "money out" and dropping
+            # the "money in" figure.
             try:
-                if money.parse(spent) == 0:
-                    spent = ""
-                elif money.parse(received) == 0:
-                    received = ""
+                spent_cents = money.parse(spent)
+                received_cents = money.parse(received)
             except money.MoneyError:
-                pass
+                spent_cents = received_cents = None
+            if spent_cents == 0:
+                spent = ""
+            elif received_cents == 0:
+                received = ""
+            elif spent_cents is not None and received_cents is not None:
+                raise money.MoneyError(
+                    f"both a money-out ({spent!r}) and a money-in "
+                    f"({received!r}) amount are given and neither is zero "
+                    f"-- the sign cannot be inferred safely")
         if spent:
             return -abs(money.parse(spent))
         if received:
