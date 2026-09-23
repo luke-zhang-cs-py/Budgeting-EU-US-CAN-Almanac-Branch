@@ -13,10 +13,10 @@ published **on the day you spent it** — and shows what the card's markup cost.
 - **[The wallet](https://luke-zhang-cs-py.github.io/Budgeting-EU-to-CAD-USD-Automatic/app/)** — record purchases and convert them, entirely in your browser
 - **[The capture page](https://luke-zhang-cs-py.github.io/Budgeting-EU-to-CAD-USD-Automatic/capture/)** — photograph a receipt on your phone and it reads the figures
 
-![The browser build: €52.30 converted at the ECB rate published 2026-09-09, plus the card's 2.5% fee, giving the all-in rate you are really paying](docs/demo.png)
+![Four purchases landing one at a time in the browser build, each converted at the rate published on the day it was spent; the Sunday purchase is marked as using Friday's rate, two days back](docs/demo.gif)
 
-*The estimator, running with no server: the ECB rate, the card's fee, and the
-all-in rate you're actually charged — and the date the rate was published.*
+*Running with no server. Watch the Sunday purchase (Deutsche Bahn, 6 Sep): the
+ECB published nothing that day, so it takes Friday's rate and says so — `+2d`.*
 
 **[Read the full write-up →](https://luke-zhang-cs-py.github.io/Budgeting-EU-to-CAD-USD-Automatic/)**
 — how the screenshot reader decides what an amount is, why "real time" is the
