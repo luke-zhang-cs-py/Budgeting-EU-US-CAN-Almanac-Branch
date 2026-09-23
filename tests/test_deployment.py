@@ -120,9 +120,10 @@ def test_both_configs_ask_for_the_password_hash(dockerfile):
         "the password hash must be marked sync: false rather than committed")
 
     # Fly takes it through `fly secrets set` rather than the toml, so the
-    # walkthrough is where it has to appear.
-    readme = read("README.md")
-    assert "fly secrets set WALLET_PASSWORD_HASH" in readme, (
+    # walkthrough is where it has to appear. The walkthrough moved out of the
+    # README into DEPLOYMENT.md; this follows it rather than dropping the check.
+    walkthrough = read("DEPLOYMENT.md")
+    assert "fly secrets set WALLET_PASSWORD_HASH" in walkthrough, (
         "the Fly walkthrough does not set the password hash, and the deploy "
         "would fail at boot with Unsafe")
 
