@@ -46,10 +46,10 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import fxcost    # noqa: E402
-import fxrates   # noqa: E402
-import money     # noqa: E402
-import pounds    # noqa: E402
+from core import money   # noqa: E402
+from fx import fxcost    # noqa: E402
+from fx import fxrates   # noqa: E402
+from fx import pounds    # noqa: E402
 
 PAGE = os.path.join(ROOT, "standalone", "pounds")
 FIXTURE = os.path.join(PAGE, "cases.json")

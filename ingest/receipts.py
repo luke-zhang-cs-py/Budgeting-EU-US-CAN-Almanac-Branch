@@ -1,6 +1,6 @@
 """
-receipts.py
------------
+ingest/receipts.py
+------------------
 Turning the text on a purchase screenshot into a purchase.
 
 Pure: it takes the boxes ocr.py produced and returns a *reading*. It touches
@@ -35,10 +35,10 @@ import hashlib
 import os
 import re
 
-import db
-import fxcost
-import money
-import paths
+from core import money
+from core import paths
+from domain import db
+from fx import fxcost
 
 # Where uploaded screenshots are kept, under the data directory. Gitignored
 # along with everything else in there -- a folder of pictures of what somebody

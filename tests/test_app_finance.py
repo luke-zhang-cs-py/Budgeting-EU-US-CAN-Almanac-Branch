@@ -15,13 +15,13 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import conftest     # noqa: E402
-import app as web   # noqa: E402
-import cards        # noqa: E402
-import fetch        # noqa: E402
-import fxlive       # noqa: E402
-import fxrates      # noqa: E402
-import ocr          # noqa: E402
+import app as web          # noqa: E402
+import conftest            # noqa: E402
+from core import fetch     # noqa: E402
+from domain import cards   # noqa: E402
+from fx import fxlive      # noqa: E402
+from fx import fxrates     # noqa: E402
+from ingest import ocr     # noqa: E402
 
 RATES = ("date,CAD,USD\n"
          "2026-09-08,1.6350,1.1650\n"

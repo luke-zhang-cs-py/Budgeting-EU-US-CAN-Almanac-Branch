@@ -9,12 +9,12 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import budgets   # noqa: E402
-import db        # noqa: E402
-import export    # noqa: E402
-import fxrates   # noqa: E402
-import ledger    # noqa: E402
-import money     # noqa: E402
+from core import money       # noqa: E402
+from domain import budgets   # noqa: E402
+from domain import db        # noqa: E402
+from domain import export    # noqa: E402
+from domain import ledger    # noqa: E402
+from fx import fxrates       # noqa: E402
 
 
 @pytest.fixture

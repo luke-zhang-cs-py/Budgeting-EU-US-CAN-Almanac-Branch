@@ -18,10 +18,10 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import fetch      # noqa: E402
-import fxrates   # noqa: E402
-import ledger    # noqa: E402
-import money     # noqa: E402
+from core import fetch      # noqa: E402
+from core import money      # noqa: E402
+from domain import ledger   # noqa: E402
+from fx import fxrates      # noqa: E402
 
 
 @pytest.fixture(autouse=True)
@@ -322,7 +322,7 @@ def test_something_with_no_digits_at_all_is_refused(text):
 def test_a_file_of_nothing_but_delimiters_has_no_rows():
     """Distinct from an empty file: there is text, so the delimiter sniffs
     fine, but every cell is blank once stripped."""
-    import importers
+    from ingest import importers
     with pytest.raises(importers.ImportProblem) as caught:
         importers.sniff(",,,\n,,,\n")
     assert "no rows" in str(caught.value)
@@ -331,7 +331,7 @@ def test_a_file_of_nothing_but_delimiters_has_no_rows():
 def test_a_column_is_found_by_substring_when_no_header_matches_exactly():
     """Banks decorate their headers. "Booking Date (CET)" is not any known
     name exactly, but it contains one."""
-    import importers
+    from ingest import importers
     mapping = importers.sniff(
         "Booking Date (CET),Narrative Text,Gross Amount\n"
         "2026-09-08,TESCO,-45.50\n")["mapping"]
@@ -343,7 +343,7 @@ def test_a_column_is_found_by_substring_when_no_header_matches_exactly():
 def test_a_zero_in_the_paid_out_column_is_treated_as_empty():
     """Some statements fill both columns and put 0.00 in the unused one, so
     taking "out" on sight would make every deposit a withdrawal."""
-    import importers
+    from ingest import importers
     text = ("Date,Description,Paid out,Paid in\n"
             "2026-09-08,SALARY,0.00,2500.00\n"
             "2026-09-09,TESCO,45.50,0.00\n")
@@ -356,7 +356,7 @@ def test_a_zero_in_the_paid_out_column_is_treated_as_empty():
 def test_an_unreadable_figure_beside_a_good_one_does_not_stop_the_row():
     """One cell of junk in the unused column. The row still has an amount, so
     reporting it as unreadable would lose a real purchase."""
-    import importers
+    from ingest import importers
     text = ("Date,Description,Paid out,Paid in\n"
             "2026-09-08,TESCO,45.50,n/a\n")
     out = importers.preview(importers.sniff(text))
@@ -365,7 +365,7 @@ def test_an_unreadable_figure_beside_a_good_one_does_not_stop_the_row():
 
 
 def test_a_row_with_both_amount_columns_empty_is_unreadable():
-    import importers
+    from ingest import importers
     text = ("Date,Description,Paid out,Paid in\n"
             "2026-09-08,TESCO,,\n"
             "2026-09-09,LIDL,22.10,\n")
@@ -383,7 +383,7 @@ def test_no_amount_column_at_all_is_refused():
     becomes "your mapping is wrong" once there are enough rows for the ratio
     to mean something. One unreadable row out of one says nothing.
     """
-    import importers
+    from ingest import importers
     text = "when,what\n" + "".join(
         f"2026-09-0{n},SHOP {n}\n" for n in range(1, 7))
     sniffed = importers.sniff(text)
@@ -397,7 +397,7 @@ def test_no_amount_column_at_all_is_refused():
 def test_one_row_with_no_amount_column_is_a_row_problem_not_a_file_problem():
     """The other side of the same threshold, stated so the behaviour is not
     mistaken for the mapping check failing to fire."""
-    import importers
+    from ingest import importers
     sniffed = importers.sniff("when,what\n2026-09-08,TESCO\n")
     mapping = dict(sniffed["mapping"], date="when", description="what",
                    amount=None, amount_out=None, amount_in=None)
@@ -410,7 +410,7 @@ def test_one_row_with_no_amount_column_is_a_row_problem_not_a_file_problem():
 def test_a_row_with_an_empty_date_cell_is_unreadable():
     """Different from an unreadable date: the cell is simply blank, which is
     what a subtotal or carried-balance line looks like."""
-    import importers
+    from ingest import importers
     text = ("Date,Description,Amount\n"
             ",BALANCE CARRIED FORWARD,1200.00\n"
             "2026-09-08,TESCO,-45.50\n")
@@ -423,8 +423,8 @@ def test_a_row_the_ledger_refuses_is_reported_rather_than_lost(tmp_path,
                                                                monkeypatch):
     """preview and add validate separately, so add can still refuse a row
     preview accepted. That must be counted, not swallowed."""
-    import db
-    import importers
+    from domain import db
+    from ingest import importers
     monkeypatch.setenv("WALLET_DATA", str(tmp_path))
     conn = db.connect(str(tmp_path))
     try:

@@ -85,6 +85,15 @@ a 32-character `SECRET_KEY` are both set. Do not add a flag that bypasses it.
 It is the one mistake in this project that cannot be walked back, and a
 warning in a log is not a substitute.
 
+**A new module goes in a package, not at the root.** `core/` is the
+primitives with no first-party imports, `fx/` the rates and what a conversion
+costs, `domain/` the ledger and everything derived from it, `ingest/` the ways
+purchases get in. Only `app.py`, `auth.py` and `wsgi.py` live at the root, and
+only because two of them are entry points named from outside the repository.
+Imports are absolute and one per line — `from core import money` — so the
+dependency direction of any file is readable from its first screen, and
+`test_the_module_layers_do_not_cycle` asserts that direction never inverts.
+
 **Guards name the thing they guard, not one file.** Every check in
 `test_frontend.py` read `app.js` by name, so a second script escaped all of
 them and shipped a duplicate money formatter. `test_structure.py` has the same
@@ -117,9 +126,9 @@ It measures, rewrites both, and prints what it changed. A new test *file* is
 the one thing it will not finish on its own: add a row for it in the page's
 `TESTS` block saying what the file covers, and the script fills in the count.
 
-The optional OCR install is not needed to run them. `ocr.py` turns an image
-into text boxes and `receipts.py` turns boxes into a purchase, so the parser
-tests build boxes by hand and finish in milliseconds. Use real engine output
+The optional OCR install is not needed to run them. `ingest/ocr.py` turns an
+image into text boxes and `ingest/receipts.py` turns boxes into a purchase, so
+the parser tests build boxes by hand and finish in milliseconds. Use real engine output
 when you add one -- every mangled string in there came off an actual
 screenshot, and tidier input would test a parser for a problem this one does
 not have. One integration test runs the engine and skips without it.

@@ -56,9 +56,9 @@ because a reader wants to see it, but nothing is computed from it.
 import datetime as dt
 from decimal import Decimal, ROUND_HALF_UP
 
-import fxcost
-import fxrates
-import money
+from core import money
+from fx import fxcost
+from fx import fxrates
 
 # The ceiling, in pence. A budget, not a bank balance: the wallet refuses to
 # record a conversion that would carry the running total past it, because a

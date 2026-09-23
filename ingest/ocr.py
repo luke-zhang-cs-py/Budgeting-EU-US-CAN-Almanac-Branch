@@ -1,6 +1,6 @@
 """
-ocr.py
-------
+ingest/ocr.py
+-------------
 Reading text out of a screenshot, and nothing else.
 
 This module is deliberately thin, and the split matters. All it does is turn

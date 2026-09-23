@@ -15,8 +15,8 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import fetch     # noqa: E402
-import fxlive    # noqa: E402
+from core import fetch   # noqa: E402
+from fx import fxlive    # noqa: E402
 
 # Real bodies, trimmed. The two sources disagree about where the date lives,
 # which is the reason _published reads rather than assumes.

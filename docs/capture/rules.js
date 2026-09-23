@@ -1,6 +1,6 @@
 /* rules.js — reading a purchase out of OCR text, in the browser.
  *
- * A deliberate second implementation of receipts.py, and the only one in this
+ * A deliberate second implementation of ingest/receipts.py, and the only one in this
  * project. The static page has no server to ask, so the rules have to exist
  * here too; two implementations of anything drift, so this one is not trusted
  * to stay in step -- it is *checked*.
@@ -11,7 +11,7 @@
  * not the other, a test fails rather than the two quietly disagreeing about
  * what an amount is.
  *
- * The three rules, as in receipts.py:
+ * The three rules, as in ingest/receipts.py:
  *
  *   1. The amount is the *tallest* text. Whoever designed that screen made
  *      the figure large because it is the one you opened it to see. Every
@@ -78,7 +78,7 @@ var RULES = (function () {
    * "1,234" is a thousand: the last separator wins, unless the tail is three
    * digits with no other separator, which makes it grouping.
    *
-   * The same rule money.py applies, for the same reason -- a German export
+   * The same rule core/money.py applies, for the same reason -- a German export
    * and an Irish one disagree about which mark is which. */
   function parseMoney(text) {
     var cleaned = String(text).replace(/[^\d.,]/g, '');

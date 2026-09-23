@@ -25,9 +25,9 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import fetch      # noqa: E402
-import fxrates    # noqa: E402
-import pounds     # noqa: E402
+from core import fetch   # noqa: E402
+from fx import fxrates   # noqa: E402
+from fx import pounds    # noqa: E402
 
 OUT = os.path.join(ROOT, "standalone", "pounds")
 PAIR = ("CAD", "GBP")
@@ -63,7 +63,7 @@ def write_csv(rates, path):
 def write_cases(path, directory):
     """The shared fixture: what Python says, for the browser to be held to.
 
-    Generated from pounds.py, so it is Python's answers by construction --
+    Generated from fx/pounds.py, so it is Python's answers by construction --
     the value is entirely in the JS side being checked against it. A case
     whose rate lookup raises is recorded as an error with its message, since
     refusing is as much a rule as converting.

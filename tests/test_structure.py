@@ -15,29 +15,37 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import auth       # noqa: E402
-import budgets    # noqa: E402
-import cards      # noqa: E402
-import db         # noqa: E402
-import export     # noqa: E402
-import fetch      # noqa: E402
-import fxcost     # noqa: E402
-import app        # noqa: E402
-import fxlive     # noqa: E402
-import fxrates    # noqa: E402
-import goals      # noqa: E402
-import importers  # noqa: E402
-import ledger     # noqa: E402
-import money      # noqa: E402
-import layout     # noqa: E402
-import ocr        # noqa: E402
-import paths      # noqa: E402
-import pounds     # noqa: E402
-import ofx        # noqa: E402
-import receipts   # noqa: E402
-import sources    # noqa: E402
-import trends     # noqa: E402
-import upcoming   # noqa: E402
+import app                     # noqa: E402
+import auth                    # noqa: E402
+from core import fetch         # noqa: E402
+from core import money         # noqa: E402
+from core import paths         # noqa: E402
+from domain import budgets     # noqa: E402
+from domain import cards       # noqa: E402
+from domain import db          # noqa: E402
+from domain import export      # noqa: E402
+from domain import goals       # noqa: E402
+from domain import ledger      # noqa: E402
+from domain import trends      # noqa: E402
+from domain import upcoming    # noqa: E402
+from fx import fxcost          # noqa: E402
+from fx import fxlive          # noqa: E402
+from fx import fxrates         # noqa: E402
+from fx import pounds          # noqa: E402
+from ingest import importers   # noqa: E402
+from ingest import layout      # noqa: E402
+from ingest import ocr         # noqa: E402
+from ingest import ofx         # noqa: E402
+from ingest import receipts    # noqa: E402
+from ingest import sources     # noqa: E402
+
+# Directories that ship no first-party module. The rest of the project --
+# the root entry points and the four packages -- is walked, so a new package
+# is covered by the guards below the day it appears rather than the day
+# somebody remembers to name it here.
+NOT_SOURCE = {".git", "__pycache__", ".pytest_cache", "tests", "tools",
+              "docs", "data", "static", "templates", "standalone", "htmlcov",
+              ".venv", "venv", ".github"}
 
 # Every first-party module that can be imported. A module left out of this
 # tuple is one that none of the guards below apply to, which is how a
@@ -60,6 +68,23 @@ MODULES = (money, paths, fetch, ocr, auth, db, fxrates, fxcost, fxlive,
 NOT_IMPORTABLE = ("wsgi.py",)
 
 
+def _source_files():
+    """Every shipped module, relative to the root, with forward slashes."""
+    out = []
+    for here, dirs, names in os.walk(ROOT):
+        dirs[:] = [name for name in dirs if name not in NOT_SOURCE]
+        for name in names:
+            if name.endswith(".py"):
+                out.append(os.path.relpath(os.path.join(here, name),
+                                           ROOT).replace("\\", "/"))
+    return out
+
+
+def _short(module):
+    """The name the code calls it by: `money`, not `core.money`."""
+    return module.__name__.rsplit(".", 1)[-1]
+
+
 def test_the_list_above_is_every_module():
     """The guard on the list.
 
@@ -68,10 +93,13 @@ def test_the_list_above_is_every_module():
     ofx.py, sources.py and wsgi.py -- while the comment above claimed the
     tuple was every first-party module. Adding the three importable ones
     immediately found two guards that had been passing for the wrong reason.
+
+    It walks the project rather than listing the root directory: the modules
+    live in packages now, and a listing of the root would have gone from
+    covering twenty-four files to covering three without failing once.
     """
-    here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    on_disk = {name for name in os.listdir(here) if name.endswith(".py")}
-    listed = {module.__name__ + ".py" for module in MODULES}
+    on_disk = set(_source_files())
+    listed = {module.__name__.replace(".", "/") + ".py" for module in MODULES}
 
     assert on_disk - listed - set(NOT_IMPORTABLE) == set(), (
         "these modules are in the project but in none of the structural "
@@ -125,7 +153,7 @@ def test_only_one_module_reads_the_data_directory_variable():
         source = inspect.getsource(module)
         # Ignore prose: only flag it being read.
         if re.search(r'environ(\.get)?\(?\[?["\']WALLET_DATA', source):
-            culprits.append(module.__name__)
+            culprits.append(_short(module))
     assert not culprits, f"these resolve WALLET_DATA themselves: {culprits}"
 
 
@@ -231,7 +259,7 @@ def test_no_module_reaches_into_another_private_name():
     """importers called ledger._as_date. The underscore is a contract saying
     "this may change without notice", so depending on it across a module
     boundary is inappropriate intimacy."""
-    names = [m.__name__ for m in MODULES]
+    names = [_short(m) for m in MODULES]
     for module in MODULES:
         # Code only. A docstring that names another module's private function
         # in order to explain a decision is documentation, not a dependency --
@@ -240,7 +268,7 @@ def test_no_module_reaches_into_another_private_name():
         # wants. Its sibling test already strips prose for the same reason.
         code = _code_of(module)
         for other in names:
-            if other == module.__name__:
+            if other == _short(module):
                 continue
             found = re.findall(rf"\b{other}\._[a-z]", code)
             assert not found, f"{module.__name__} reaches into {other}: {found}"
@@ -264,7 +292,7 @@ def test_nothing_imports_inside_a_function():
     like a circular-import workaround and was not one -- there is no cycle.
     A local import hides the dependency from anyone reading the imports."""
     for module in MODULES:
-        allowed = DEFERRED_IMPORTS_ALLOWED.get(module.__name__, ())
+        allowed = DEFERRED_IMPORTS_ALLOWED.get(_short(module), ())
         # _code_of, not the source as written. This read the raw source until
         # app.py joined the list above, and then matched a docstring line that
         # happened to wrap onto the word "from" -- the fourth time in this
@@ -292,7 +320,7 @@ def test_the_deferred_import_allowance_is_not_a_blanket_one():
 
     # And that the guard would still catch an ordinary deferred import in the
     # exempted module -- the exemption is per package, not per file.
-    line = "    import ledger"
+    line = "    from domain import ledger"
     allowed = DEFERRED_IMPORTS_ALLOWED["ocr"]
     assert not any(name in line for name in allowed), (
         "the allowance would let ocr defer any import at all")
@@ -301,21 +329,34 @@ def test_the_deferred_import_allowance_is_not_a_blanket_one():
 def test_the_module_layers_do_not_cycle():
     """money < paths < db/fxrates < ledger < importers/budgets < export.
     Asserting it here means a new import that inverts the order fails a test
-    rather than an application startup."""
+    rather than an application startup.
+
+    Both forms of the import line are matched. The packages arrived after
+    this test did, and a pattern that only knew `import fxrates` would have
+    stopped matching anything the moment the line became `from fx import
+    fxrates` -- passing, silently, over nothing at all.
+    """
     layer = {money: 0, paths: 0, fetch: 0, ocr: 0, auth: 0,
              db: 1, fxrates: 1, fxcost: 1, fxlive: 1,
              ledger: 2, cards: 2, receipts: 2,
              importers: 3, budgets: 3, trends: 3, upcoming: 3,
              goals: 4, export: 4}
+    seen = 0
     for module, rank in layer.items():
         source = inspect.getsource(module)
         for other, other_rank in layer.items():
             if other is module:
                 continue
-            if re.search(rf"^import {other.__name__}$", source, re.MULTILINE):
+            name = _short(other)
+            if re.search(rf"^(?:import {name}|from [\w.]+ import {name})$",
+                         source, re.MULTILINE):
+                seen += 1
                 assert other_rank < rank or (other_rank == rank
                                              and other in (money, paths)), \
-                    f"{module.__name__} imports {other.__name__} upward"
+                    f"{_short(module)} imports {name} upward"
+    assert seen > 20, (
+        f"only {seen} imports were recognised across {len(layer)} modules, so "
+        f"this test is no longer reading the import lines it checks")
 
 
 # ---------------------------------------------------------- the route split
@@ -362,21 +403,21 @@ def test_nothing_reaches_through_one_module_to_another():
     # text can tell those two apart. Dropping it from the targets loses very
     # little -- app.py is the top layer, so nothing below it names the module
     # at all.
-    targets = [module.__name__ for module in MODULES
-               if module.__name__ != "app"] + ["fxcost"]
+    targets = [_short(module) for module in MODULES
+               if _short(module) != "app"] + ["fxcost"]
     for module in MODULES:
         code = _code_of(module)
         for other in targets:
-            if other == module.__name__:
+            if other == _short(module):
                 continue
             found = re.findall(rf"\b{other}\.[a-z_]+\.[a-z_]+\(", code)
-            assert not found, f"{module.__name__} chains through {other}: {found}"
+            assert not found, f"{_short(module)} chains through {other}: {found}"
 
 
 def test_the_digest_length_is_named_in_one_place():
     """It was a bare [:32] in three places across two modules, and both are
     UNIQUE identity columns in the same schema."""
-    import sources
+    from ingest import sources
     assert db.DIGEST_CHARS == 32
     for module in (ledger, sources):
         assert "[:32]" not in _code_of(module), module.__name__

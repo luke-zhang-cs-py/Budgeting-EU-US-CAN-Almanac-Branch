@@ -1,6 +1,6 @@
 """
-fxlive.py
----------
+fx/fxlive.py
+------------
 The rate right now, for deciding whether to buy the thing.
 
 Separate from fxrates on purpose, because the two answer different questions
@@ -33,8 +33,8 @@ import threading
 import time
 from decimal import Decimal, InvalidOperation
 
-import fetch
-import money
+from core import fetch
+from core import money
 
 # Tried in order. Both are free and keyless; the first is the ECB's own
 # figures republished, which keeps this consistent with the cached history

@@ -1,6 +1,6 @@
 """
-importers.py
-------------
+ingest/importers.py
+-------------------
 Reading a CSV export, whatever shape it arrives in.
 
 Apple Wallet and Google Wallet have no export API -- they are sandboxed on the
@@ -24,11 +24,11 @@ things are guessed carefully because getting them wrong is silent:
 import csv
 import io
 
-import fxcost
-import layout
-import ledger
-import money
-import ofx
+from core import money
+from domain import ledger
+from fx import fxcost
+from ingest import layout
+from ingest import ofx
 
 # Rows with more than this share unreadable are treated as the wrong mapping
 # rather than a bad file, because that is nearly always what it is.

@@ -442,30 +442,30 @@ footer { margin-top: 28px; color: var(--ink-muted); font-size: 12.5px; max-width
  * `wc -l` in the repository. Not estimated. */
 
 var MODULES = [
-  { name: 'app.py',       lines: 951, stmts: 457, missed:  1, does: 'the web front end; 37 routes in 18 small groups' },
-  { name: 'receipts.py',  lines: 482, stmts: 202, missed:  0, does: 'turns OCR text boxes into a purchase — pure, no engine' },
-  { name: 'ledger.py',    lines: 469, stmts: 188, missed:  0, does: 'transactions, the duplicate rule, recurring detection' },
-  { name: 'cards.py',     lines: 406, stmts: 164, missed:  0, does: 'cards, their fees in basis points, and their balances' },
-  { name: 'importers.py', lines: 386, stmts: 164, missed:  1, does: 'reads a statement in whatever shape it arrives' },
-  { name: 'fxrates.py',   lines: 331, stmts: 159, missed:  0, does: 'ECB history, cached; the business-day lookback' },
-  { name: 'sources.py',   lines: 303, stmts: 125, missed:  0, does: 'the watched folder, and what it has already read' },
-  { name: 'auth.py',      lines: 364, stmts: 117, missed:  0, does: 'the password, the session, the CSRF token, the headers' },
-  { name: 'goals.py',     lines: 235, stmts: 104, missed:  0, does: 'goals, derived from what the caps left over' },
-  { name: 'layout.py',    lines: 266, stmts: 100, missed:  0, does: 'works out which column of a CSV is which' },
-  { name: 'budgets.py',   lines: 210, stmts:  80, missed:  0, does: 'a monthly cap per category, and pace against it' },
-  { name: 'pounds.py',    lines: 248, stmts:  80, missed:  0, does: 'CAD into GBP across two euro legs, against a £1,000 cap' },
-  { name: 'fxlive.py',    lines: 173, stmts:  75, missed:  0, does: 'the latest published rate, fetched on demand' },
-  { name: 'ofx.py',       lines: 212, stmts:  74, missed:  0, does: 'OFX/QFX, both dialects — the bank’s own rate' },
-  { name: 'trends.py',    lines: 201, stmts:  72, missed:  0, does: 'each category against its own average, with drilldown' },
-  { name: 'money.py',     lines: 182, stmts:  65, missed:  0, does: 'integer cents; the one parser and the one formatter' },
-  { name: 'ocr.py',       lines: 152, stmts:  54, missed:  0, does: 'image to text boxes; the optional engine sits behind it' },
-  { name: 'fxcost.py',    lines: 182, stmts:  49, missed:  0, does: 'what a conversion cost, and what the next will cost' },
-  { name: 'upcoming.py',  lines: 160, stmts:  45, missed:  0, does: 'subscriptions: due, landed, lapsed, and price rises' },
-  { name: 'export.py',    lines: 133, stmts:  40, missed:  0, does: 'the CSV, and whether it adds up to the ledger' },
-  { name: 'db.py',        lines: 265, stmts:  39, missed:  0, does: 'six tables, and the additive migration' },
-  { name: 'fetch.py',     lines:  52, stmts:  16, missed:  0, does: 'one way to get bytes: urllib, then curl' },
-  { name: 'paths.py',     lines:  38, stmts:   7, missed:  0, does: 'where the data lives — one decision, one place' },
-  { name: 'wsgi.py',      lines:  40, stmts:   5, missed:  0, does: 'the entry point a real server uses; not the dev one' }
+  { name: 'app.py',              lines: 951, stmts: 457, missed:  1, does: 'the web front end; 37 routes in 18 small groups' },
+  { name: 'ingest/receipts.py',  lines: 482, stmts: 202, missed:  0, does: 'turns OCR text boxes into a purchase — pure, no engine' },
+  { name: 'domain/ledger.py',    lines: 469, stmts: 188, missed:  0, does: 'transactions, the duplicate rule, recurring detection' },
+  { name: 'domain/cards.py',     lines: 406, stmts: 164, missed:  0, does: 'cards, their fees in basis points, and their balances' },
+  { name: 'ingest/importers.py', lines: 386, stmts: 164, missed:  1, does: 'reads a statement in whatever shape it arrives' },
+  { name: 'fx/fxrates.py',       lines: 331, stmts: 159, missed:  0, does: 'ECB history, cached; the business-day lookback' },
+  { name: 'ingest/sources.py',   lines: 303, stmts: 125, missed:  0, does: 'the watched folder, and what it has already read' },
+  { name: 'auth.py',             lines: 364, stmts: 117, missed:  0, does: 'the password, the session, the CSRF token, the headers' },
+  { name: 'domain/goals.py',     lines: 235, stmts: 104, missed:  0, does: 'goals, derived from what the caps left over' },
+  { name: 'ingest/layout.py',    lines: 266, stmts: 100, missed:  0, does: 'works out which column of a CSV is which' },
+  { name: 'domain/budgets.py',   lines: 210, stmts:  80, missed:  0, does: 'a monthly cap per category, and pace against it' },
+  { name: 'fx/pounds.py',        lines: 248, stmts:  80, missed:  0, does: 'CAD into GBP across two euro legs, against a £1,000 cap' },
+  { name: 'fx/fxlive.py',        lines: 173, stmts:  75, missed:  0, does: 'the latest published rate, fetched on demand' },
+  { name: 'ingest/ofx.py',       lines: 212, stmts:  74, missed:  0, does: 'OFX/QFX, both dialects — the bank’s own rate' },
+  { name: 'domain/trends.py',    lines: 201, stmts:  72, missed:  0, does: 'each category against its own average, with drilldown' },
+  { name: 'core/money.py',       lines: 182, stmts:  65, missed:  0, does: 'integer cents; the one parser and the one formatter' },
+  { name: 'ingest/ocr.py',       lines: 152, stmts:  54, missed:  0, does: 'image to text boxes; the optional engine sits behind it' },
+  { name: 'fx/fxcost.py',        lines: 182, stmts:  49, missed:  0, does: 'what a conversion cost, and what the next will cost' },
+  { name: 'domain/upcoming.py',  lines: 160, stmts:  45, missed:  0, does: 'subscriptions: due, landed, lapsed, and price rises' },
+  { name: 'domain/export.py',    lines: 133, stmts:  40, missed:  0, does: 'the CSV, and whether it adds up to the ledger' },
+  { name: 'domain/db.py',        lines: 265, stmts:  39, missed:  0, does: 'six tables, and the additive migration' },
+  { name: 'core/fetch.py',       lines:  52, stmts:  16, missed:  0, does: 'one way to get bytes: urllib, then curl' },
+  { name: 'core/paths.py',       lines:  43, stmts:   8, missed:  0, does: 'where the data lives — one decision, one place' },
+  { name: 'wsgi.py',             lines:  40, stmts:   5, missed:  0, does: 'the entry point a real server uses; not the dev one' }
 ];
 
 var TESTS = [
@@ -624,7 +624,7 @@ var RATE_HISTORY_DAYS = 7089;
 var TABLES = 6;
 var ROUTE_COUNT = 38;
 var ROUTE_GROUPS = 18;
-var TEST_LINES = 10178;
+var TEST_LINES = 10219;
 
 /* Which interpreter produced the statement counts above. It matters: coverage
  * counts a `with` block or a multi-line call differently between versions, so
@@ -698,8 +698,8 @@ function drawBars(id, rows, label, value, size, peak) {
 }
 
 /* Sorted here rather than relied on in the array. The caption says "largest
- * first" and the array happened to be in line-count order, so db.py (39
- * statements) sat above goals.py (104) under a caption saying it would not. */
+ * first" and the array happened to be in line-count order, so domain/db.py (39
+ * statements) sat above domain/goals.py (104) under a caption saying it would not. */
 function byStatements() {
   return MODULES.slice().sort(function (a, b) { return b.stmts - a.stmts; });
 }

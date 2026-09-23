@@ -1,9 +1,9 @@
 /* gbp.js — Canadian dollars into pounds at the CIBC rate, in the browser.
  *
- * The port of pounds.py, and the third deliberate second implementation in
+ * The port of fx/pounds.py, and the third deliberate second implementation in
  * this project after docs/capture/rules.js and docs/app/fx.js. It is not
  * trusted to stay in step: cases.json beside this file holds the shared
- * cases, tests/test_pounds.py asserts pounds.py produces those answers and
+ * cases, tests/test_pounds.py asserts fx/pounds.py produces those answers and
  * that a headless browser running this file produces the same ones.
  *
  * The rate lookup is not duplicated. fx.js already walks back to the last
@@ -14,7 +14,7 @@
  *
  * BigInt rather than Number, which is the one place this file departs from
  * the style of fx.js. The conversion is one exact ratio of integers (see
- * pounds.py) and its numerator passes 10^20 on a four-figure amount —
+ * fx/pounds.py) and its numerator passes 10^20 on a four-figure amount —
  * comfortably past Number.MAX_SAFE_INTEGER, where the answer would start
  * being off by a penny in ways no test date would reliably catch. Python
  * has arbitrary-precision integers for free; this is the cost of matching
@@ -60,7 +60,7 @@ var GBP = (function () {
 
   function pow10(n) { return 10n ** BigInt(n); }
 
-  /* pounds.div_half_up, on BigInt. Half away from zero, as money.py rounds. */
+  /* pounds.div_half_up, on BigInt. Half away from zero, as core/money.py rounds. */
   function divHalfUp(numerator, denominator) {
     if (denominator <= 0n) {
       throw new PoundsError('implausible divisor ' + denominator);
@@ -109,7 +109,7 @@ var GBP = (function () {
                            g.num * pow10(c.scale)), places);
   }
 
-  /* pounds.to_pounds. The fee divides rather than multiplies; pounds.py's
+  /* pounds.to_pounds. The fee divides rather than multiplies; fx/pounds.py's
    * docstring is the argument for why, and test_pounds.py round-trips every
    * case through fxcost.estimate to keep the direction honest. */
   function toPounds(cadMinor, cadRate, gbpRate, feeBp) {

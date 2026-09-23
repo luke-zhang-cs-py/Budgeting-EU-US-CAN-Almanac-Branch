@@ -11,7 +11,7 @@
  * in -- the same contract the Tally app in this family uses.
  *
  * The reading rules are in rules.js, which is a second implementation of
- * receipts.py and is checked against the same fixture by the Python suite.
+ * ingest/receipts.py and is checked against the same fixture by the Python suite.
  * See the note at the top of that file.
  */
 

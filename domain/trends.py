@@ -1,6 +1,6 @@
 """
-trends.py
----------
+domain/trends.py
+----------------
 Whether this month is unusual, and which category made it so.
 
 Everything here is built on ledger's existing figures -- `monthly_totals` and
@@ -23,8 +23,8 @@ months, and is one of those months the fortnight you were away.
 """
 import datetime as dt
 
-import ledger
-import money
+from core import money
+from domain import ledger
 
 # How much history a comparison uses. A year is long enough for a seasonal
 # category to average out and short enough that a habit abandoned two years

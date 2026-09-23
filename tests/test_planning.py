@@ -14,13 +14,13 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import budgets    # noqa: E402
-import db         # noqa: E402
-import goals      # noqa: E402
-import ledger     # noqa: E402
-import money      # noqa: E402
-import trends     # noqa: E402
-import upcoming   # noqa: E402
+from core import money        # noqa: E402
+from domain import budgets    # noqa: E402
+from domain import db         # noqa: E402
+from domain import goals      # noqa: E402
+from domain import ledger     # noqa: E402
+from domain import trends     # noqa: E402
+from domain import upcoming   # noqa: E402
 
 TODAY = dt.date(2026, 9, 9)
 THIS = "2026-09"

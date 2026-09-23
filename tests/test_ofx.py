@@ -23,12 +23,12 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import db          # noqa: E402
-import fxrates     # noqa: E402
-import importers   # noqa: E402
-import ledger      # noqa: E402
-import money       # noqa: E402
-import ofx         # noqa: E402
+from core import money         # noqa: E402
+from domain import db          # noqa: E402
+from domain import ledger      # noqa: E402
+from fx import fxrates         # noqa: E402
+from ingest import importers   # noqa: E402
+from ingest import ofx         # noqa: E402
 
 # The SGML dialect, with the unclosed leaf tags real files have.
 QFX = """OFXHEADER:100
@@ -244,7 +244,7 @@ def test_the_conversion_cost_is_measured_against_the_ecb_rate(wallet):
 def test_the_watched_folder_accepts_a_qfx(wallet):
     """It only looked at .csv, .txt and .tsv, so the better of the two files
     CIBC offers was being ignored."""
-    import sources
+    from ingest import sources
     conn, directory = wallet
     inbox = sources.inbox_dir(directory)
     os.makedirs(inbox, exist_ok=True)

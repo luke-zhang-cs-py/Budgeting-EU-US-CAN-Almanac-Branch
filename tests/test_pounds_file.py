@@ -36,7 +36,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 
 import build_pounds_file as builder   # noqa: E402
-import pounds                        # noqa: E402
+from fx import pounds                 # noqa: E402
 
 BROWSERS = (
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",

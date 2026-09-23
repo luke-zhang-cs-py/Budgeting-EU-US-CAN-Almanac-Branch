@@ -1,6 +1,6 @@
 """
-money.py
---------
+core/money.py
+-------------
 Amounts as integers, in minor units.
 
 Everything in this project stores money as a whole number of cents. Floats are

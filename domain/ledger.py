@@ -1,6 +1,6 @@
 """
-ledger.py
----------
+domain/ledger.py
+----------------
 The transactions themselves: adding, categorising, searching, and the
 duplicate rule.
 
@@ -16,10 +16,10 @@ import datetime as dt
 import hashlib
 import re
 
-import db
-import fxcost
-import fxrates
-import money
+from core import money
+from domain import db
+from fx import fxcost
+from fx import fxrates
 
 # Categories offered out of the box. Not enforced -- a category is any string,
 # so nobody has to fight the list -- but having sensible defaults is the

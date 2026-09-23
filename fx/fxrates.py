@@ -1,6 +1,6 @@
 """
-fxrates.py
-----------
+fx/fxrates.py
+-------------
 Euro reference rates from the European Central Bank, cached locally.
 
 The ECB publishes one file covering every business day back to 1999-01-04 --
@@ -30,9 +30,9 @@ import threading
 import zipfile
 from decimal import Decimal
 
-import fetch
-import money
-import paths
+from core import fetch
+from core import money
+from core import paths
 
 HISTORY_URL = ("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.zip")
 

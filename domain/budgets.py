@@ -1,6 +1,6 @@
 """
-budgets.py
-----------
+domain/budgets.py
+-----------------
 A monthly cap per category, and how the month is going against it.
 
 One model, chosen deliberately: you say "Groceries, 400 a month", and this
@@ -17,10 +17,10 @@ buying anything.
 import calendar
 import datetime as dt
 
-import db
-import fxrates
-import ledger
-import money
+from core import money
+from domain import db
+from domain import ledger
+from fx import fxrates
 
 # Below this fraction of the month elapsed, pace is not reported. Three days
 # into January, "you are 900% over pace" is arithmetically true and useless:

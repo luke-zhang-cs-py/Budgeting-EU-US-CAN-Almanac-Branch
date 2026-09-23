@@ -1,6 +1,6 @@
 """
-fxcost.py
----------
+fx/fxcost.py
+------------
 What the conversion cost you.
 
 A Canadian card used in Europe does not bill euros. CIBC converts at the Visa
@@ -28,7 +28,7 @@ from a guessed original amount is worse than none.
 import re
 from decimal import Decimal
 
-import money
+from core import money
 
 # CIBC's own published foreign-transaction fee, for reference in the report.
 # Not used in the arithmetic of `compare` -- what a past conversion cost is

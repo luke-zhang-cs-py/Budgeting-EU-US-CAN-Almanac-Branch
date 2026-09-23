@@ -22,22 +22,22 @@ from flask import (Flask, Response, jsonify, redirect, render_template,
                    request, url_for)
 
 import auth
-import budgets
-import cards
-import db
-import export
-import fxcost
-import fxlive
-import fxrates
-import goals
-import importers
-import ledger
-import money
-import ocr
-import receipts
-import sources
-import trends
-import upcoming
+from core import money
+from domain import budgets
+from domain import cards
+from domain import db
+from domain import export
+from domain import goals
+from domain import ledger
+from domain import trends
+from domain import upcoming
+from fx import fxcost
+from fx import fxlive
+from fx import fxrates
+from ingest import importers
+from ingest import ocr
+from ingest import receipts
+from ingest import sources
 
 HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = int(os.environ.get("PORT", "5004"))

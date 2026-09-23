@@ -59,7 +59,7 @@ BANNER = """<!--
   CAD-GBP rate, so it crosses two that are: the European Central Bank's euro
   reference rates for both currencies, both legs from the same day. CIBC's
   2.5%% conversion markup is charged on the Canadian side, so it is divided
-  out rather than taken off the pounds -- see pounds.py for why those are
+  out rather than taken off the pounds -- see fx/pounds.py for why those are
   different numbers.
 
   Everything is inside this file: the stylesheets, the code, and %s business

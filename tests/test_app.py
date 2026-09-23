@@ -8,11 +8,11 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import conftest     # noqa: E402
-import app as web   # noqa: E402
-import db           # noqa: E402
-import fetch      # noqa: E402
-import fxrates      # noqa: E402
+import app as web        # noqa: E402
+import conftest          # noqa: E402
+from core import fetch   # noqa: E402
+from domain import db    # noqa: E402
+from fx import fxrates   # noqa: E402
 
 
 @pytest.fixture
@@ -344,7 +344,7 @@ def test_the_sources_endpoint_reports_the_folder(client):
 def test_scanning_on_demand_imports_what_is_waiting(client, tmp_path):
     """The button beside the folder, for when you do not want to wait for
     the timer."""
-    import sources
+    from ingest import sources
     inbox = sources.inbox_dir(str(tmp_path))
     os.makedirs(inbox, exist_ok=True)
     with open(os.path.join(inbox, "cibc.csv"), "w", encoding="utf-8") as handle:

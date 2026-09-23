@@ -1,6 +1,6 @@
 """
-upcoming.py
------------
+domain/upcoming.py
+------------------
 Subscriptions: what is due, what has landed, and what quietly got dearer.
 
 Built on ledger.recurring, which does the detection. This module only asks
@@ -20,8 +20,8 @@ as spending is a figure with imaginary money in it.
 """
 import datetime as dt
 
-import ledger
-import money
+from core import money
+from domain import ledger
 
 # Months without a sighting before a subscription is treated as finished
 # rather than late. Two, because one covers an annual plan billed late and a

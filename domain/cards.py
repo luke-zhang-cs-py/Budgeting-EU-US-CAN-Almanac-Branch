@@ -1,6 +1,6 @@
 """
-cards.py
---------
+domain/cards.py
+---------------
 The cards and accounts that pay for things, and what each one has cost.
 
 The reason this exists as its own table rather than a setting: **the foreign
@@ -26,9 +26,9 @@ one rather than being quietly added to the exact figures.
 import datetime as dt
 import sqlite3
 
-import fxcost
-import fxrates
-import money
+from core import money
+from fx import fxcost
+from fx import fxrates
 
 # CIBC's published foreign-transaction fee, in basis points. A default to be
 # corrected by measurement, not a fact -- see fxcost.TYPICAL_CARD_FEE_BP,

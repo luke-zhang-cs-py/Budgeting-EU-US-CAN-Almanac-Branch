@@ -1,6 +1,6 @@
 """
-ofx.py
-------
+ingest/ofx.py
+-------------
 Reading the .qfx / .ofx files CIBC actually offers.
 
 There is no way to sync with CIBC programmatically. Three separate things had
@@ -39,7 +39,7 @@ import datetime as dt
 import re
 from decimal import Decimal, InvalidOperation
 
-import money
+from core import money
 
 # Enough of a marker to recognise the format without trusting the extension:
 # CIBC names its download .qfx, others .ofx, and a synced folder renames

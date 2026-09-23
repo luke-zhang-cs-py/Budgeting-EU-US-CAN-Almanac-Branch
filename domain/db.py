@@ -1,6 +1,6 @@
 """
-db.py
------
+domain/db.py
+------------
 SQLite schema and connections.
 
 Seven tables and no ORM: purchases, the cards that paid for them, a cap per
@@ -21,7 +21,7 @@ import os
 import sqlite3
 import threading
 
-import paths
+from core import paths
 
 DB_NAME = "wallet.db"
 

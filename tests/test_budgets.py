@@ -7,10 +7,10 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import budgets   # noqa: E402
-import db        # noqa: E402
-import fxrates   # noqa: E402
-import ledger    # noqa: E402
+from domain import budgets   # noqa: E402
+from domain import db        # noqa: E402
+from domain import ledger    # noqa: E402
+from fx import fxrates       # noqa: E402
 
 
 @pytest.fixture
@@ -234,6 +234,6 @@ def test_the_month_total_converts_on_a_weekend(conn):
 def test_a_future_dated_transaction_is_still_refused(conn):
     """The clamp is only for totals. A purchase dated after the last published
     rate stays unconvertible, because that one really is a guess."""
-    import fxrates
+    from fx import fxrates
     with pytest.raises(fxrates.RateError):
         fxrates.rate(dt.date(2027, 1, 1), "CAD")

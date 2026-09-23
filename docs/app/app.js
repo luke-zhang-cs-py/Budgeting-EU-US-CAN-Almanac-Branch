@@ -1,7 +1,7 @@
 /* app.js — the static wallet's page.
  *
  * No logic of its own worth the name: every figure comes from fx.js, which is
- * the checked port of fxrates.py, money.py and fxcost.py. This file loads the
+ * the checked port of fx/fxrates.py, core/money.py and fx/fxcost.py. This file loads the
  * rate history, keeps purchases in localStorage, and draws.
  *
  * The rate file is a snapshot. It has a newest date, and the page says what

@@ -4,7 +4,7 @@
 
 The page at docs/app/ has no server, so it ships its own copy of the ECB
 history: a purchase is converted in the browser against
-`docs/app/fx_rates.csv` -- the same filename fxrates.py reads, so the test
+`docs/app/fx_rates.csv` -- the same filename fx/fxrates.py reads, so the test
 suite can point at the shipped file rather than at a working cache that a
 fresh clone does not have.
 That file is a snapshot, and the page says which day it runs to — a purchase
@@ -31,10 +31,10 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import fxcost     # noqa: E402
-import fxrates    # noqa: E402
-import money      # noqa: E402
-import paths      # noqa: E402
+from core import money   # noqa: E402
+from core import paths   # noqa: E402
+from fx import fxcost    # noqa: E402
+from fx import fxrates   # noqa: E402
 
 APP = os.path.join(ROOT, "docs", "app")
 CASES = os.path.join(APP, "cases.json")

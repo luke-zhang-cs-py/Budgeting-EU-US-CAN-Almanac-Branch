@@ -39,9 +39,9 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import fxcost    # noqa: E402
-import fxrates   # noqa: E402
-import money     # noqa: E402
+from core import money   # noqa: E402
+from fx import fxcost    # noqa: E402
+from fx import fxrates   # noqa: E402
 
 APP = os.path.join(ROOT, "docs", "app")
 FIXTURE = os.path.join(APP, "cases.json")
@@ -288,9 +288,9 @@ def test_the_file_this_page_writes_imports_into_the_app(cases, rates_csv,
     assert "1,234.56" not in text, (
         "the export grouped an amount inside a comma-separated file")
 
-    import db          # noqa: E402
-    import importers   # noqa: E402
-    import ledger      # noqa: E402
+    from domain import db          # noqa: E402
+    from ingest import importers   # noqa: E402
+    from domain import ledger      # noqa: E402
 
     shape = importers.preview(importers.sniff(text))
     assert shape["problems"] == []

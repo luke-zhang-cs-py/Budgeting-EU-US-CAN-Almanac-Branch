@@ -1,6 +1,6 @@
 """
-goals.py
---------
+domain/goals.py
+---------------
 Something being saved for, and whether this month helped.
 
 The design decision worth stating: **a goal has no balance.** There is no
@@ -22,8 +22,8 @@ savings figure computed from an unknown income would be confident and wrong.
 import datetime as dt
 import sqlite3
 
-import budgets
-import money
+from core import money
+from domain import budgets
 
 # A goal has to be worth tracking. Below this it is a purchase, not a goal,
 # and the interface fills up with things that will be met next Tuesday.

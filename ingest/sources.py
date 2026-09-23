@@ -1,6 +1,6 @@
 """
-sources.py
-----------
+ingest/sources.py
+-----------------
 Getting purchases in without being asked twice.
 
 Apple Wallet and Google Wallet cannot be read by a desktop app, and Canada has
@@ -30,10 +30,10 @@ import hashlib
 import os
 import threading
 
-import db
-import importers
-import ledger
-import paths
+from core import paths
+from domain import db
+from domain import ledger
+from ingest import importers
 
 # Where to watch. Defaults inside the data directory so a fresh clone has
 # somewhere to put things, but the point is to aim it at a synced folder.

@@ -1,6 +1,6 @@
 """
-layout.py
----------
+ingest/layout.py
+----------------
 Working out the shape of a bank export: which column is which.
 
 Split out of importers.py, which had grown to 291 statements across thirteen
@@ -26,8 +26,8 @@ corrects it, which matters more for a headerless file than a labelled one.
 """
 import re
 
-import ledger
-import money
+from core import money
+from domain import ledger
 
 # Header names seen in the wild, lowercased. Order matters: the first match
 # wins, so the more specific names come first.

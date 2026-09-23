@@ -38,11 +38,11 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import db          # noqa: E402
-import importers   # noqa: E402
-import ledger      # noqa: E402
-import ocr         # noqa: E402
-import receipts    # noqa: E402
+from domain import db          # noqa: E402
+from domain import ledger      # noqa: E402
+from ingest import importers   # noqa: E402
+from ingest import ocr         # noqa: E402
+from ingest import receipts    # noqa: E402
 
 FIXTURE = os.path.join(ROOT, "docs", "capture", "cases.json")
 RULES_JS = os.path.join(ROOT, "docs", "capture", "rules.js")

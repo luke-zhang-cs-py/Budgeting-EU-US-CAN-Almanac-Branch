@@ -1,6 +1,6 @@
 """
-fetch.py
---------
+core/fetch.py
+-------------
 One way to get bytes off the network.
 
 Extracted from fxrates, which had it as a private `_download`. A second

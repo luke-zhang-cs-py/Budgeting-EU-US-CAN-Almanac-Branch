@@ -1,6 +1,7 @@
 /* fx.js — the rate lookup, the money, and the card fee, in the browser.
  *
- * A deliberate second implementation of fxrates.py, money.py and fxcost.py,
+ * A deliberate second implementation of fx/fxrates.py, core/money.py and
+ * fx/fxcost.py,
  * and the second one in this project after docs/capture/rules.js. The static
  * page has no server to ask, so the arithmetic has to exist here too — and
  * two implementations of anything drift, so this one is not trusted to stay
@@ -149,7 +150,7 @@ var FX = (function () {
 
   var SYMBOL = { EUR: '€', CAD: 'CA$', USD: 'US$', GBP: '£' };
 
-  /* The machine-readable form: no symbol, no grouping. money.py has the same
+  /* The machine-readable form: no symbol, no grouping. core/money.py has the same
    * pair for the same reason -- the grouped one is for a person reading a
    * column, and putting it in a CSV writes "1,234.56" into a comma-separated
    * file. The export did exactly that until a purchase over a thousand went

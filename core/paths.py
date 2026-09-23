@@ -1,6 +1,6 @@
 """
-paths.py
---------
+core/paths.py
+-------------
 Where this app keeps its data. One decision, in one place.
 
 `db.data_dir` and `fxrates.cache_path` each resolved this independently, and
@@ -27,12 +27,17 @@ DEFAULT_DIRNAME = "data"
 def data_dir(directory=None):
     """The directory holding the database and the rate cache.
 
-    Order: an explicit argument, then WALLET_DATA, then `data/` beside the
-    code. The explicit argument comes first so a caller that knows where it
-    wants to work is never overridden by an environment variable it did not
-    set.
+    Order: an explicit argument, then WALLET_DATA, then `data/` at the top of
+    the project. The explicit argument comes first so a caller that knows
+    where it wants to work is never overridden by an environment variable it
+    did not set.
+
+    The default is resolved two directories up, not one: this module lives in
+    `core/`, and the data belongs beside the app rather than inside a package
+    of source. Getting that wrong would not raise -- it would quietly start a
+    second, empty ledger in `core/data/` and leave the real one untouched.
     """
     if directory:
         return directory
-    return os.environ.get(ENV_VAR) or os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), DEFAULT_DIRNAME)
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.environ.get(ENV_VAR) or os.path.join(root, DEFAULT_DIRNAME)
