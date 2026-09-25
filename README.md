@@ -70,7 +70,7 @@ works offline. No account, no API key, no bank connection.
 
 **Getting data in:** a watched folder your phone already syncs, a `.qfx`
 export (which carries the bank's own rate and id), a CSV in any layout, or
-typed by hand. `sample-statement.csv` is included to try it.
+typed by hand. `data/sample-statement.csv` is included to try it.
 
 ## Where the code is
 
@@ -79,7 +79,8 @@ layering is *asserted* by `tests/test_structure.py` rather than left to
 convention — nothing imports upward — so this is also the dependency order:
 
 ```
-core/     money, paths, fetch      the primitives; no first-party imports
+core/     money, paths, fetch,     the primitives; no first-party imports,
+          auth                     and who is allowed in at all
 fx/       fxrates, fxcost,         the euro series, what a conversion costs,
           fxlive, pounds           and the CAD->GBP side trip
 domain/   db, ledger, cards,       the ledger, and everything derived from it
@@ -87,11 +88,11 @@ domain/   db, ledger, cards,       the ledger, and everything derived from it
           upcoming, export
 ingest/   layout, importers, ofx,  getting purchases in: files, folders and
           ocr, receipts, sources   screenshots
-app.py    the routes; auth.py holds the password, session and CSRF
+app.py    the routes, and nothing else
 wsgi.py   the entry point a real server uses -- gunicorn wsgi:application
 ```
 
-Those three stay at the root because they're named from outside the repo (the
+Those two stay at the root because they're named from outside the repo (the
 Dockerfile `CMD`, the Fly and Render configs) and Flask resolves `templates/`
 relative to the module the app is built in.
 

@@ -4,13 +4,13 @@
 # and fx_rates.csv, which is derived. Neither belongs in a repository, and the
 # first one belongs in a public one least of all. If you add a feature that
 # writes anything derived from a transaction, add it here in the same commit.
-data/
+data/*
 *.db
 *.csv
 
 # ...except the sample, which is invented and is there so a clone has
 # something to import.
-!sample-statement.csv
+!data/sample-statement.csv
 
 # ...and except the rate history the published page ships, which is the one
 # CSV here that is not yours. It is the ECB's own daily reference series --

@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import conftest     # noqa: E402
 import app as web   # noqa: E402
-import auth         # noqa: E402
+from core import auth         # noqa: E402
 
 PASSWORD = "a long enough password to be worth having"
 STRONG_KEY = "k" * 64

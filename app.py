@@ -21,7 +21,7 @@ import os
 from flask import (Flask, Response, jsonify, redirect, render_template,
                    request, url_for)
 
-import auth
+from core import auth
 from core import money
 from domain import budgets
 from domain import cards

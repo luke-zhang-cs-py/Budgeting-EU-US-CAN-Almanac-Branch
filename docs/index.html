@@ -449,7 +449,7 @@ var MODULES = [
   { name: 'ingest/importers.py', lines: 386, stmts: 164, missed:  1, does: 'reads a statement in whatever shape it arrives' },
   { name: 'fx/fxrates.py',       lines: 331, stmts: 159, missed:  0, does: 'ECB history, cached; the business-day lookback' },
   { name: 'ingest/sources.py',   lines: 303, stmts: 125, missed:  0, does: 'the watched folder, and what it has already read' },
-  { name: 'auth.py',             lines: 364, stmts: 117, missed:  0, does: 'the password, the session, the CSRF token, the headers' },
+  { name: 'core/auth.py',        lines: 364, stmts: 117, missed:  0, does: 'the password, the session, the CSRF token, the headers' },
   { name: 'domain/goals.py',     lines: 235, stmts: 104, missed:  0, does: 'goals, derived from what the caps left over' },
   { name: 'ingest/layout.py',    lines: 266, stmts: 100, missed:  0, does: 'works out which column of a CSV is which' },
   { name: 'domain/budgets.py',   lines: 210, stmts:  80, missed:  0, does: 'a monthly cap per category, and pace against it' },
@@ -624,7 +624,7 @@ var RATE_HISTORY_DAYS = 7089;
 var TABLES = 6;
 var ROUTE_COUNT = 38;
 var ROUTE_GROUPS = 18;
-var TEST_LINES = 10219;
+var TEST_LINES = 10220;
 
 /* Which interpreter produced the statement counts above. It matters: coverage
  * counts a `with` block or a multi-line call differently between versions, so

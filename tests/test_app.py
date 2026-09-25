@@ -427,7 +427,7 @@ def test_the_simple_view_needs_a_session_like_everything_else(tmp_path,
     """It is not in OPEN_ENDPOINTS, so it should be behind the login when one
     is configured. Checked explicitly because a new page is exactly the kind
     of thing somebody forgets."""
-    import auth
+    from core import auth
     monkeypatch.setenv("WALLET_DATA", str(tmp_path))
     monkeypatch.setenv("WALLET_PASSWORD_HASH", auth.hash_password("secret"))
     monkeypatch.setenv("SECRET_KEY", "k" * 64)

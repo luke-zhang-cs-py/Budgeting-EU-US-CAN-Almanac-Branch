@@ -16,7 +16,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 import app                     # noqa: E402
-import auth                    # noqa: E402
+from core import auth                    # noqa: E402
 from core import fetch         # noqa: E402
 from core import money         # noqa: E402
 from core import paths         # noqa: E402
