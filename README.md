@@ -99,7 +99,7 @@ relative to the module the app is built in.
 ## Hosting it
 
 It binds `127.0.0.1` with no password because it holds your spending history,
-and it refuses to start reachable without one. See **[DEPLOYMENT.md](DEPLOYMENT.md)**
+and it refuses to start reachable without one. See **[DEPLOYMENT.md](notes/DEPLOYMENT.md)**
 for the Fly.io walkthrough and what the protection is and isn't.
 
 ## Tests
@@ -113,4 +113,4 @@ can't quietly go stale.
 
 ## License
 
-[MIT](LICENSE) — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup and conventions.
+[MIT](LICENSE) — see [CONTRIBUTING.md](.github/CONTRIBUTING.md) for setup and conventions.

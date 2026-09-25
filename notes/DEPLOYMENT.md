@@ -1,4 +1,4 @@
-<!-- Split out of README.md: 150 lines of deployment procedure was
+<!-- Split out of ../README.md: 150 lines of deployment procedure was
      burying what the project actually is. -->
 
 # Deploying Wallet somewhere other than your own machine
