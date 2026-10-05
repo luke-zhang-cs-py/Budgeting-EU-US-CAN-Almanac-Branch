@@ -118,7 +118,10 @@ def test_a_purchase_can_be_attributed_to_a_card(client):
                description="REWE", amount="52.30").get_json()["id"]
     assert post(client, f"/api/transaction/{tid}/card",
                 card_id=cid).status_code == 200
-    assert client.get("/api/cards").get_json()["cards"][0]["rows"] == 1
+    # The purchase's month, not the real one: without ?month this counted
+    # the current month and failed from 1 October.
+    cards_then = client.get("/api/cards?month=2026-09").get_json()["cards"]
+    assert cards_then[0]["rows"] == 1
 
 
 def test_attributing_to_a_card_that_is_not_there_is_a_400(client):

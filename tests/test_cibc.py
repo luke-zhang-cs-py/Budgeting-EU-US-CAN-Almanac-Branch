@@ -255,6 +255,21 @@ def test_an_implausible_row_is_left_out_of_the_summary():
     assert fxcost.summarise(rows)["available"] is False
 
 
+def test_the_summary_never_adds_two_currencies_together():
+    """A CAD card and a USD card in one month: the total was both cards'
+    cents added and labelled CA$."""
+    rows = [
+        {"charged_currency": "CAD",
+         "fx": fxcost.compare(8594, "CAD", -5230, "1.6033")},
+        {"charged_currency": "USD",
+         "fx": fxcost.compare(6200, "USD", -5230, "1.1614")},
+    ]
+    out = fxcost.summarise(rows)
+    assert out["currency"] == "CAD"
+    assert out["rows"] == 1 and out["of"] == 2
+    assert out["billed_text"] == "CA$85.94"
+
+
 # ==========================================================================
 #  End to end
 # ==========================================================================

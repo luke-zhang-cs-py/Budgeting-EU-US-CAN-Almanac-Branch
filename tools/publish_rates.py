@@ -83,6 +83,8 @@ PARSES = [
     ("1.234.567,89", "two grouping marks and a decimal comma"),
     ("12.3", "a single decimal digit"),
     ("EUR 5", "a currency word in front of it"),
+    ("1.234.567", "grouping all the way through, no decimals"),
+    ("1,234,567", "the same with commas"),
 ]
 
 

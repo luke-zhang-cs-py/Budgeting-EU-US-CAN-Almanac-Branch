@@ -129,9 +129,11 @@ var FX = (function () {
       var tail = cleaned.slice(cut + 1);
       var before = cleaned.slice(0, cut);
       var others = (before.match(/[,.]/g) || []).length;
-      if (tail.length === 3 && others === 0) {
+      if (tail.length === 3 &&
+          (others === 0 || /^\d{1,3}([.,])\d{3}(?:\1\d{3})+$/.test(cleaned))) {
         /* "1,234" is a thousand, not 1.234. Two is the only unambiguous
-         * decimal length for these currencies. */
+         * decimal length for these currencies. "1.234.567" is grouping all
+         * the way through, not 1,234.567 truncated to 1,234.56. */
         whole = cleaned.replace(/[,.]/g, '');
         fraction = '';
       } else {

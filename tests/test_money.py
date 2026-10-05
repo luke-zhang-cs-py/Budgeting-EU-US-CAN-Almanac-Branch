@@ -67,6 +67,29 @@ def test_an_integer_is_taken_as_whole_units():
     assert money.parse(50) == 5000
 
 
+@pytest.mark.parametrize("text", ["1.234.567", "1,234,567"])
+def test_grouping_all_the_way_through_is_a_whole_number(text):
+    """Read as 1,234.567 and truncated, this was 1,234.56: a thousand times
+    too small, and plausible enough to import without a word."""
+    assert money.parse(text) == 123456700
+
+
+def test_a_json_true_is_not_one_euro():
+    """bool is an int in Python, so `true` in a request body was 1.00."""
+    with pytest.raises(money.MoneyError):
+        money.parse(True)
+
+
+def test_a_json_number_is_not_read_as_grouping():
+    """12.345 as text is the "three digits is grouping" rule, 12,345.00. As a
+    JSON number it has no grouping, so it is 12.34, truncated like text."""
+    assert money.parse(12.345) == 1234
+    assert money.parse(52.3) == 5230
+    assert money.parse(-8.5) == -850
+    with pytest.raises(money.MoneyError):
+        money.parse(float("nan"))
+
+
 # --------------------------------------------------------------- converting
 
 def test_conversion_uses_the_given_rate():

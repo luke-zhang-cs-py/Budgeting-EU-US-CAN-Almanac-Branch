@@ -1,5 +1,158 @@
 # Code audit
 
+## Audit of 5 October 2026
+
+Baseline: **899 passed, 2 failed, 3 skipped.** After: **906 passed, 3
+skipped** (909 collected). The 3 skips are unchanged: two frontend checks
+for a wrapper this bundle does not have, and the "no omissions" check. The
+headless-Chrome tests (`test_static_wallet`, `test_pounds_file`,
+`test_single_file`) ran, not skipped.
+
+This pass focused on the money path: float maths, rounding, stale rates and
+keys.
+
+### Bugs fixed
+
+1. **Two tests broke on 1 October.**
+   `test_a_categorys_history_covers_the_window_including_empty_months`
+   spent in "2026-09" while `trends.category` ends its window at the real
+   current month. `test_a_purchase_can_be_attributed_to_a_card` read
+   `/api/cards` without `?month`, so it counted the current month. The
+   first now pins `trends._this_month` to the test's month, and the second
+   asks for `?month=2026-09`. These were the two baseline failures. Both
+   were broken tests, not broken code.
+2. **`money.parse("1.234.567")` returned 1,234.56.** The last-separator
+   rule took `.567` as a fraction and truncated it, so a whole number in
+   repeated groups of three came out a thousand times too small.
+   `"1,234,567"` had the same bug. Groups of three all the way through, with
+   one separator repeated, are now read as grouping, and the same change is
+   in `docs/app/fx.js`. Both strings are in `docs/app/cases.json` and in
+   `tools/publish_rates.py`'s `PARSES`, so the Python and the browser are
+   both held to the answer.
+   Covered by: `test_grouping_all_the_way_through_is_a_whole_number`, and
+   both `test_static_wallet` fixture tests.
+3. **`money.parse(True)` returned 100.** `bool` is an `int`, so a JSON
+   `true` in a request body became a one-euro amount. It is refused now.
+   Covered by: `test_a_json_true_is_not_one_euro`.
+4. **A JSON number with three decimals was read as grouping.**
+   `parse(12.345)` turned the float into text and got 12,345.00. A float
+   has no grouping, so it now goes through `Decimal(repr(x))` and is
+   truncated to cents, like text is. NaN and infinity are refused.
+   Covered by: `test_a_json_number_is_not_read_as_grouping`.
+5. **`fxcost.summarise` added two currencies together.** A month with a
+   CAD card and a USD card summed both cards' billed and reference cents and
+   labelled the total with the first row's currency. It now covers only that
+   one currency, and the other card's rows show up in `rows` / `of` as not
+   covered.
+   Covered by: `test_the_summary_never_adds_two_currencies_together`.
+
+Each new test was run against the old code and failed.
+
+### The checklist
+
+- **Float money maths:** none in arithmetic. All amounts are integer minor
+  units. `convert`, `estimate` and `compare` use `Decimal` with
+  `ROUND_HALF_UP` through `money.round_half_up`. `float()` appears only on
+  display shares and percentages, after rounding. The only float *input*
+  was bug 4.
+- **Rounding:** consistent. Half away from zero everywhere, rounded once at
+  conversion. `fxlive`'s `f"{value:.4f}"` on a `Decimal` uses the default
+  half-even context, but it is a display string for a rate, never an
+  amount, so it is left.
+- **Stale hard-coded rates:** `docs/app/fx_rates.csv` (the published
+  wallet) ends on **2026-09-09**, and `standalone/pounds/fx_rates.csv` ends
+  on 2026-09-11. That is almost four weeks old today. Nothing converts
+  wrongly because of it: both builds refuse a weekday past the newest rate,
+  and the page prints the range it covers. But every purchase after 9
+  September is refused on the public demo until someone runs
+  `tools/publish_rates.py` (and `tools/publish_pound_rates.py`). Not done
+  here: it needs a network download and regenerates `cases.json`, and
+  publishing new rates is the owner's call. The `fxlive` sanity bounds
+  (CAD 1.0 to 2.5, USD 0.7 to 2.0) are named and explained, not stale.
+- **API keys / secrets:** none. Both live sources (Frankfurter, open.er-api)
+  and the ECB history are keyless. `SECRET_KEY` and `WALLET_PASSWORD_HASH`
+  are read from the environment, and `render.yaml` / `fly.toml` hold no
+  values. No personal data or local paths in tracked files beyond the
+  synthetic sample statement.
+- **Dispensables:** nothing new. The one comment that needed changing was
+  in `fx.js`'s grouping branch, and it was updated with the fix.
+- **Bloaters:** at `--max-complexity=12`, flake8 flags one function:
+  `fxrates.load` at 14, with a nested try/for/if to read the cache. It
+  works and is fully covered, so it was left alone. Splitting out a
+  `_read_cache(path)` would bring it under the threshold.
+- **Abusers / Couplers:** nothing new.
+- **Change preventers:** the number parser lives in two places (`money.py`
+  and `docs/app/fx.js`) on purpose, and `cases.json` keeps them in step.
+  Bug 2 changed both, and the fixture now pins the new rule.
+- **Magic numbers / naming:** `_REPEATED_GROUPS` is named and explained.
+  Nothing else new.
+- **Bug classes:** functional (2, 4, 5), type (3), and tests that depended
+  on the date (1). Out of bounds: no new issues. The ECB lookback is capped
+  at `MAX_LOOKBACK_DAYS`.
+
+### Coverage
+
+`tools/refresh_figures.py` (statements, as published): **100% of 2,493
+statements.** With `--branch`:
+
+| Module | Stmts | Miss | Branches | Partial | Cover |
+|---|---|---|---|---|---|
+| `app.py` | 457 | 1 | 80 | 1 | 99% |
+| `core/auth.py` | 117 | 0 | 26 | 0 | 100% |
+| `core/fetch.py` | 16 | 0 | 0 | 0 | 100% |
+| `core/money.py` | 75 | 0 | 30 | 0 | 100% |
+| `core/paths.py` | 8 | 0 | 2 | 0 | 100% |
+| `domain/budgets.py` | 80 | 0 | 26 | 0 | 100% |
+| `domain/cards.py` | 164 | 0 | 50 | 1 | 99% |
+| `domain/db.py` | 39 | 0 | 8 | 0 | 100% |
+| `domain/export.py` | 40 | 0 | 4 | 0 | 100% |
+| `domain/goals.py` | 104 | 0 | 34 | 0 | 100% |
+| `domain/ledger.py` | 188 | 0 | 68 | 4 | 98% |
+| `domain/trends.py` | 72 | 0 | 26 | 0 | 100% |
+| `domain/upcoming.py` | 45 | 0 | 10 | 0 | 100% |
+| `fx/fxcost.py` | 50 | 0 | 18 | 0 | 100% |
+| `fx/fxlive.py` | 75 | 0 | 30 | 0 | 100% |
+| `fx/fxrates.py` | 159 | 0 | 52 | 2 | 99% |
+| `fx/pounds.py` | 80 | 0 | 24 | 0 | 100% |
+| `ingest/importers.py` | 164 | 1 | 72 | 2 | 99% |
+| `ingest/layout.py` | 100 | 0 | 44 | 2 | 99% |
+| `ingest/ocr.py` | 54 | 0 | 16 | 0 | 100% |
+| `ingest/ofx.py` | 74 | 0 | 28 | 2 | 98% |
+| `ingest/receipts.py` | 202 | 0 | 92 | 1 | 99% |
+| `ingest/sources.py` | 125 | 0 | 24 | 0 | 100% |
+| `wsgi.py` | 5 | 0 | 0 | 0 | 100% |
+| **Total** | **2,493** | **2** | **764** | **15** | **99%** |
+
+The two lines missed in the branch run, `app.py:143` (the redirect to
+login) and `importers.py:214`, were covered in the statement run. That is
+worth a look: a line one run reaches and another doesn't points to a test
+that depends on order or timing. The browser code (`docs/app/fx.js`,
+`docs/capture/rules.js`, `standalone/pounds/gbp.js`) is checked through
+headless Chrome against its fixtures. That shows what it does, not a
+percentage.
+
+### Maintenance
+
+- **Corrective:** bugs 1 to 5.
+- **Adaptive:** the rate snapshots need moving forward (see above).
+  Nothing deprecated was found in the Python or JS used.
+- **Perfective:** the FX-cost tile no longer shows a mixed-currency total.
+- **Preventive:** two new fixture cases make the browser parser follow
+  the grouping rule. The tests that broke on the date now pin their month.
+
+### Left for later
+
+- Run `tools/publish_rates.py` / `tools/publish_pound_rates.py` to move the
+  published snapshots past 2026-09-09, then commit the regenerated
+  `cases.json`.
+- Show a second FX-cost figure per extra card currency, rather than leaving
+  it out.
+- Bring `fxrates.load` under the complexity threshold.
+- Find out why `app.py:143` and `importers.py:214` are covered in some runs
+  and not others.
+
+## First audit
+
 First audit of this repository, run against the checklist the day after it was
 written. Writing the code and auditing it are different activities, and the
 gap between them is where most of the findings below came from — three of them

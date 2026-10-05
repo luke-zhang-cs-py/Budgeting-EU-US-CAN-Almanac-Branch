@@ -254,11 +254,16 @@ def test_the_drilldown_of_a_category_with_nothing_in_it_is_empty(conn):
     assert found["spent_minor"] == 0
 
 
-def test_a_categorys_history_covers_the_window_including_empty_months(conn):
+def test_a_categorys_history_covers_the_window_including_empty_months(
+        conn, monkeypatch):
+    # Pinned to THIS: the window ends at the real current month, so a spend
+    # in THIS moved out of the last bar on 1 October and the test failed.
+    monkeypatch.setattr(trends, "_this_month", lambda: THIS)
     spend(conn, THIS, 5230, "REWE", category="Groceries")
     history = trends.category(conn, "Groceries", limit=4)
     assert len(history) == 4
-    assert history[-1]["month"] == dt.date.today().strftime("%Y-%m")
+    assert history[-1]["month"] == THIS
+    assert history[-1]["spent_minor"] == 5230
     assert [h["spent_minor"] for h in history[:-1]] == [0, 0, 0]
 
 

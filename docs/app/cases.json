@@ -439,6 +439,16 @@
    "text": "EUR 5",
    "why": "a currency word in front of it",
    "minor": 500
+  },
+  {
+   "text": "1.234.567",
+   "why": "grouping all the way through, no decimals",
+   "minor": 123456700
+  },
+  {
+   "text": "1,234,567",
+   "why": "the same with commas",
+   "minor": 123456700
   }
  ]
 }

@@ -163,7 +163,11 @@ def summarise(rows):
     if not priced:
         return {"available": False, "rows": 0, "of": len(rows)}
 
+    # One currency only. A month with a CAD card and a USD card summed both
+    # cards' cents and labelled the total with whichever came first. The
+    # other card's rows count as not covered, which `rows` / `of` reports.
     currency = priced[0]["charged_currency"]
+    priced = [r for r in priced if r["charged_currency"] == currency]
     billed = sum(r["fx"]["billed_minor"] for r in priced)
     reference = sum(r["fx"]["reference_minor"] for r in priced)
     cost = billed - reference

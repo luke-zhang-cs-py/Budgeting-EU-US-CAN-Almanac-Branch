@@ -454,12 +454,12 @@ var MODULES = [
   { name: 'ingest/layout.py',    lines: 266, stmts: 100, missed:  0, does: 'works out which column of a CSV is which' },
   { name: 'domain/budgets.py',   lines: 210, stmts:  80, missed:  0, does: 'a monthly cap per category, and pace against it' },
   { name: 'fx/pounds.py',        lines: 248, stmts:  80, missed:  0, does: 'CAD into GBP across two euro legs, against a £1,000 cap' },
+  { name: 'core/money.py',       lines: 207, stmts:  75, missed:  0, does: 'integer cents; the one parser and the one formatter' },
   { name: 'fx/fxlive.py',        lines: 173, stmts:  75, missed:  0, does: 'the latest published rate, fetched on demand' },
   { name: 'ingest/ofx.py',       lines: 212, stmts:  74, missed:  0, does: 'OFX/QFX, both dialects — the bank’s own rate' },
   { name: 'domain/trends.py',    lines: 201, stmts:  72, missed:  0, does: 'each category against its own average, with drilldown' },
-  { name: 'core/money.py',       lines: 182, stmts:  65, missed:  0, does: 'integer cents; the one parser and the one formatter' },
   { name: 'ingest/ocr.py',       lines: 152, stmts:  54, missed:  0, does: 'image to text boxes; the optional engine sits behind it' },
-  { name: 'fx/fxcost.py',        lines: 182, stmts:  49, missed:  0, does: 'what a conversion cost, and what the next will cost' },
+  { name: 'fx/fxcost.py',        lines: 186, stmts:  50, missed:  0, does: 'what a conversion cost, and what the next will cost' },
   { name: 'domain/upcoming.py',  lines: 160, stmts:  45, missed:  0, does: 'subscriptions: due, landed, lapsed, and price rises' },
   { name: 'domain/export.py',    lines: 133, stmts:  40, missed:  0, does: 'the CSV, and whether it adds up to the ledger' },
   { name: 'domain/db.py',        lines: 265, stmts:  39, missed:  0, does: 'six tables, and the additive migration' },
@@ -473,13 +473,13 @@ var TESTS = [
   { file: 'test_frontend.py',          n: 73, of: 'escaping, dead ids and the type scale, over both bundles' },
   { file: 'test_auth.py',              n: 60, of: 'the refusals: no password, no token, no session' },
   { file: 'test_app_finance.py',       n: 55, of: 'routes for screenshots, rates, cards and planning' },
-  { file: 'test_cibc.py',              n: 54, of: 'the headerless CIBC exports, all three layouts' },
+  { file: 'test_cibc.py',              n: 55, of: 'the headerless CIBC exports, all three layouts' },
   { file: 'test_cards.py',             n: 53, of: 'fees, balances, and the exact-vs-estimated split' },
   { file: 'test_planning.py',          n: 49, of: 'trends, subscriptions and goals' },
   { file: 'test_app.py',               n: 41, of: 'the original HTTP surface' },
+  { file: 'test_money.py',             n: 41, of: 'both decimal conventions, and never a silent zero' },
   { file: 'test_rate_date.py',         n: 40, of: 'weekends, Easter, Christmas, and the lookback' },
   { file: 'test_edges.py',             n: 39, of: 'the network ladder and malformed rate files' },
-  { file: 'test_money.py',             n: 37, of: 'both decimal conventions, and never a silent zero' },
   { file: 'test_ofx.py',               n: 37, of: 'both OFX dialects and the disclosed rate' },
   { file: 'test_ledger.py',            n: 33, of: 'the duplicate rule and recurring detection' },
   { file: 'test_pounds.py',            n: 31, of: 'the cross rate and the markup, in both languages, one fixture' },
@@ -624,7 +624,7 @@ var RATE_HISTORY_DAYS = 7089;
 var TABLES = 6;
 var ROUTE_COUNT = 38;
 var ROUTE_GROUPS = 18;
-var TEST_LINES = 10220;
+var TEST_LINES = 10266;
 
 /* Which interpreter produced the statement counts above. It matters: coverage
  * counts a `with` block or a multi-line call differently between versions, so

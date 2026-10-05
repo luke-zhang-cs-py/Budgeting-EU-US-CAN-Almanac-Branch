@@ -15,7 +15,7 @@ Nothing here knows about exchange rates or transactions. It parses, converts
 and formats.
 """
 import re
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP
 
 # The three currencies this app deals in. EUR is what the wallet exports and
 # the other two are what the answer is wanted in.
@@ -32,6 +32,12 @@ MINOR_UNITS = 2
 _SCALE = 10 ** MINOR_UNITS
 
 _CLEAN = re.compile(r"[^\d,.\-+]")
+
+# Groups of three all the way through, with one separator repeated:
+# "1.234.567" or "1,234,567". That is a whole number with grouping. The
+# last-separator rule read it as 1,234.567 and truncated it to 1,234.56, a
+# thousand times too small.
+_REPEATED_GROUPS = re.compile(r"^\d{1,3}([.,])\d{3}(?:\1\d{3})+$")
 
 
 class MoneyError(ValueError):
@@ -64,8 +70,13 @@ def parse(text):
     """
     if text is None:
         raise MoneyError("no amount given")
+    # A JSON `true` is an int in Python, and came back as 1.00.
+    if isinstance(text, bool):
+        raise MoneyError(f"cannot read {text!r}")
     if isinstance(text, int):
         return text * _SCALE
+    if isinstance(text, float):
+        return _from_float(text)
     raw = str(text).strip()
     if not raw:
         raise MoneyError("empty amount")
@@ -98,7 +109,8 @@ def parse(text):
         # grouping rather than a decimal: "1,234" is a thousand, not 1.234.
         # Two is the only unambiguous decimal length for these currencies.
         others = cleaned[:cut].count(",") + cleaned[:cut].count(".")
-        if len(tail) == 3 and others == 0 and separator in ",.":
+        if len(tail) == 3 and separator in ",." and (
+                others == 0 or _REPEATED_GROUPS.match(cleaned)):
             whole, frac = cleaned.replace(",", "").replace(".", ""), ""
         else:
             whole = cleaned[:cut].replace(",", "").replace(".", "")
@@ -113,6 +125,19 @@ def parse(text):
     frac = (frac + "00")[:MINOR_UNITS] if frac else "00"
     cents = int(whole) * _SCALE + int(frac)
     return -cents if negative else cents
+
+
+def _from_float(number):
+    """A JSON number as cents. A float has no grouping, so it is not text.
+
+    As text, 12.345 hit the "three digits after one separator is grouping"
+    rule and came back as 12,345.00. The longer fraction is truncated, the
+    same as `parse` does for text.
+    """
+    value = Decimal(repr(number))
+    if not value.is_finite():
+        raise MoneyError(f"cannot read {number!r}")
+    return int((value * _SCALE).to_integral_value(rounding=ROUND_DOWN))
 
 
 def convert(cents, rate):
