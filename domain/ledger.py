@@ -284,7 +284,7 @@ def _converted(row, directory=None):
         if result["used"]:
             out["rate_date"] = result["used"].isoformat()
             out["rate_lag_days"] = result["lag_days"]
-        elif result["why"]:
+        else:
             out["rate_note"] = result["why"]
 
     # What the card charged, against what the reference rate says it should

@@ -444,7 +444,7 @@ footer { margin-top: 28px; color: var(--ink-muted); font-size: 12.5px; max-width
 var MODULES = [
   { name: 'app.py',              lines: 951, stmts: 457, missed:  0, does: 'the web front end; 37 routes in 18 small groups' },
   { name: 'ingest/receipts.py',  lines: 482, stmts: 202, missed:  0, does: 'turns OCR text boxes into a purchase — pure, no engine' },
-  { name: 'domain/ledger.py',    lines: 469, stmts: 188, missed:  0, does: 'transactions, the duplicate rule, recurring detection' },
+  { name: 'domain/ledger.py',    lines: 469, stmts: 187, missed:  0, does: 'transactions, the duplicate rule, recurring detection' },
   { name: 'domain/cards.py',     lines: 406, stmts: 164, missed:  0, does: 'cards, their fees in basis points, and their balances' },
   { name: 'ingest/importers.py', lines: 386, stmts: 164, missed:  0, does: 'reads a statement in whatever shape it arrives' },
   { name: 'fx/fxrates.py',       lines: 331, stmts: 159, missed:  0, does: 'ECB history, cached; the business-day lookback' },
@@ -481,7 +481,7 @@ var TESTS = [
   { file: 'test_rate_date.py',         n: 40, of: 'weekends, Easter, Christmas, and the lookback' },
   { file: 'test_edges.py',             n: 39, of: 'the network ladder and malformed rate files' },
   { file: 'test_ofx.py',               n: 39, of: 'both OFX dialects and the disclosed rate' },
-  { file: 'test_ledger.py',            n: 37, of: 'the duplicate rule and recurring detection' },
+  { file: 'test_ledger.py',            n: 36, of: 'the duplicate rule and recurring detection' },
   { file: 'test_pounds.py',            n: 31, of: 'the cross rate and the markup, in both languages, one fixture' },
   { file: 'test_importers.py',         n: 28, of: 'statements in whatever shape they arrive' },
   { file: 'test_sources.py',           n: 28, of: 'the watched folder, and never importing twice' },
@@ -624,7 +624,7 @@ var RATE_HISTORY_DAYS = 7089;
 var TABLES = 6;
 var ROUTE_COUNT = 38;
 var ROUTE_GROUPS = 18;
-var TEST_LINES = 10409;
+var TEST_LINES = 10393;
 
 /* Which interpreter produced the statement counts above. It matters: coverage
  * counts a `with` block or a multi-line call differently between versions, so

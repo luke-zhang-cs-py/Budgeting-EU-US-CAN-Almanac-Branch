@@ -8,8 +8,10 @@ the lookup simply misses and something downstream fills in a zero.
 """
 import csv
 import datetime as dt
+import io
 import os
 import sys
+import zipfile
 from decimal import Decimal
 
 import pytest
@@ -200,19 +202,20 @@ def test_coverage_describes_the_cache(tmp_path):
     assert report["currencies"] == ["CAD", "USD"]
 
 
+def serve_ecb(monkeypatch, csv_text):
+    """Make the download answer with a miniature of the real zip."""
+    payload = io.BytesIO()
+    with zipfile.ZipFile(payload, "w") as archive:
+        archive.writestr("eurofxref-hist.csv", csv_text)
+    monkeypatch.setattr(fetch, "get", lambda *a, **k: payload.getvalue())
+
+
 def test_a_refresh_writes_a_readable_cache(tmp_path, monkeypatch):
     """The whole round trip, against a miniature of the real zip."""
-    import io as _io
-    import zipfile
-
-    payload = _io.BytesIO()
-    with zipfile.ZipFile(payload, "w") as archive:
-        # Trailing comma and an N/A, both of which the real file contains.
-        archive.writestr("eurofxref-hist.csv",
-                         "Date, USD, CAD, CYP,\n"
-                         "2026-04-07, 1.1700, 1.6100, N/A,\n"
-                         "2026-04-02, 1.1614, 1.6033, N/A,\n")
-    monkeypatch.setattr(fetch, "get", lambda *a, **k: payload.getvalue())
+    # Trailing comma and an N/A, both of which the real file contains.
+    serve_ecb(monkeypatch, "Date, USD, CAD, CYP,\n"
+                           "2026-04-07, 1.1700, 1.6100, N/A,\n"
+                           "2026-04-02, 1.1614, 1.6033, N/A,\n")
 
     assert fxrates.refresh(str(tmp_path)) is True
     value, used = fxrates.rate(dt.date(2026, 4, 5), "CAD", str(tmp_path))
@@ -234,18 +237,11 @@ def test_a_day_with_no_readable_rate_is_left_out_of_the_cache(tmp_path):
 
 def test_an_ecb_day_with_nothing_but_gaps_is_skipped_on_refresh(tmp_path,
                                                                 monkeypatch):
-    import io as _io
-    import zipfile
-
-    payload = _io.BytesIO()
-    with zipfile.ZipFile(payload, "w") as archive:
-        archive.writestr("eurofxref-hist.csv",
-                         "Date, USD, CAD,\n"
-                         "2026-04-07, 1.1700, 1.6100,\n"
-                         "2026-04-06, N/A, N/A,\n"
-                         "\n"
-                         "2026-04-02, 1.1614, 1.6033,\n")
-    monkeypatch.setattr(fetch, "get", lambda *a, **k: payload.getvalue())
+    serve_ecb(monkeypatch, "Date, USD, CAD,\n"
+                           "2026-04-07, 1.1700, 1.6100,\n"
+                           "2026-04-06, N/A, N/A,\n"
+                           "\n"
+                           "2026-04-02, 1.1614, 1.6033,\n")
 
     assert fxrates.refresh(str(tmp_path)) is True
     assert fxrates.coverage(str(tmp_path))["days"] == 2

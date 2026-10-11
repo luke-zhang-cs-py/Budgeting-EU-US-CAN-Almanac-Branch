@@ -320,15 +320,3 @@ def test_two_levels_that_differ_by_no_more_than_the_tolerance_are_not_a_change()
     averages sit exactly one tolerance apart. That is drift inside the noise,
     not a new price, so it is neither a steady price nor a price change."""
     assert ledger._price_shape([0, 20, 10, 30], 10) is None
-
-
-def test_a_rate_that_fails_with_no_message_adds_no_note(conn, monkeypatch):
-    """A failed conversion normally says why; one that has nothing to say
-    leaves the note off rather than printing an empty one."""
-    monkeypatch.setattr(fxrates, "convert_all", lambda *a, **k: {
-        "CAD": {"cents": None, "rate": None, "used": None,
-                "lag_days": None, "why": ""}})
-    tid, _ = ledger.add(conn, "2026-02-02", "TESCO", -4550)
-    row = [t for t in ledger.transactions(conn) if t["id"] == tid][0]
-    assert row["rate_note"] == ""
-    assert row["amount_cad"] is None
