@@ -511,3 +511,21 @@ def test_a_purchase_older_than_the_rate_history_cannot_be_measured(conn):
                             charged_currency="CAD")
         cards.attribute(conn, tid, cid)
     assert cards.measured_fee(conn, cid) is None
+
+
+def test_an_absurd_billed_figure_is_left_out_of_the_measurement(conn):
+    """A row billed at ten times the reference is a mis-parse or a different
+    purchase, and averaging it in would drag the measured fee off the real
+    one. It is skipped, and the count says how many rows were used."""
+    cid = visa(conn)
+    for n in range(3):
+        tid, _ = ledger.add(conn, "2026-09-08", f"REWE {n}", -5230 - n,
+                            charged_minor=8594, charged_currency="CAD")
+        cards.attribute(conn, tid, cid)
+    tid, _ = ledger.add(conn, "2026-09-08", "MISPARSED", -5230,
+                        charged_minor=859400, charged_currency="CAD")
+    cards.attribute(conn, tid, cid)
+
+    found = cards.measured_fee(conn, cid)
+    assert found["rows"] == 3
+    assert found["percent"] < 5

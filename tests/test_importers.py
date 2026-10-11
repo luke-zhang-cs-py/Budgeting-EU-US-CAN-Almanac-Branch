@@ -273,3 +273,21 @@ def test_a_tiny_file_reports_its_bad_rows_instead_of_refusing_itself():
     out = importers.preview(importers.sniff(text))
     assert out["readable"] == 1
     assert out["unreadable"] == 1
+
+
+def test_a_file_the_sniffer_cannot_judge_keeps_the_delimiter_in_its_header():
+    """Python's sniffer gives up on a file whose later lines carry no
+    delimiter at all. The header still shows which one the bank used."""
+    text = "Date,Amount\nonly one\nanother one\n"
+    assert importers.sniff(text)["delimiter"] == ","
+
+
+def test_a_row_with_money_both_out_and_in_is_refused():
+    """Both filled and neither zero: keeping one would be a silent guess at
+    the sign, so the row is reported instead."""
+    text = ("Date,Description,Paid out,Paid in\n"
+            "02/02/2026,TESCO,45.50,10.00\n"
+            "03/02/2026,DB BAHN,39.90,\n")
+    out = importers.preview(importers.sniff(text))
+    assert out["readable"] == 1
+    assert "neither is zero" in out["problems"][0]["why"]

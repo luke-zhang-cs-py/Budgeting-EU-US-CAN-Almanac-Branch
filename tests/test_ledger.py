@@ -299,3 +299,36 @@ def test_a_transaction_can_be_removed_and_then_reimported(conn):
     ledger.remove(conn, tid)
     assert ledger.transactions(conn) == []
     assert ledger.add(conn, "2026-02-02", "TESCO", -4550)[1] == "added"
+
+
+def test_a_shorter_rule_does_not_displace_a_longer_one_added_first(conn):
+    """The reverse order of the specificity test above: the long keyword is
+    met first and the short one, which also matches, must not replace it."""
+    ledger.add_rule(conn, "amazon fresh", "Groceries")
+    ledger.add_rule(conn, "amazon", "Shopping")
+    assert ledger.categorise(conn, "AMAZON FRESH DUBLIN") == "Groceries"
+
+
+def test_totals_by_category_without_a_month_cover_every_month(conn):
+    ledger.add(conn, "2026-01-02", "TESCO", -4550, category="Groceries")
+    ledger.add(conn, "2026-02-03", "LIDL", -2210, category="Groceries")
+    assert ledger.totals_by_category(conn) == {"Groceries": -6760}
+
+
+def test_two_levels_that_differ_by_no_more_than_the_tolerance_are_not_a_change():
+    """Each half is steady on its own, but the whole is not, and the halves'
+    averages sit exactly one tolerance apart. That is drift inside the noise,
+    not a new price, so it is neither a steady price nor a price change."""
+    assert ledger._price_shape([0, 20, 10, 30], 10) is None
+
+
+def test_a_rate_that_fails_with_no_message_adds_no_note(conn, monkeypatch):
+    """A failed conversion normally says why; one that has nothing to say
+    leaves the note off rather than printing an empty one."""
+    monkeypatch.setattr(fxrates, "convert_all", lambda *a, **k: {
+        "CAD": {"cents": None, "rate": None, "used": None,
+                "lag_days": None, "why": ""}})
+    tid, _ = ledger.add(conn, "2026-02-02", "TESCO", -4550)
+    row = [t for t in ledger.transactions(conn) if t["id"] == tid][0]
+    assert row["rate_note"] == ""
+    assert row["amount_cad"] is None

@@ -219,3 +219,33 @@ def test_a_refresh_writes_a_readable_cache(tmp_path, monkeypatch):
     assert value == Decimal("1.6033")
     assert used == dt.date(2026, 4, 2)
     assert fxrates.coverage(str(tmp_path))["days"] == 2
+
+
+def test_a_day_with_no_readable_rate_is_left_out_of_the_cache(tmp_path):
+    """A row whose every rate cell is blank is a day the file says nothing
+    about, so it is not a day with a rate of nothing."""
+    path = write_cache(tmp_path, EASTER_2026)
+    with open(path, "a", encoding="utf-8", newline="") as handle:
+        handle.write("2026-04-03,,\n")
+    rates = fxrates.load(str(tmp_path))
+    assert dt.date(2026, 4, 3) not in rates
+    assert dt.date(2026, 4, 2) in rates
+
+
+def test_an_ecb_day_with_nothing_but_gaps_is_skipped_on_refresh(tmp_path,
+                                                                monkeypatch):
+    import io as _io
+    import zipfile
+
+    payload = _io.BytesIO()
+    with zipfile.ZipFile(payload, "w") as archive:
+        archive.writestr("eurofxref-hist.csv",
+                         "Date, USD, CAD,\n"
+                         "2026-04-07, 1.1700, 1.6100,\n"
+                         "2026-04-06, N/A, N/A,\n"
+                         "\n"
+                         "2026-04-02, 1.1614, 1.6033,\n")
+    monkeypatch.setattr(fetch, "get", lambda *a, **k: payload.getvalue())
+
+    assert fxrates.refresh(str(tmp_path)) is True
+    assert fxrates.coverage(str(tmp_path))["days"] == 2

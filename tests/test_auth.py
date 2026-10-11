@@ -537,3 +537,18 @@ def test_the_wsgi_entry_point_does_not_start_the_folder_watcher():
     assert "start_watching" not in code
     assert "app.run(" not in code
     assert "create_app" in code, "the reader found the wrong thing"
+
+
+def test_a_page_post_without_a_token_goes_back_to_the_login_screen(
+        tmp_path, monkeypatch, hashed):
+    """A stale form post to a page route (not the login form, not the API)
+    has no JSON caller to answer, so it is sent to log in again, remembering
+    where it was going."""
+    client = locked_app(tmp_path, monkeypatch, hashed).test_client()
+    client.get("/login")
+    sign_in(client)
+    reply = client.post("/logout", no_csrf=True)
+    assert reply.status_code == 302
+    assert reply.headers["Location"].endswith("/login?next=/logout")
+    assert client.get("/api/overview").status_code == 200, \
+        "the refused logout must not have signed anybody out"

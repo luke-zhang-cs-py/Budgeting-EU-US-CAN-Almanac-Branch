@@ -414,3 +414,18 @@ def test_a_currate_that_is_not_a_number_is_treated_as_absent():
 def test_the_account_currency_reader_accepts_bytes():
     """sources hands it whatever came off disk."""
     assert ofx.account_currency(QFX.encode("utf-8")) == "CAD"
+
+
+def test_a_currency_block_with_no_symbol_is_not_a_foreign_purchase():
+    text = QFX.replace("<CURSYM>EUR", "")
+    first = ofx.transactions(text)[0]
+    assert first["origin_currency"] is None
+    assert first["origin_rate"] is None
+
+
+def test_a_field_written_twice_keeps_the_first():
+    """The specification puts the right value first; a bank that repeats a
+    field is not allowed to overwrite it."""
+    text = QFX.replace("<NAME>TIM HORTONS 1234",
+                       "<NAME>TIM HORTONS 1234<NAME>SOMETHING ELSE")
+    assert ofx.transactions(text)[1]["description"] == "TIM HORTONS 1234"

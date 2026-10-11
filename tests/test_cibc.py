@@ -478,3 +478,13 @@ def test_a_headerless_file_with_no_figures_at_all_chooses_no_amount():
     out = importers.preview(sniffed)
     assert out["readable"] == 0
     assert "no amount column" in out["problems"][0]["why"]
+
+
+def test_a_headerless_file_of_bare_figures_maps_only_the_amount():
+    """Nothing date-like and nothing textual: the mapping names no date and
+    no description, and still says which column is the signed amount."""
+    mapping = layout.infer(["column 1", "column 2"],
+                           [["-5.00", "12.00"], ["-6.50", "8.00"]])
+    assert mapping["date"] is None
+    assert mapping["description"] is None
+    assert mapping["amount"] == "column 1"

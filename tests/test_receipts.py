@@ -470,3 +470,7 @@ def test_a_line_that_is_mostly_digits_but_has_letters_is_not_a_merchant():
     found = read(box("4417 8842 1120 x", top=10, height=40),
                  box("Kaufland", top=60, height=14))
     assert found["merchant"] == "Kaufland"
+
+
+def test_an_impossible_iso_date_is_ignored_rather_than_raising():
+    assert read(box("2026-13-45"))["date"] is None
