@@ -326,6 +326,10 @@ def test_a_file_that_vanishes_mid_scan_is_skipped(wallet, monkeypatch):
     def vanish(*_a, **_k):
         raise OSError("gone")
 
+    # On Linux os.path.isfile is itself built on os.stat, so it has to keep
+    # its answer from before the file went, or the scan would skip the name
+    # one step early and never reach the stat this test is about.
+    monkeypatch.setattr(sources.os.path, "isfile", lambda _path: True)
     monkeypatch.setattr(sources.os, "stat", vanish)
     assert sources.candidates(directory) == []
 
