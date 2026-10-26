@@ -323,12 +323,17 @@ def test_a_file_that_vanishes_mid_scan_is_skipped(wallet, monkeypatch):
     conn, directory, inbox = wallet
     drop(inbox, "cibc.csv", EUROS)
 
-    def vanish(*_a, **_k):
-        raise OSError("gone")
+    real_stat = os.stat
 
-    # On Linux os.path.isfile is itself built on os.stat, so it has to keep
-    # its answer from before the file went, or the scan would skip the name
-    # one step early and never reach the stat this test is about.
+    def vanish(path, *args, **kwargs):
+        if os.path.basename(path) == "cibc.csv":
+            raise OSError("gone")
+        return real_stat(path, *args, **kwargs)
+
+    # Only the statement's stat fails: on Linux os.path.isdir and isfile are
+    # built on os.stat too, so failing every stat would hide the inbox folder
+    # or skip the name before the scan reached the stat this test is about.
+    # isfile keeps the answer it had when the file was listed.
     monkeypatch.setattr(sources.os.path, "isfile", lambda _path: True)
     monkeypatch.setattr(sources.os, "stat", vanish)
     assert sources.candidates(directory) == []
