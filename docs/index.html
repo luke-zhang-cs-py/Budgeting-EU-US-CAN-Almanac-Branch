@@ -442,61 +442,69 @@ footer { margin-top: 28px; color: var(--ink-muted); font-size: 12.5px; max-width
  * `wc -l` in the repository. Not estimated. */
 
 var MODULES = [
-  { name: 'app.py',              lines: 951, stmts: 457, missed:  0, does: 'the web front end; 37 routes in 18 small groups' },
-  { name: 'ingest/receipts.py',  lines: 482, stmts: 202, missed:  0, does: 'turns OCR text boxes into a purchase — pure, no engine' },
-  { name: 'domain/ledger.py',    lines: 469, stmts: 187, missed:  0, does: 'transactions, the duplicate rule, recurring detection' },
-  { name: 'domain/cards.py',     lines: 406, stmts: 164, missed:  0, does: 'cards, their fees in basis points, and their balances' },
-  { name: 'ingest/importers.py', lines: 386, stmts: 164, missed:  0, does: 'reads a statement in whatever shape it arrives' },
-  { name: 'fx/fxrates.py',       lines: 331, stmts: 159, missed:  0, does: 'ECB history, cached; the business-day lookback' },
-  { name: 'ingest/sources.py',   lines: 303, stmts: 125, missed:  0, does: 'the watched folder, and what it has already read' },
-  { name: 'core/auth.py',        lines: 364, stmts: 117, missed:  0, does: 'the password, the session, the CSRF token, the headers' },
-  { name: 'domain/goals.py',     lines: 235, stmts: 104, missed:  0, does: 'goals, derived from what the caps left over' },
-  { name: 'ingest/layout.py',    lines: 266, stmts: 100, missed:  0, does: 'works out which column of a CSV is which' },
-  { name: 'domain/budgets.py',   lines: 210, stmts:  80, missed:  0, does: 'a monthly cap per category, and pace against it' },
-  { name: 'fx/pounds.py',        lines: 248, stmts:  80, missed:  0, does: 'CAD into GBP across two euro legs, against a £1,000 cap' },
-  { name: 'core/money.py',       lines: 207, stmts:  75, missed:  0, does: 'integer cents; the one parser and the one formatter' },
-  { name: 'fx/fxlive.py',        lines: 173, stmts:  75, missed:  0, does: 'the latest published rate, fetched on demand' },
-  { name: 'ingest/ofx.py',       lines: 212, stmts:  74, missed:  0, does: 'OFX/QFX, both dialects — the bank’s own rate' },
-  { name: 'domain/trends.py',    lines: 201, stmts:  72, missed:  0, does: 'each category against its own average, with drilldown' },
-  { name: 'ingest/ocr.py',       lines: 152, stmts:  54, missed:  0, does: 'image to text boxes; the optional engine sits behind it' },
-  { name: 'fx/fxcost.py',        lines: 186, stmts:  50, missed:  0, does: 'what a conversion cost, and what the next will cost' },
-  { name: 'domain/upcoming.py',  lines: 160, stmts:  45, missed:  0, does: 'subscriptions: due, landed, lapsed, and price rises' },
-  { name: 'domain/export.py',    lines: 133, stmts:  40, missed:  0, does: 'the CSV, and whether it adds up to the ledger' },
-  { name: 'domain/db.py',        lines: 265, stmts:  39, missed:  0, does: 'six tables, and the additive migration' },
-  { name: 'core/fetch.py',       lines:  52, stmts:  16, missed:  0, does: 'one way to get bytes: urllib, then curl' },
-  { name: 'core/paths.py',       lines:  43, stmts:   8, missed:  0, does: 'where the data lives — one decision, one place' },
-  { name: 'wsgi.py',             lines:  40, stmts:   5, missed:  0, does: 'the entry point a real server uses; not the dev one' }
+  { name: 'app.py',                       lines: 961, stmts: 474, missed:  0, does: 'the web front end; 37 routes in 18 small groups' },
+  { name: 'ingest/receipts.py',           lines: 482, stmts: 204, missed:  0, does: 'turns OCR text boxes into a purchase — pure, no engine' },
+  { name: 'domain/ledger.py',             lines: 469, stmts: 187, missed:  0, does: 'transactions, the duplicate rule, recurring detection' },
+  { name: 'domain/cards.py',              lines: 406, stmts: 164, missed:  0, does: 'cards, their fees in basis points, and their balances' },
+  { name: 'ingest/importers.py',          lines: 386, stmts: 164, missed:  0, does: 'reads a statement in whatever shape it arrives' },
+  { name: 'fx/fxrates.py',                lines: 331, stmts: 159, missed:  0, does: 'ECB history, cached; the business-day lookback' },
+  { name: 'ingest/sources.py',            lines: 303, stmts: 127, missed:  0, does: 'the watched folder, and what it has already read' },
+  { name: 'core/auth.py',                 lines: 369, stmts: 125, missed:  0, does: 'the password, the session, the CSRF token, the headers' },
+  { name: 'tools/refresh_figures.py',     lines: 233, stmts: 124, missed:  0, does: 'rewrites the figures on this page from a real run' },
+  { name: 'domain/goals.py',              lines: 235, stmts: 106, missed:  0, does: 'goals, derived from what the caps left over' },
+  { name: 'ingest/layout.py',             lines: 266, stmts: 100, missed:  0, does: 'works out which column of a CSV is which' },
+  { name: 'domain/budgets.py',            lines: 210, stmts:  80, missed:  0, does: 'a monthly cap per category, and pace against it' },
+  { name: 'fx/pounds.py',                 lines: 248, stmts:  80, missed:  0, does: 'CAD into GBP across two euro legs, against a £1,000 cap' },
+  { name: 'tools/publish_rates.py',       lines: 187, stmts:  76, missed:  0, does: 'moves the wallet’s rate snapshot and its fixture forward' },
+  { name: 'core/money.py',                lines: 207, stmts:  75, missed:  0, does: 'integer cents; the one parser and the one formatter' },
+  { name: 'fx/fxlive.py',                 lines: 173, stmts:  75, missed:  0, does: 'the latest published rate, fetched on demand' },
+  { name: 'ingest/ofx.py',                lines: 212, stmts:  74, missed:  0, does: 'OFX/QFX, both dialects — the bank’s own rate' },
+  { name: 'domain/trends.py',             lines: 201, stmts:  72, missed:  0, does: 'each category against its own average, with drilldown' },
+  { name: 'ingest/ocr.py',                lines: 152, stmts:  60, missed:  0, does: 'image to text boxes; the optional engine sits behind it' },
+  { name: 'tools/publish_pound_rates.py', lines: 130, stmts:  58, missed:  0, does: 'the pound wallet’s CAD and GBP rate file, and its cases' },
+  { name: 'fx/fxcost.py',                 lines: 186, stmts:  50, missed:  0, does: 'what a conversion cost, and what the next will cost' },
+  { name: 'domain/upcoming.py',           lines: 160, stmts:  47, missed:  0, does: 'subscriptions: due, landed, lapsed, and price rises' },
+  { name: 'tools/build_pounds_file.py',   lines: 165, stmts:  44, missed:  0, does: 'folds the pound wallet into one self-contained file' },
+  { name: 'tools/build_single_file.py',   lines: 140, stmts:  42, missed:  0, does: 'folds the euro wallet into one self-contained file' },
+  { name: 'domain/export.py',             lines: 133, stmts:  40, missed:  0, does: 'the CSV, and whether it adds up to the ledger' },
+  { name: 'domain/db.py',                 lines: 265, stmts:  39, missed:  0, does: 'six tables, and the additive migration' },
+  { name: 'core/fetch.py',                lines:  52, stmts:  16, missed:  0, does: 'one way to get bytes: urllib, then curl' },
+  { name: 'core/paths.py',                lines:  43, stmts:   8, missed:  0, does: 'where the data lives — one decision, one place' },
+  { name: 'wsgi.py',                      lines:  40, stmts:   5, missed:  0, does: 'the entry point a real server uses; not the dev one' }
 ];
 
 var TESTS = [
-  { file: 'test_receipts.py',          n: 88, of: 'the screenshot parser, built from real engine output' },
-  { file: 'test_frontend.py',          n: 73, of: 'escaping, dead ids and the type scale, over both bundles' },
-  { file: 'test_auth.py',              n: 61, of: 'the refusals: no password, no token, no session' },
-  { file: 'test_cibc.py',              n: 56, of: 'the headerless CIBC exports, all three layouts' },
-  { file: 'test_app_finance.py',       n: 55, of: 'routes for screenshots, rates, cards and planning' },
-  { file: 'test_cards.py',             n: 54, of: 'fees, balances, and the exact-vs-estimated split' },
-  { file: 'test_planning.py',          n: 49, of: 'trends, subscriptions and goals' },
-  { file: 'test_app.py',               n: 41, of: 'the original HTTP surface' },
-  { file: 'test_money.py',             n: 41, of: 'both decimal conventions, and never a silent zero' },
-  { file: 'test_rate_date.py',         n: 40, of: 'weekends, Easter, Christmas, and the lookback' },
-  { file: 'test_edges.py',             n: 39, of: 'the network ladder and malformed rate files' },
-  { file: 'test_ofx.py',               n: 39, of: 'both OFX dialects and the disclosed rate' },
-  { file: 'test_ledger.py',            n: 36, of: 'the duplicate rule and recurring detection' },
-  { file: 'test_pounds.py',            n: 31, of: 'the cross rate and the markup, in both languages, one fixture' },
-  { file: 'test_importers.py',         n: 28, of: 'statements in whatever shape they arrive' },
-  { file: 'test_sources.py',           n: 28, of: 'the watched folder, and never importing twice' },
-  { file: 'test_fxlive.py',            n: 26, of: 'two rate sources, and refusing an implausible one' },
-  { file: 'test_structure.py',         n: 23, of: 'the smells, guarded structurally' },
-  { file: 'test_budgets.py',           n: 21, of: 'caps, pace and the month boundary' },
-  { file: 'test_fxrates.py',           n: 19, of: 'the ECB history and its cache' },
-  { file: 'test_export.py',            n: 14, of: 'the file, and whether it reconciles' },
-  { file: 'test_ocr.py',               n: 14, of: 'the engine wrapper, and life without it' },
-  { file: 'test_published_figures.py', n: 12, of: 'the numbers on this page, against the measurement' },
-  { file: 'test_pounds_file.py',       n: 11, of: 'the pound wallet as one file, opened from disk, limit and all' },
-  { file: 'test_deployment.py',        n:  7, of: 'that the two host configs agree with the Dockerfile and the app' },
-  { file: 'test_static_wallet.py',     n:  6, of: 'the rate lookup in both languages, and the file between them' },
-  { file: 'test_shared_rules.py',      n:  5, of: 'the parser in both languages, against one shared fixture' },
-  { file: 'test_single_file.py',       n:  5, of: 'the standalone build: one file, opened from disk, no network' }
+  { file: 'test_receipts.py',            n: 89, of: 'the screenshot parser, built from real engine output' },
+  { file: 'test_frontend.py',            n: 73, of: 'escaping, dead ids and the type scale, over both bundles' },
+  { file: 'test_auth.py',                n: 63, of: 'the refusals: no password, no token, no session' },
+  { file: 'test_cibc.py',                n: 56, of: 'the headerless CIBC exports, all three layouts' },
+  { file: 'test_app_finance.py',         n: 55, of: 'routes for screenshots, rates, cards and planning' },
+  { file: 'test_cards.py',               n: 54, of: 'fees, balances, and the exact-vs-estimated split' },
+  { file: 'test_planning.py',            n: 53, of: 'trends, subscriptions and goals' },
+  { file: 'test_app.py',                 n: 46, of: 'the original HTTP surface' },
+  { file: 'test_money.py',               n: 41, of: 'both decimal conventions, and never a silent zero' },
+  { file: 'test_rate_date.py',           n: 40, of: 'weekends, Easter, Christmas, and the lookback' },
+  { file: 'test_edges.py',               n: 39, of: 'the network ladder and malformed rate files' },
+  { file: 'test_ofx.py',                 n: 39, of: 'both OFX dialects and the disclosed rate' },
+  { file: 'test_ledger.py',              n: 36, of: 'the duplicate rule and recurring detection' },
+  { file: 'test_pounds.py',              n: 31, of: 'the cross rate and the markup, in both languages, one fixture' },
+  { file: 'test_sources.py',             n: 29, of: 'the watched folder, and never importing twice' },
+  { file: 'test_importers.py',           n: 28, of: 'statements in whatever shape they arrive' },
+  { file: 'test_fxlive.py',              n: 26, of: 'two rate sources, and refusing an implausible one' },
+  { file: 'test_structure.py',           n: 23, of: 'the smells, guarded structurally' },
+  { file: 'test_refresh_figures.py',     n: 22, of: 'the script that rewrites these figures, run on a tiny project' },
+  { file: 'test_budgets.py',             n: 21, of: 'caps, pace and the month boundary' },
+  { file: 'test_fxrates.py',             n: 19, of: 'the ECB history and its cache' },
+  { file: 'test_ocr.py',                 n: 18, of: 'the engine wrapper, and life without it' },
+  { file: 'test_export.py',              n: 14, of: 'the file, and whether it reconciles' },
+  { file: 'test_pounds_file.py',         n: 14, of: 'the pound wallet as one file, opened from disk, limit and all' },
+  { file: 'test_published_figures.py',   n: 12, of: 'the numbers on this page, against the measurement' },
+  { file: 'test_publish_pound_rates.py', n:  8, of: 'the pound rate tool, fed a zip in the ECB’s own shape' },
+  { file: 'test_publish_rates.py',       n:  8, of: 'the rate snapshot tool, and that it rebuilds the committed fixture' },
+  { file: 'test_deployment.py',          n:  7, of: 'that the two host configs agree with the Dockerfile and the app' },
+  { file: 'test_single_file.py',         n:  7, of: 'the standalone build: one file, opened from disk, no network' },
+  { file: 'test_static_wallet.py',       n:  6, of: 'the rate lookup in both languages, and the file between them' },
+  { file: 'test_shared_rules.py',        n:  5, of: 'the parser in both languages, against one shared fixture' }
 ];
 
 /* Authored prose with intentional markup, kept out of esc() deliberately --
@@ -624,7 +632,7 @@ var RATE_HISTORY_DAYS = 7089;
 var TABLES = 6;
 var ROUTE_COUNT = 38;
 var ROUTE_GROUPS = 18;
-var TEST_LINES = 10393;
+var TEST_LINES = 11389;
 
 /* Which interpreter produced the statement counts above. It matters: coverage
  * counts a `with` block or a multi-line call differently between versions, so
@@ -884,7 +892,7 @@ el('tableBtn').addEventListener('click', function () {
 });
 
 el('footNote').textContent =
-  'Figures measured on 11 October 2026 with pytest --cov and wc -l in the ' +
+  'Figures measured on 26 October 2026 with pytest --cov and wc -l in the ' +
   'repository, not estimated. Everything here is read from one data block, ' +
   'so the tiles, the charts and the table cannot disagree — the previous ' +
   'version had them typed into the markup and they were wrong by 411 tests. ' +

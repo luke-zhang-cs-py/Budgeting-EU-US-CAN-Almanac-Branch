@@ -190,7 +190,7 @@ def unread(connection, directory=None):
         try:
             with open(path, "rb") as handle:
                 mark = digest(handle.read())
-        except OSError:                    # pragma: no cover - file vanished
+        except OSError:
             continue
         if not already_imported(connection, mark):
             count += 1

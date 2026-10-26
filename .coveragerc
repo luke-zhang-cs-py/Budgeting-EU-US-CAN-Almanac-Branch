@@ -1,13 +1,15 @@
 [run]
+# Everything but the tests is measured, tools/ included. The build and
+# publish scripts used to be omitted here as "run by hand"; that left five
+# files the page described as tested and nothing measured, so they are now
+# tested in-process like any other module, with their network, subprocess
+# and file output replaced.
 omit =
     tests/*
-    tools/*
 
 [report]
-exclude_lines =
-    # Re-enable the default, which naming exclude_lines otherwise replaces.
-    pragma: no cover
-
-    # The script entry point. It starts a server and blocks, so a test cannot
-    # execute it; it is verified by running the app, not by importing it.
+# exclude_also, not exclude_lines: it adds to coverage's defaults rather
+# than replacing them. The script entry point is the only exclusion, and
+# each one only calls a main() that the suite does run.
+exclude_also =
     if __name__ == .__main__.:

@@ -44,4 +44,8 @@ jobs:
         # own tmp_path. A test that leans on a real cache passes locally and
         # fails here -- which is how the transit project in this family went
         # red for six commits.
-        run: pytest -q
+        #
+        # Coverage is enforced here, not just reported: every statement and
+        # every branch of every module, tools/ included -- .coveragerc omits
+        # only tests/. Below 100% the job fails.
+        run: pytest -q --cov=. --cov-branch --cov-report=term-missing:skip-covered --cov-fail-under=100

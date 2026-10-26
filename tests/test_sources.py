@@ -391,3 +391,21 @@ def test_a_stop_during_a_sweep_does_not_arm_another_timer(wallet,
     assert stopped, "the sweep never ran"
     assert sources._running["timer"] is None, "it rearmed after being stopped"
     assert sources.status(directory)["watching"] is False
+
+
+def test_a_file_that_vanishes_before_it_is_read_is_not_counted(wallet,
+                                                               monkeypatch):
+    """The unread count digests each file. One deleted between the listing
+    and the read is skipped rather than failing the status call."""
+    conn, directory, inbox = wallet
+    drop(inbox, "cibc.csv", EUROS)
+    drop(inbox, "other.csv", WIDER)
+    real = open
+
+    def gone(*args, **kwargs):
+        if args and str(args[0]).endswith("cibc.csv"):
+            raise FileNotFoundError(args[0])
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr("builtins.open", gone)
+    assert sources.unread(conn, directory) == 1

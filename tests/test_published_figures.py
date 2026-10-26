@@ -44,9 +44,11 @@ sys.path.insert(0, ROOT)
 PAGE = os.path.join(ROOT, "docs", "index.html")
 
 # Directories that hold no shipped module. tests/ is excluded from coverage by
-# the config too; the rest are never source.
+# the config too; the rest are never source. tools/ is not in this list: the
+# build and publish scripts are measured like everything else, so the page
+# has to list them like everything else.
 SKIP_DIRS = {".git", "__pycache__", "tests", "htmlcov", ".venv", "venv",
-             "node_modules", "docs", "tools", "data", "static", "templates"}
+             "node_modules", "docs", "data", "static", "templates"}
 
 # The page's own history: counts that describe what a figure *used to* say.
 # These are the only numbers on the page allowed to be wrong, because being

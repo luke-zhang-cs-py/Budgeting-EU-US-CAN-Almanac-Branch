@@ -921,7 +921,13 @@ def _csv(text, name):
 app = create_app()
 
 
-if __name__ == "__main__":
+def main():
+    """The development server, as `python app.py` starts it.
+
+    A function rather than the body of the `__main__` block, so that what
+    it does on start -- seed the rates, start the watcher, and stop it
+    again however the server exits -- is something a test can run.
+    """
     # Populate the rate cache on first run so the page is useful immediately.
     if not fxrates.available():
         print("fetching ECB rate history (one time, ~640 KB) ...")
@@ -949,3 +955,7 @@ if __name__ == "__main__":
         app.run(host=HOST, port=PORT, debug=DEBUG)
     finally:
         sources.stop_watching()
+
+
+if __name__ == "__main__":
+    main()

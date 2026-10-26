@@ -104,7 +104,7 @@ from reality.
 ## Tests
 
 ```bash
-pytest -q --cov=. --cov-report=term-missing
+pytest -q --cov=. --cov-branch --cov-report=term-missing --cov-fail-under=100
 python -m flake8 . --select=E9,F63,F7,F82,F401,F402,F811,F841,E722,E741
 ```
 

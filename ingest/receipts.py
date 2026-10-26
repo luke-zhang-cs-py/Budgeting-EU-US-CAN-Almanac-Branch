@@ -203,7 +203,7 @@ def _one_amount(match, box):
 
     try:
         minor = money.parse(digits)
-    except money.MoneyError:                       # pragma: no cover
+    except money.MoneyError:
         return None
     if not minor:
         return None

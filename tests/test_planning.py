@@ -447,3 +447,24 @@ def test_a_steady_price_over_no_months_at_all_is_not_steady(conn):
     empty list would divide by zero rather than answer, which is a worse
     failure than the False it gives now."""
     assert ledger._steady([], 200) is False
+
+
+def test_a_stored_deadline_that_is_not_a_date_is_treated_as_none(conn):
+    """add() refuses a mistyped deadline, but a row edited by hand -- or
+    written before that check existed -- can still hold one. Progress must
+    read it as "no deadline" rather than fail for every goal on the page."""
+    gid = goals.add(conn, "Flight home", 60000, due_on="2026-12-20")
+    conn.execute("UPDATE goals SET due_on = ? WHERE id = ?",
+                 ("20th of December", gid))
+    conn.commit()
+    row = goals.progress(conn, THIS, TODAY)[0]
+    assert row["days_left"] is None
+    assert row["monthly_needed_minor"] is None
+
+
+@pytest.mark.parametrize("earlier", ["", None, "Sept-2026"])
+def test_a_month_that_cannot_be_read_is_no_gap_at_all(earlier):
+    """The subscription gap is measured between two YYYY-MM strings. One
+    that is not one counts as no gap, so a bad row cannot flag a lapse."""
+    assert upcoming._months_between(earlier, THIS) == 0
+    assert upcoming._months_between("2026-06", THIS) == 3

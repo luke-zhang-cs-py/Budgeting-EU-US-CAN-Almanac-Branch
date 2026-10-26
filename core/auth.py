@@ -351,7 +351,8 @@ def harden(response, public):
     return response
 
 
-if __name__ == "__main__":                       # pragma: no cover
+def main():
+    """Print a value for WALLET_PASSWORD_HASH: `python -m core.auth`."""
     # A password is typed, never passed as an argument: a command line ends up
     # in shell history and in the process list.
     first = getpass.getpass("Password for the wallet: ")
@@ -362,3 +363,7 @@ if __name__ == "__main__":                       # pragma: no cover
     print()
     print("Set that in the environment where the app runs. The password "
           "itself is not stored anywhere, so keep it in a password manager.")
+
+
+if __name__ == "__main__":
+    main()

@@ -227,7 +227,7 @@ def _days_left(due_on, today):
         return None
     try:
         return (dt.date.fromisoformat(due_on) - today).days
-    except ValueError:                            # pragma: no cover
+    except ValueError:
         return None
 
 

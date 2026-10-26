@@ -33,7 +33,7 @@ Back it up too. It is one SQLite file and a folder of images.
 ### Setting it up
 
 ```bash
-python -m auth                    # asks twice, prints WALLET_PASSWORD_HASH=...
+python -m core.auth               # asks twice, prints WALLET_PASSWORD_HASH=...
 python -c "import secrets; print(secrets.token_hex(32))"   # SECRET_KEY
 ```
 
@@ -77,7 +77,7 @@ fly launch --no-deploy          # reads fly.toml; change the app name when asked
 
 fly volumes create wallet_data --size 1 --region yyz    # the disk. Not optional.
 
-python -m auth                                          # prints the hash
+python -m core.auth                                     # prints the hash
 fly secrets set WALLET_PASSWORD_HASH='scrypt:32768:8:1$...'
 fly secrets set SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
 

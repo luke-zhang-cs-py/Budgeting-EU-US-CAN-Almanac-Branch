@@ -400,3 +400,61 @@ def test_it_converts_and_holds_the_limit_from_disk(built):
         f"a conversion over the limit was not refused: {got['refused']!r}")
     assert got["rowCount"] == 1, (
         "the refused conversion was recorded anyway")
+
+
+# ------------------------------------------ python tools/build_pounds_file.py
+# main() is what a person runs. These point --out into tmp_path, so a test
+# never writes a built file into the repository.
+
+def run_main(monkeypatch, out):
+    monkeypatch.setattr(sys, "argv",
+                        ["build_pounds_file.py", "--out", str(out)])
+    builder.main()
+
+
+def test_main_writes_the_built_file_where_it_is_told(tmp_path, monkeypatch,
+                                                     capsys):
+    out = tmp_path / "wallet-pounds.html"
+    run_main(monkeypatch, out)
+    page, span = builder.build()
+
+    written = out.read_bytes()
+    assert written.decode("utf-8") == page, "main() wrote something else"
+    assert b"\r\n" not in written, (
+        "the file should be written with LF whatever the platform")
+
+    printed = capsys.readouterr().out.splitlines()
+    assert printed[0] == "  " + str(out)
+    assert printed[1].endswith(
+        "KB, %s limit, %s rate days, %s to %s, no external references"
+        % span[:4])
+    assert span[0] == "£{:,}".format(pounds.LIMIT_MINOR // 100)
+
+
+def test_main_refuses_to_write_a_file_that_points_outside_itself(
+        tmp_path, monkeypatch):
+    """The guard in main(), fired for real rather than re-implemented."""
+    page, span = builder.build()
+    broken = page.replace("</body>", '<img src="chart.png"></body>', 1)
+    monkeypatch.setattr(builder, "build", lambda: (broken, span))
+    out = tmp_path / "wallet-pounds.html"
+    with pytest.raises(SystemExit) as refused:
+        run_main(monkeypatch, out)
+    assert "chart.png" in str(refused.value)
+    assert not out.exists(), "a file with a loose reference was written"
+
+
+def test_the_build_stops_when_gbp_js_has_no_limit_to_quote(tmp_path,
+                                                           monkeypatch):
+    """The banner quotes the limit from the source. A source without one
+    stops the build rather than shipping a banner with no figure in it."""
+    copy = tmp_path / "pounds"
+    shutil.copytree(builder.PAGE, str(copy))
+    gbp = copy / "gbp.js"
+    gbp.write_text(re.sub(r"var LIMIT_MINOR = \d+;", "var LIMIT = 1;",
+                          gbp.read_text(encoding="utf-8")),
+                   encoding="utf-8")
+    monkeypatch.setattr(builder, "PAGE", str(copy))
+    with pytest.raises(SystemExit) as refused:
+        builder.build()
+    assert "LIMIT_MINOR" in str(refused.value)

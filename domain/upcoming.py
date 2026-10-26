@@ -155,6 +155,6 @@ def _months_between(earlier, later):
     try:
         y1, m1 = (int(part) for part in earlier.split("-")[:2])
         y2, m2 = (int(part) for part in later.split("-")[:2])
-    except (ValueError, AttributeError):          # pragma: no cover
+    except (ValueError, AttributeError):
         return 0
     return (y2 * 12 + m2) - (y1 * 12 + m1)

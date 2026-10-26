@@ -8,6 +8,7 @@ run in milliseconds on a machine, and in CI, that has never downloaded a
 import io
 import os
 import sys
+import types
 
 import pytest
 
@@ -192,3 +193,65 @@ def test_a_real_screenshot_reads_end_to_end(tmp_path):
     assert found["amount"] is not None, [b.text for b in boxes]
     assert found["amount"]["minor"] == 5230
     assert found["date"]["iso"] == "2026-09-08"
+
+
+def test_an_engine_that_fails_on_an_image_is_reported_as_unreadable(
+        monkeypatch):
+    """Whatever the engine raises inside, the caller sees one OcrError it
+    already handles -- not a 500 from deep in onnxruntime."""
+    monkeypatch.setattr(ocr, "available", lambda: True)
+
+    def broken(_payload):
+        raise RuntimeError("bad PNG chunk")
+    monkeypatch.setattr(ocr, "_engine", lambda: broken)
+    with pytest.raises(ocr.OcrError) as bad:
+        ocr.read(b"\x89PNG\r\n\x1a\n" + b"0" * 40)
+    assert str(bad.value) == "could not read the image: bad PNG chunk"
+    assert isinstance(bad.value.__cause__, RuntimeError)
+
+
+def test_a_malformed_box_is_skipped_and_the_rest_kept():
+    """One box without corners, one with a corner that is not a number, and
+    one too short to unpack. None of them may cost the good box."""
+    bad = [
+        [None, "no corners", "0.9"],
+        [[["x", 1.0], [2.0, 2.0]], "a corner that is not a number", "0.9"],
+        ["too short"],
+    ]
+    boxes = ocr.boxes_from(bad + RAW[:1])
+    assert [b.text for b in boxes] == ["Transaction"]
+
+
+# --------------------------------------------- the engine, without the engine
+# CI does not install requirements-ocr.txt, so the integration test above
+# skips there. These stand a fake rapidocr_onnxruntime in sys.modules, so the
+# two lines that only run with an engine present run everywhere.
+
+class FakeRapidOCR:
+    built = 0
+
+    def __init__(self):
+        FakeRapidOCR.built += 1
+
+
+@pytest.fixture
+def fake_engine(monkeypatch):
+    module = types.ModuleType("rapidocr_onnxruntime")
+    module.RapidOCR = FakeRapidOCR
+    monkeypatch.setitem(sys.modules, "rapidocr_onnxruntime", module)
+    FakeRapidOCR.built = 0
+    ocr._engine.cache_clear()
+    yield
+    ocr._engine.cache_clear()
+
+
+def test_an_importable_engine_counts_as_available(fake_engine):
+    assert ocr.available() is True
+
+
+def test_the_engine_is_built_once_and_reused(fake_engine):
+    """Building it loads several ONNX models, so it is per-process."""
+    first = ocr._engine()
+    assert isinstance(first, FakeRapidOCR)
+    assert ocr._engine() is first
+    assert FakeRapidOCR.built == 1

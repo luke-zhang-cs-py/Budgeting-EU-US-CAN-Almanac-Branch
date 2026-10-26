@@ -552,3 +552,40 @@ def test_a_page_post_without_a_token_goes_back_to_the_login_screen(
     assert reply.headers["Location"].endswith("/login?next=/logout")
     assert client.get("/api/overview").status_code == 200, \
         "the refused logout must not have signed anybody out"
+
+
+# ----------------------------------------------------- python -m core.auth
+
+def _typed(monkeypatch, *answers):
+    """getpass, answering with `answers` in order and recording the prompts."""
+    prompts = []
+    replies = iter(answers)
+
+    def fake(prompt):
+        prompts.append(prompt)
+        return next(replies)
+    monkeypatch.setattr(auth.getpass, "getpass", fake)
+    return prompts
+
+
+def test_the_hash_command_prints_a_hash_of_what_was_typed(monkeypatch,
+                                                          capsys):
+    prompts = _typed(monkeypatch, PASSWORD, PASSWORD)
+    auth.main()
+    out = capsys.readouterr().out
+    assert prompts == ["Password for the wallet: ", "Again: "]
+    line = [text for text in out.splitlines()
+            if text.startswith(auth.PASSWORD_VAR + "=")]
+    assert len(line) == 1, out
+    stored = line[0].split("=", 1)[1]
+    assert auth.password_matches(PASSWORD, stored)
+    assert PASSWORD not in out, "the password itself was printed"
+    assert "keep it in a password manager" in out
+
+
+def test_the_hash_command_refuses_two_different_passwords(monkeypatch,
+                                                          capsys):
+    _typed(monkeypatch, PASSWORD, PASSWORD + "!")
+    with pytest.raises(SystemExit, match="they did not match"):
+        auth.main()
+    assert auth.PASSWORD_VAR not in capsys.readouterr().out

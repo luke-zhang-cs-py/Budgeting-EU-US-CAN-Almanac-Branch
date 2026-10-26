@@ -151,3 +151,43 @@ def test_it_converts_when_opened_from_disk(built):
         "the worked example converts differently in the built file")
     assert got["from"] == "2026-09-04", (
         "the business-day walk-back is not working in the built file")
+
+
+# ------------------------------------------ python tools/build_single_file.py
+# main() is what a person runs. These point --out into tmp_path, so a test
+# never writes a built file into the repository.
+
+def run_main(monkeypatch, out):
+    monkeypatch.setattr(sys, "argv",
+                        ["build_single_file.py", "--out", str(out)])
+    builder.main()
+
+
+def test_main_writes_the_built_file_where_it_is_told(tmp_path, monkeypatch,
+                                                     capsys):
+    out = tmp_path / "wallet.html"
+    run_main(monkeypatch, out)
+    page, span = builder.build()
+
+    written = out.read_bytes()
+    assert written.decode("utf-8") == page, "main() wrote something else"
+    assert b"\r\n" not in written, (
+        "the file should be written with LF whatever the platform")
+
+    printed = capsys.readouterr().out.splitlines()
+    assert printed[0] == "  " + str(out)
+    assert printed[1].endswith(
+        "KB, %s rate days, %s to %s, no external references" % span[:3])
+
+
+def test_main_refuses_to_write_a_file_that_points_outside_itself(
+        tmp_path, monkeypatch):
+    """The guard in main(), fired for real rather than re-implemented."""
+    page, span = builder.build()
+    broken = page.replace("</body>", '<img src="chart.png"></body>', 1)
+    monkeypatch.setattr(builder, "build", lambda: (broken, span))
+    out = tmp_path / "wallet.html"
+    with pytest.raises(SystemExit) as refused:
+        run_main(monkeypatch, out)
+    assert "chart.png" in str(refused.value)
+    assert not out.exists(), "a file with a loose reference was written"

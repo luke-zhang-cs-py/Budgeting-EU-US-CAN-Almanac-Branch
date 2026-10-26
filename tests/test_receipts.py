@@ -474,3 +474,22 @@ def test_a_line_that_is_mostly_digits_but_has_letters_is_not_a_merchant():
 
 def test_an_impossible_iso_date_is_ignored_rather_than_raising():
     assert read(box("2026-13-45"))["date"] is None
+
+
+def test_a_figure_the_money_parser_refuses_is_not_an_amount(monkeypatch):
+    """The regex and money.parse are two readings of the same token. If they
+    ever disagree, the token is dropped and the next candidate is offered,
+    rather than the whole screenshot failing to parse."""
+    real = receipts.money.parse
+
+    def picky(text, *args, **kwargs):
+        if "52" in text:
+            raise receipts.money.MoneyError("refused")
+        return real(text, *args, **kwargs)
+
+    monkeypatch.setattr(receipts.money, "parse", picky)
+    found = read(
+        box("Card fee 1,50 EUR", top=40, height=12),
+        box("-52,30 EUR", top=80, height=34),
+    )
+    assert found["amount"]["minor"] == 150

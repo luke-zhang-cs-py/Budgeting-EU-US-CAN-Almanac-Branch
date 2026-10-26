@@ -98,7 +98,7 @@ def read(image):
 
     try:
         result, _ = _engine()(payload)
-    except Exception as bad:                  # pragma: no cover - engine guts
+    except Exception as bad:
         raise OcrError(f"could not read the image: {bad}") from bad
 
     return boxes_from(result)
@@ -117,7 +117,7 @@ def boxes_from(result):
             corners, text, confidence = item[0], item[1], item[2]
             xs = [float(point[0]) for point in corners]
             ys = [float(point[1]) for point in corners]
-        except (TypeError, ValueError, IndexError):   # pragma: no cover
+        except (TypeError, ValueError, IndexError):
             continue
         text = " ".join(str(text).split())
         if not text:
@@ -136,7 +136,7 @@ def boxes_from(result):
 def _as_float(value):
     try:
         return max(0.0, min(1.0, float(value)))
-    except (TypeError, ValueError):            # pragma: no cover
+    except (TypeError, ValueError):
         return 0.0
 
 

@@ -438,3 +438,75 @@ def test_the_simple_view_needs_a_session_like_everything_else(tmp_path,
     reply = application.test_client().get("/simple")
     assert reply.status_code == 302
     assert "/login" in reply.headers["Location"]
+
+
+# ------------------------------------------------------------ python app.py
+# main() is what `python app.py` runs. The server itself is replaced -- it
+# blocks -- and so are the rate download and the watcher thread, so these
+# check the order of the start and what it says, not Werkzeug.
+
+
+@pytest.fixture
+def started(tmp_path, monkeypatch):
+    """main(), with everything it would start replaced by a recorder."""
+    calls = []
+    monkeypatch.setattr(fxrates, "available", lambda: True)
+    monkeypatch.setattr(web.sources, "inbox_dir",
+                        lambda: str(tmp_path / "inbox"))
+    monkeypatch.setattr(web.sources, "start_watching",
+                        lambda: calls.append("watch"))
+    monkeypatch.setattr(web.sources, "stop_watching",
+                        lambda: calls.append("stop"))
+    monkeypatch.setattr(web.app, "run",
+                        lambda **kw: calls.append(("run", kw)))
+    monkeypatch.delitem(web.app.config, "WALLET_PASSWORD_HASH", raising=False)
+    return calls
+
+
+def test_the_dev_server_starts_on_loopback_and_stops_the_watcher(
+        started, tmp_path, capsys):
+    web.main()
+    out = capsys.readouterr().out
+    assert started == ["watch", ("run", {"host": web.HOST, "port": web.PORT,
+                                         "debug": web.DEBUG}), "stop"]
+    assert (tmp_path / "inbox").is_dir(), "the inbox folder was not created"
+    assert f"on http://{web.HOST}:{web.PORT}" in out
+    assert "no password set, and none needed on loopback" in out
+    assert "fetching ECB" not in out, "it downloaded rates it already had"
+
+
+def test_the_watcher_is_stopped_even_when_the_server_dies(started,
+                                                          monkeypatch):
+    """The `finally`: a crashed server must not leave a thread writing to
+    the database behind it."""
+    def crash(**_kw):
+        raise RuntimeError("port in use")
+    monkeypatch.setattr(web.app, "run", crash)
+    with pytest.raises(RuntimeError):
+        web.main()
+    assert started == ["watch", "stop"]
+
+
+@pytest.mark.parametrize("fetched, said", [
+    (True, "  ok"),
+    (False, "  failed -- the app still runs; use Refresh rates later"),
+])
+def test_the_first_run_fetches_rates_and_survives_a_failure(
+        started, monkeypatch, capsys, fetched, said):
+    monkeypatch.setattr(fxrates, "available", lambda: False)
+    monkeypatch.setattr(fxrates, "refresh", lambda: fetched)
+    web.main()
+    lines = capsys.readouterr().out.splitlines()
+    assert lines[0] == "fetching ECB rate history (one time, ~640 KB) ..."
+    assert lines[1] == said
+    assert ("run" in [call[0] for call in started if isinstance(call, tuple)]
+            ), "a failed fetch stopped the server starting"
+
+
+def test_the_start_says_when_a_password_will_be_asked_for(started,
+                                                          monkeypatch,
+                                                          capsys):
+    monkeypatch.setitem(web.app.config, "WALLET_PASSWORD_HASH", "scrypt:x")
+    web.main()
+    out = capsys.readouterr().out
+    assert "a password is set; you will be asked for it" in out

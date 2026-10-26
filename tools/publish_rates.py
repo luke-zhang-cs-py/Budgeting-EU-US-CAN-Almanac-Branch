@@ -19,7 +19,7 @@ moved.
 
 Refresh the cache first if it is stale — the app does it on boot, or:
 
-    python -c "import fxrates; fxrates.refresh()"
+    python -c "from fx import fxrates; fxrates.refresh()"
 """
 import datetime as dt
 import io
@@ -158,7 +158,8 @@ def main():
     if not os.path.exists(source):
         raise SystemExit(
             "no rate cache at %s. Run the app once, or:\n"
-            "    python -c \"import fxrates; fxrates.refresh()\"" % source)
+            "    python -c \"from fx import fxrates; fxrates.refresh()\""
+            % source)
 
     was = None
     if os.path.exists(SHIPPED):
