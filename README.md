@@ -108,7 +108,7 @@ for the Fly.io walkthrough and what the protection is and isn't.
 pytest -q
 ```
 
-982 tests, 100% of 2,875 statements — and that figure is itself checked, so it
+983 tests, 100% of 2,875 statements — and that figure is itself checked, so it
 can't quietly go stale.
 
 ## License

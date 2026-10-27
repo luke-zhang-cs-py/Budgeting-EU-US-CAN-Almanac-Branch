@@ -18,7 +18,7 @@ What is checked statically, so it works in CI with no coverage run:
     `.coveragerc`, and only when the running interpreter is the one the page
     says measured it;
   * no module in the project is missing from the page;
-  * every test file and its collected count;
+  * every test file and its collected count, and the lines they hold;
   * the README's one sentence of figures.
 
 `missed` needs an actual run, so it is verified only when a `.coverage` data
@@ -427,6 +427,24 @@ def test_every_test_file_and_its_count_are_the_real_ones(page):
         f"the page's test table does not match the suite.\n"
         f"  page:      {sorted(listed.items())}\n"
         f"  collected: {sorted(real.items())}")
+
+
+def test_the_test_line_count_is_the_real_one(page):
+    """TEST_LINES, counted the way tools/refresh_figures.py counts it: every
+    .py file under tests/, __pycache__ left out. It went unchecked, and two
+    edits to one test file left it nine lines behind."""
+    stated = re.search(r"var TEST_LINES = (\d+);", page)
+    assert stated, "the page no longer states TEST_LINES"
+    real = 0
+    for here, dirs, names in os.walk(os.path.join(ROOT, "tests")):
+        dirs[:] = [d for d in dirs if d != "__pycache__"]
+        for name in names:
+            if name.endswith(".py"):
+                with io.open(os.path.join(here, name),
+                             encoding="utf-8") as handle:
+                    real += len(handle.read().splitlines())
+    assert int(stated.group(1)) == real, (
+        f"the page says {stated.group(1)} test lines, counted {real}")
 
 
 def test_the_page_says_when_it_was_measured(page):

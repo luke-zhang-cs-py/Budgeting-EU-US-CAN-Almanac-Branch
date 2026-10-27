@@ -48,7 +48,7 @@ def measure():
 
     The report rather than a static analysis: it is the same set of files the
     terminal report prints, so whatever .coveragerc omits stays omitted and
-    the network/ package is not missed — both of which a walk of the root got
+    no package directory is missed — both of which a walk of the root got
     wrong.
     """
     handle, path = tempfile.mkstemp(suffix=".json")

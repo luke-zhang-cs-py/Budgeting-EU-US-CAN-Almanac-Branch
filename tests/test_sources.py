@@ -298,12 +298,16 @@ def test_the_timer_actually_imports(wallet):
     drop(inbox, "cibc.csv", EUROS)
     sources.start_watching(directory, interval=0.05)
     import time
+    # Polled on the imports table, not status()["last"]: "last" is only the
+    # most recent sweep, and the one after the import finds nothing new and
+    # overwrites it with files=0 -- one interval later. A poll that woke late
+    # missed that window and failed with added=0.
     for _ in range(40):
         time.sleep(0.05)
-        if sources.status(directory)["last"]["files"]:
+        if sources.history(conn):
             break
     sources.stop_watching()
-    assert sources.status(directory)["last"]["added"] == 2
+    assert [row["added"] for row in sources.history(conn)] == [2]
     with db.session(directory) as fresh:
         assert len(ledger.transactions(fresh, directory=directory)) == 2
 
