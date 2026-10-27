@@ -6,10 +6,29 @@
 # and file output replaced.
 omit =
     tests/*
+# The root, for a bare `--cov` (tools/refresh_figures.py runs that); CI's
+# `--cov=.` says the same. Below a source directory coverage only looks
+# inside folders with an __init__.py -- none of the code folders has one --
+# so a file in them that no test imports would be missing from the report
+# rather than shown at 0%. Hence the folders are named in source_dirs, which
+# adds to `source` and to --cov rather than being replaced by them
+# (coverage>=7.8). A new code folder goes here.
+source = .
+source_dirs =
+    core
+    domain
+    fx
+    ingest
+    tools
 
 [report]
-# exclude_also, not exclude_lines: it adds to coverage's defaults rather
-# than replacing them. The script entry point is the only exclusion, and
-# each one only calls a main() that the suite does run.
-exclude_also =
+# exclude_lines, not exclude_also: exclude_also keeps coverage's defaults,
+# so `pragma: no cover`, `if TYPE_CHECKING:` and `...` stub bodies would
+# still hide lines from the 100% gate. This list replaces them. The script
+# entry point is the only exclusion, and each one only calls a main() that
+# the suite does run.
+exclude_lines =
     if __name__ == .__main__.:
+# Empty, so `pragma: no branch` cannot hide a partial branch either
+# (an empty value here needs coverage>=7.5.2).
+partial_branches =

@@ -11,6 +11,8 @@ pytest>=7.4,<10
 # it that test errors rather than skips -- and CI installs exactly this file
 # and nothing else. pytest-cov is what the command in the README and
 # CONTRIBUTING asks for, which a fresh clone could not actually run until it
-# was named here.
-coverage>=7.0
+# was named here. 7.8 is the first release that reads `source_dirs`, which
+# .coveragerc relies on to see a file in core/, domain/, fx/, ingest/ or
+# tools/ that no test imports; older ones ignore it with a warning.
+coverage>=7.8
 pytest-cov>=4.0

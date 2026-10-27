@@ -324,6 +324,26 @@ def test_every_module_is_on_the_page(page):
         f"{sorted(listed - present)}")
 
 
+def test_every_code_folder_is_a_coverage_source():
+    """Below a source directory, coverage reports a file nothing imported
+    only inside a folder with an __init__.py, and the code folders here have
+    none. Each is named in .coveragerc's source_dirs instead; a folder left
+    out would drop such a module from the report, where it reads as 100%,
+    rather than show it at 0%."""
+    import coverage
+    config = coverage.Coverage(
+        config_file=os.path.join(ROOT, ".coveragerc")).config
+    named = {os.path.normpath(folder) for folder in config.source_dirs}
+    folders = {os.path.dirname(name) for name in source_files()} - {""}
+    bare = {os.path.normpath(folder) for folder in folders
+            if not os.path.exists(os.path.join(ROOT, folder, "__init__.py"))}
+    assert bare, "no code folder found, so this check is vacuous"
+    assert "." in config.source, "the root is not a coverage source"
+    assert bare - named == set(), (
+        f"add these folders to source_dirs in .coveragerc: "
+        f"{sorted(bare - named)}")
+
+
 def test_the_omitted_modules_really_are_omitted(page):
     """The page says two build tools are left out of coverage on purpose. If
     that stops being true, the omission has become an accident."""
