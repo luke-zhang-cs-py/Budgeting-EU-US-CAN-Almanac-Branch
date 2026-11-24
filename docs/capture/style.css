@@ -1,41 +1,96 @@
 /* The capture page. Self-contained: it is a static file on GitHub Pages and
- * cannot reach the app's stylesheet, so the tokens are declared here. Same
- * scale and palette as the app, kept deliberately in step by eye -- there is
- * no build step to share them, and inventing one for two pages would cost
- * more than it saves.
+ * cannot reach the app's stylesheet, so the tokens are declared here. The
+ * colour tokens are the same two theme blocks as the app and the static
+ * wallet, and tests/test_theme.py holds the three copies identical rather
+ * than leaving them to be kept in step by eye.
  *
  * Sized for a thumb. This is opened on a phone, standing in a shop, and is
  * judged on the seconds between opening it and having recorded something --
  * so every control that gets tapped is at least 44px. */
 
+/* ======================================================================
+   DESIGN TOKENS
+   1. Theme-independent tokens (spacing, type, shape) live on :root.
+   2. Colour tokens live in one block per theme, keyed on a class on <html>.
+      class="theme-dark" is in the markup, so the page is themed with no
+      JavaScript at all; theme.js only restores a theme picked before.
+   3. Every rule below reads these tokens, never a raw colour.
+   To add a theme: copy a theme block, rename it .theme-<name>, set every
+   token in it, and add <name> to THEMES in theme.js. Nothing else changes,
+   and tests/test_theme.py checks the new theme's pairings for WCAG AA.
+   ====================================================================== */
 :root {
-  --bg: #12141a;
-  --panel: #1a1d26;
-  --panel-2: #21252f;
-  --line: #2c313d;
-  --ink: #e8eaf0;
-  --ink-dim: #9aa2b4;
-  --ink-faint: #6b7387;
+  /* spacing: --space-N is N x 4px, so a step can be added without renaming the rest */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-7: 28px; --space-9: 36px;
 
-  --accent: #6ea8fe;
-  --good: #4bbd8a;
-  --warn: #e8b04b;
-  --bad: #e8695d;
+  /* typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --text-xs: 10.5px; --text-sm: 11.5px; --text-base: 13px;
+  --text-md: 15px; --text-lg: 17px; --text-xl: 20px; --text-2xl: 26px;
+  --leading-tight: 1.2; --leading-normal: 1.5;
+  --weight-regular: 400; --weight-medium: 500; --weight-semibold: 600;
+  --tracking-tight: -0.2px; --tracking-wide: 0.05em; --tracking-caps: 0.06em;
 
-  --text: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* shape */
+  --radius-xs: 3px; --radius-lg: 8px; --radius-xl: 10px;
 
-  --t-small: 11.5px;
-  --t-body: 13px;
-  --t-mid: 15px;
-  --t-big: 26px;
-  --t-h1: 20px;
-  --t-icon: 17px;
-
+  /* every control that gets tapped is at least this tall */
   --tap: 44px;
-  --radius: 10px;
-  --gap: 12px;
 }
+
+/* ---- themes. Colour lives here and nowhere else.
+ * :where(:root) has no specificity, so it is only the fallback for an <html>
+ * with no theme class or an unknown one; any .theme-* block wins over it.
+ * The same two blocks open docs/app/style.css, docs/capture/style.css and
+ * static/css/style.css, and tests/test_theme.py holds them identical. */
+:where(:root), .theme-dark {
+  color-scheme: dark;
+  --color-bg: #12141a;               /* the page */
+  --color-surface: #1a1d26;          /* cards, the totals band */
+  --color-surface-subtle: #21252f;   /* fields, list rows, tracks, a hovered row */
+  --color-border: #2c313d;           /* separators and card edges */
+  --color-border-strong: #6b7387;    /* form-field edges: 3:1 on all three surfaces */
+  --color-text-primary: #e8eaf0;
+  --color-text-muted: #9aa2b4;       /* labels, column heads */
+  --color-text-subtle: #8b93a7;      /* hints, dates, the footer */
+  --color-accent: #6ea8fe;
+  --color-accent-hover: #93bdfe;
+  --color-accent-subtle: #1b2a44;
+  --color-text-on-accent: #0d1017;
+  --color-danger: #e8695d;           /* over a budget, a refused row */
+  --color-success: #4bbd8a;          /* within budget, money in */
+  --color-warning: #e8b04b;          /* getting close, a question to answer */
+  --color-untracked: #7c839a;        /* a bar for spending with no budget */
+  --color-danger-subtle: #2b1a18;    /* the backgrounds the three notices sit on */
+  --color-success-subtle: #16281f;
+  --color-warning-subtle: #2a2118;
+  --icon-sun: block; --icon-moon: none;   /* the toggle shows where it will take you */
+}
+.theme-light {
+  color-scheme: light;
+  --color-bg: #f3f4f7;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #eceef3;
+  --color-border: #d8dce4;
+  --color-border-strong: #7d8597;
+  --color-text-primary: #151820;
+  --color-text-muted: #454c5c;
+  --color-text-subtle: #575f70;
+  --color-accent: #1d5fc4;
+  --color-accent-hover: #174d9f;
+  --color-accent-subtle: #e2ebfa;
+  --color-text-on-accent: #ffffff;
+  --color-danger: #b42a1f;
+  --color-success: #17744a;
+  --color-warning: #8a5800;
+  --color-untracked: #6b7387;
+  --color-danger-subtle: #fbe6e3;
+  --color-success-subtle: #e1f3e9;
+  --color-warning-subtle: #fbf0d9;
+  --icon-sun: none; --icon-moon: block;
+}
+
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; }
@@ -49,144 +104,152 @@ html, body { margin: 0; }
 [hidden] { display: none !important; }
 
 body {
-  background: var(--bg); color: var(--ink);
-  font: 400 var(--t-body)/1.5 var(--text);
+  background: var(--color-bg); color: var(--color-text-primary);
+  font: var(--weight-regular) var(--text-base)/var(--leading-normal) var(--font-sans);
   -webkit-font-smoothing: antialiased;
   padding-bottom: env(safe-area-inset-bottom);
 }
 
 .top {
   display: flex; align-items: flex-end; justify-content: space-between;
-  gap: var(--gap); padding: 18px 16px 12px;
-  border-bottom: 1px solid var(--line);
+  gap: var(--space-3); padding: var(--space-5) var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
 }
-h1 { margin: 0; font-size: var(--t-h1); font-weight: 600; letter-spacing: -0.2px; }
-.sub { margin: 2px 0 0; color: var(--ink-dim); font-size: var(--t-small); font-family: var(--mono); }
-.acts { display: flex; gap: 8px; }
+h1 { margin: 0; font-size: var(--text-xl); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+.sub { margin: 2px 0 0; color: var(--color-text-muted); font-size: var(--text-sm); font-family: var(--font-mono); }
+.acts { display: flex; gap: var(--space-2); }
 
 .totals {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1px; background: var(--line); border-bottom: 1px solid var(--line);
+  gap: 1px; background: var(--color-border); border-bottom: 1px solid var(--color-border);
 }
-.total { background: var(--panel); padding: 11px 16px; }
+.total { background: var(--color-surface); padding: var(--space-3) var(--space-4); }
 .total .label {
-  display: block; color: var(--ink-dim); font-size: var(--t-small);
-  text-transform: uppercase; letter-spacing: 0.06em;
+  display: block; color: var(--color-text-muted); font-size: var(--text-sm);
+  text-transform: uppercase; letter-spacing: var(--tracking-caps);
 }
 .figure {
   display: block; margin-top: 2px;
-  font: 500 var(--t-big)/1.2 var(--mono); font-variant-numeric: tabular-nums;
+  font: var(--weight-medium) var(--text-2xl)/var(--leading-tight) var(--font-mono); font-variant-numeric: tabular-nums;
 }
-.figure.small { font-size: var(--t-mid); color: var(--ink-dim); }
+.figure.small { font-size: var(--text-md); color: var(--color-text-muted); }
 
-main { padding: var(--gap) 16px 28px; display: grid; gap: var(--gap); }
+main { padding: var(--space-3) var(--space-4) var(--space-7); display: grid; gap: var(--space-3); }
 
 .card {
-  background: var(--panel); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 14px 16px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl); padding: var(--space-4) var(--space-4);
 }
-.card h2 { margin: 0 0 8px; font-size: var(--t-mid); font-weight: 600; }
-.cardHead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.card h2 { margin: 0 0 var(--space-2); font-size: var(--text-md); font-weight: var(--weight-semibold); }
+.cardHead { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-2); }
 .cardHead h2 { margin: 0; }
-.hint { margin: 8px 0 0; color: var(--ink-faint); font-size: var(--t-small); }
+.hint { margin: var(--space-2) 0 0; color: var(--color-text-subtle); font-size: var(--text-sm); }
 
 /* ------------------------------------------------------------ the target */
 /* Large on purpose: it is the one action on the page, so it should not look
  * like a form field. */
 .drop {
-  display: grid; place-items: center; gap: 4px;
-  margin-top: 12px; padding: 34px 20px; cursor: pointer; text-align: center;
-  background: var(--panel-2); border: 1px dashed var(--line);
-  border-radius: var(--radius);
+  display: grid; place-items: center; gap: var(--space-1);
+  margin-top: var(--space-3); padding: var(--space-9) var(--space-5); cursor: pointer; text-align: center;
+  background: var(--color-surface-subtle); border: 1px dashed var(--color-border);
+  border-radius: var(--radius-xl);
 }
-.drop:hover, .drop.over { border-color: var(--accent); }
+.drop:hover, .drop.over { border-color: var(--color-accent); }
 .drop input[type="file"] {
   /* Hidden but reachable: the label wraps it, so a tap or a keyboard
    * activation still opens the picker and it stays in the tab order. */
   position: absolute; width: 1px; height: 1px; opacity: 0;
 }
-.dropBig { font-size: var(--t-mid); color: var(--ink); }
-.dropSmall { color: var(--ink-faint); font-size: var(--t-small); }
+.dropBig { font-size: var(--text-md); color: var(--color-text-primary); }
+.dropSmall { color: var(--color-text-subtle); font-size: var(--text-sm); }
 
-.progress { display: grid; gap: 5px; margin-top: 12px; }
-.progress .bar { display: block; height: 5px; background: var(--panel-2); border-radius: 3px; overflow: hidden; }
-.progress .bar > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.progress { display: grid; gap: var(--space-1); margin-top: var(--space-3); }
+.progress .bar { display: block; height: 5px; background: var(--color-surface-subtle); border-radius: var(--radius-xs); overflow: hidden; }
+.progress .bar > span { display: block; height: 100%; width: 0; background: var(--color-accent); transition: width .2s; }
 
 /* ----------------------------------------------------------- the reading */
-.readingTop { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; margin-top: 14px; }
+.readingTop { display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); align-items: start; margin-top: var(--space-4); }
 .fields { min-width: 0; }
 @media (max-width: 700px) { .readingTop { grid-template-columns: 1fr; } }
 
-.shot { display: block; max-width: 190px; max-height: 260px; border: 1px solid var(--line); border-radius: 8px; }
+.shot { display: block; max-width: 190px; max-height: 260px; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
 
 .needs {
-  margin: 0 0 12px; padding: 9px 12px;
-  background: #2a2118; border: 1px solid var(--line); border-radius: 7px;
-  color: var(--warn); font-size: var(--t-small);
+  margin: 0 0 var(--space-3); padding: var(--space-2) var(--space-3);
+  background: var(--color-warning-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+  color: var(--color-warning); font-size: var(--text-sm);
 }
-.needs p { margin: 0 0 4px; }
+.needs p { margin: 0 0 var(--space-1); }
 .needs p:last-child { margin-bottom: 0; }
 
-.row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }
+.row { display: flex; gap: var(--space-3); align-items: flex-end; flex-wrap: wrap; margin-bottom: var(--space-3); }
 .row.actions { margin-bottom: 0; }
-.field { display: flex; flex-direction: column; gap: 4px; min-width: 120px; }
+.field { display: flex; flex-direction: column; gap: var(--space-1); min-width: 120px; }
 .field.grow { flex: 1 1 200px; }
 .field > span {
-  color: var(--ink-dim); font-size: var(--t-small);
-  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--color-text-muted); font-size: var(--text-sm);
+  text-transform: uppercase; letter-spacing: var(--tracking-wide);
 }
 input {
-  min-height: var(--tap); font: 400 var(--t-body) var(--text);
-  background: var(--panel-2); color: var(--ink);
-  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+  min-height: var(--tap); font: var(--weight-regular) var(--text-base) var(--font-sans);
+  background: var(--color-surface-subtle); color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); padding: var(--space-2) var(--space-3);
 }
-input[type="date"] { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+input[type="date"] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+input:focus { outline: 2px solid var(--color-accent); outline-offset: -1px; }
 
 button {
-  min-height: var(--tap); padding: 10px 16px; cursor: pointer;
-  background: var(--accent); border: 1px solid var(--accent); color: #0d1017;
-  border-radius: 8px; font: 600 var(--t-body) var(--text);
+  min-height: var(--tap); padding: var(--space-3) var(--space-4); cursor: pointer;
+  background: var(--color-accent); border: 1px solid var(--color-accent); color: var(--color-text-on-accent);
+  border-radius: var(--radius-lg); font: var(--weight-semibold) var(--text-base) var(--font-sans);
 }
-button.ghost { background: var(--panel-2); border-color: var(--line); color: var(--ink); font-weight: 400; }
+button.ghost { background: var(--color-surface-subtle); border-color: var(--color-border); color: var(--color-text-primary); font-weight: var(--weight-regular); }
 button:hover { filter: brightness(1.08); }
+
+/* The theme toggle: a ghost button holding two icons, of which the theme
+ * block shows one -- the theme a press would switch to. Its name is set by
+ * theme.js ("Switch to light theme"), so the icons are aria-hidden. */
+.themeToggle { display: inline-grid; place-items: center; min-width: var(--tap); padding: 0 var(--space-3); }
+.themeToggle svg { width: 18px; height: 18px; }
+.themeToggle .iconSun { display: var(--icon-sun); }
+.themeToggle .iconMoon { display: var(--icon-moon); }
 
 .linky {
   min-height: 0; padding: 0; background: none; border: none;
-  color: var(--accent); font: inherit; font-weight: 400;
+  color: var(--color-accent); font: inherit; font-weight: var(--weight-regular);
   text-decoration: underline; cursor: pointer;
 }
 
 /* ----------------------------------------------------------- the entries */
-.entries { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.entries { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
 .entries li {
-  display: grid; grid-template-columns: 1fr auto auto; gap: 10px;
-  align-items: center; padding: 9px 11px;
-  background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+  display: grid; grid-template-columns: 1fr auto auto; gap: var(--space-3);
+  align-items: center; padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-lg);
 }
 .what { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.when { color: var(--ink-faint); font-size: 10.5px; font-family: var(--mono); }
-.much { font: 500 var(--t-body) var(--mono); font-variant-numeric: tabular-nums; }
+.when { color: var(--color-text-subtle); font-size: var(--text-xs); font-family: var(--font-mono); }
+.much { font: var(--weight-medium) var(--text-base) var(--font-mono); font-variant-numeric: tabular-nums; }
 .iconButton {
   min-height: 34px; min-width: 34px; padding: 0;
-  background: none; border: none; color: var(--ink-faint); font-size: var(--t-icon);
+  background: none; border: none; color: var(--color-text-subtle); font-size: var(--text-lg);
 }
-.iconButton:hover { color: var(--bad); filter: none; }
-.empty { color: var(--ink-faint); font-size: var(--t-small); }
+.iconButton:hover { color: var(--color-danger); filter: none; }
+.empty { color: var(--color-text-subtle); font-size: var(--text-sm); }
 
 /* ----------------------------------------------------------- the notice */
 .notice {
-  margin: 0; padding: 9px 16px; font-size: var(--t-small);
-  background: #2a2118; color: var(--warn); border-bottom: 1px solid var(--line);
+  margin: 0; padding: var(--space-2) var(--space-4); font-size: var(--text-sm);
+  background: var(--color-warning-subtle); color: var(--color-warning); border-bottom: 1px solid var(--color-border);
 }
-.notice.good { background: #16281f; color: var(--good); }
-.notice.bad { background: #2b1a18; color: var(--bad); }
-.notice.warn { background: #2a2118; color: var(--warn); }
+.notice.good { background: var(--color-success-subtle); color: var(--color-success); }
+.notice.bad { background: var(--color-danger-subtle); color: var(--color-danger); }
+.notice.warn { background: var(--color-warning-subtle); color: var(--color-warning); }
 
 .foot {
-  display: flex; justify-content: space-between; gap: var(--gap);
-  flex-wrap: wrap; padding: 12px 16px 22px; border-top: 1px solid var(--line);
-  color: var(--ink-faint); font: 400 var(--t-small) var(--mono);
+  display: flex; justify-content: space-between; gap: var(--space-3);
+  flex-wrap: wrap; padding: var(--space-3) var(--space-4) var(--space-6); border-top: 1px solid var(--color-border);
+  color: var(--color-text-subtle); font: var(--weight-regular) var(--text-sm) var(--font-mono);
 }
-.foot a { color: var(--ink-dim); text-decoration: none; }
-.foot a:hover { color: var(--ink); text-decoration: underline; }
+.foot a { color: var(--color-text-muted); text-decoration: none; }
+.foot a:hover { color: var(--color-text-primary); text-decoration: underline; }

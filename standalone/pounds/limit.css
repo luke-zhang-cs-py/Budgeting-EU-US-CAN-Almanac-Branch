@@ -13,15 +13,15 @@
  * padding rather than padding the body once -- miss that and this is the one
  * strip on the page whose text sits flush against the window edge. */
 .limitWrap {
-  padding: 12px 16px 13px;
-  border-bottom: 1px solid var(--line);
+  padding: var(--space-3) var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .limitBar {
   display: block;
   height: 8px;
-  background: var(--panel-2);
-  border-radius: 4px;
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
@@ -29,29 +29,29 @@
   display: block;
   height: 100%;
   width: 0;
-  background: var(--accent);
+  background: var(--color-accent);
   transition: width .2s, background .2s;
 }
 
 /* Four fifths spent. Not an alarm, a heads-up. */
-.limitBar.near > span { background: var(--warn); }
+.limitBar.near > span { background: var(--color-warning); }
 
 /* Past the ceiling. The bar pins at full and the wording carries the rest. */
-.limitBar.over > span { background: var(--bad); }
+.limitBar.over > span { background: var(--color-danger); }
 
 .limitLine {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  margin-top: 6px;
-  color: var(--ink-faint);
-  font-size: var(--t-small);
-  font-family: var(--mono);
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  color: var(--color-text-subtle);
+  font-size: var(--text-sm);
+  font-family: var(--font-mono);
 }
 
-.limitLine .state { color: var(--ink-dim); }
-.limitLine .state.near { color: var(--warn); }
-.limitLine .state.over { color: var(--bad); }
+.limitLine .state { color: var(--color-text-muted); }
+.limitLine .state.near { color: var(--color-warning); }
+.limitLine .state.over { color: var(--color-danger); }
 
 /* The conversion breakdown. A definition list rather than a <pre> block:
  * the wallet's estimate box is monospace prose, but this is four labelled
@@ -59,23 +59,23 @@
 .breakdown {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 5px 14px;
-  margin: 12px 0 0;
-  font-size: var(--t-small);
+  gap: var(--space-1) var(--space-4);
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
 }
 
-.breakdown dt { color: var(--ink-faint); }
+.breakdown dt { color: var(--color-text-subtle); }
 
 .breakdown dd {
   margin: 0;
   text-align: right;
-  font-family: var(--mono);
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  color: var(--ink);
+  color: var(--color-text-primary);
 }
 
 /* The line that matters most of the four. */
-.breakdown dt.lead, .breakdown dd.lead { color: var(--ink); font-weight: 600; }
+.breakdown dt.lead, .breakdown dd.lead { color: var(--color-text-primary); font-weight: var(--weight-semibold); }
 
 /* The fee, which is the reason this page exists rather than a calculator. */
-.breakdown dd.cost { color: var(--warn); }
+.breakdown dd.cost { color: var(--color-warning); }

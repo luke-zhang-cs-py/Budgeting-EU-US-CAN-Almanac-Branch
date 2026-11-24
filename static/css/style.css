@@ -8,32 +8,86 @@
  * Every figure is IBM Plex Mono: money in a proportional font makes columns
  * fail to line up, which is the one thing a column of money must do. */
 
+/* ======================================================================
+   DESIGN TOKENS
+   1. Theme-independent tokens (spacing, type, shape) live on :root.
+   2. Colour tokens live in one block per theme, keyed on a class on <html>.
+      class="theme-dark" is in the markup, so the page is themed with no
+      JavaScript at all; theme.js only restores a theme picked before.
+   3. Every rule below reads these tokens, never a raw colour.
+   To add a theme: copy a theme block, rename it .theme-<name>, set every
+   token in it, and add <name> to THEMES in theme.js. Nothing else changes,
+   and tests/test_theme.py checks the new theme's pairings for WCAG AA.
+   ====================================================================== */
 :root {
-  --bg: #12141a;
-  --panel: #1a1d26;
-  --panel-2: #21252f;
-  --line: #2c313d;
-  --ink: #e8eaf0;
-  --ink-dim: #9aa2b4;
-  --ink-faint: #6b7387;
+  /* spacing: --space-N is N x 4px, so a step can be added without renaming the rest */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px;
 
-  --accent: #6ea8fe;
-  --fine: #4bbd8a;
-  --close: #e8b04b;
-  --over: #e8695d;
-  --untracked: #7c839a;
+  /* typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --text-xs: 10.5px; --text-sm: 11.5px; --text-base: 12.5px; --text-md: 14px;
+  --text-lg: 19px; --text-2xl: 22px;
+  --leading-tight: 1.25; --leading-normal: 1.5;
+  --weight-regular: 400; --weight-medium: 500; --weight-semibold: 600;
+  --tracking-tight: -0.2px; --tracking-label: 0.04em; --tracking-wide: 0.05em; --tracking-caps: 0.06em;
 
-  --text: 'Inter', system-ui, -apple-system, sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, monospace;
-
-  --t-small: 11.5px;
-  --t-body: 12.5px;
-  --t-mid: 14px;
-  --t-big: 22px;
-
-  --radius: 8px;
-  --gap: 14px;
+  /* shape */
+  --radius-xs: 3px; --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 10px; --radius-2xl: 12px;   /* 2xl: the sign-in card */
 }
+
+/* ---- themes. Colour lives here and nowhere else.
+ * :where(:root) has no specificity, so it is only the fallback for an <html>
+ * with no theme class or an unknown one; any .theme-* block wins over it.
+ * The same two blocks open docs/app/style.css, docs/capture/style.css and
+ * static/css/style.css, and tests/test_theme.py holds them identical. */
+:where(:root), .theme-dark {
+  color-scheme: dark;
+  --color-bg: #12141a;               /* the page */
+  --color-surface: #1a1d26;          /* cards, the totals band */
+  --color-surface-subtle: #21252f;   /* fields, list rows, tracks, a hovered row */
+  --color-border: #2c313d;           /* separators and card edges */
+  --color-border-strong: #6b7387;    /* form-field edges: 3:1 on all three surfaces */
+  --color-text-primary: #e8eaf0;
+  --color-text-muted: #9aa2b4;       /* labels, column heads */
+  --color-text-subtle: #8b93a7;      /* hints, dates, the footer */
+  --color-accent: #6ea8fe;
+  --color-accent-hover: #93bdfe;
+  --color-accent-subtle: #1b2a44;
+  --color-text-on-accent: #0d1017;
+  --color-danger: #e8695d;           /* over a budget, a refused row */
+  --color-success: #4bbd8a;          /* within budget, money in */
+  --color-warning: #e8b04b;          /* getting close, a question to answer */
+  --color-untracked: #7c839a;        /* a bar for spending with no budget */
+  --color-danger-subtle: #2b1a18;    /* the backgrounds the three notices sit on */
+  --color-success-subtle: #16281f;
+  --color-warning-subtle: #2a2118;
+  --icon-sun: block; --icon-moon: none;   /* the toggle shows where it will take you */
+}
+.theme-light {
+  color-scheme: light;
+  --color-bg: #f3f4f7;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #eceef3;
+  --color-border: #d8dce4;
+  --color-border-strong: #7d8597;
+  --color-text-primary: #151820;
+  --color-text-muted: #454c5c;
+  --color-text-subtle: #575f70;
+  --color-accent: #1d5fc4;
+  --color-accent-hover: #174d9f;
+  --color-accent-subtle: #e2ebfa;
+  --color-text-on-accent: #ffffff;
+  --color-danger: #b42a1f;
+  --color-success: #17744a;
+  --color-warning: #8a5800;
+  --color-untracked: #6b7387;
+  --color-danger-subtle: #fbe6e3;
+  --color-success-subtle: #e1f3e9;
+  --color-warning-subtle: #fbf0d9;
+  --icon-sun: none; --icon-moon: block;
+}
+
 
 * { box-sizing: border-box; }
 
@@ -47,9 +101,9 @@
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font: 400 var(--t-body)/1.5 var(--text);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font: var(--weight-regular) var(--text-base)/var(--leading-normal) var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -57,199 +111,216 @@ body {
 
 .top {
   display: flex; align-items: flex-end; justify-content: space-between;
-  gap: var(--gap); flex-wrap: wrap;
-  padding: 20px 22px 14px;
-  border-bottom: 1px solid var(--line);
+  gap: var(--space-4); flex-wrap: wrap;
+  padding: var(--space-5) var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
 }
-.brand h1 { margin: 0; font-size: var(--t-big); font-weight: 600; letter-spacing: -0.2px; }
-.sub { margin: 2px 0 0; color: var(--ink-dim); font-size: var(--t-small); }
-.topRight { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.brand h1 { margin: 0; font-size: var(--text-2xl); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+.sub { margin: 2px 0 0; color: var(--color-text-muted); font-size: var(--text-sm); }
+.topRight { display: flex; align-items: flex-end; gap: var(--space-2); flex-wrap: wrap; }
 
 /* ---------------------------------------------------------------- totals */
 
 .totals {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1px; background: var(--line);
-  border-bottom: 1px solid var(--line);
+  gap: 1px; background: var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
-.total { background: var(--panel); padding: 14px 18px; }
+.total { background: var(--color-surface); padding: var(--space-4) var(--space-5); }
 .total .label {
-  display: block; color: var(--ink-dim); font-size: var(--t-small);
-  text-transform: uppercase; letter-spacing: 0.06em;
+  display: block; color: var(--color-text-muted); font-size: var(--text-sm);
+  text-transform: uppercase; letter-spacing: var(--tracking-caps);
 }
 .figure {
-  display: block; margin-top: 4px;
-  font: 500 var(--t-big)/1.25 var(--mono);
+  display: block; margin-top: var(--space-1);
+  font: var(--weight-medium) var(--text-2xl)/var(--leading-tight) var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
-.figure.over { color: var(--over); }
-.figure.fine { color: var(--fine); }
+.figure.over { color: var(--color-danger); }
+.figure.fine { color: var(--color-success); }
 
 /* ----------------------------------------------------------------- cards */
 
-main { padding: var(--gap) 22px 30px; display: grid; gap: var(--gap); }
-.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: var(--gap); }
+main { padding: var(--space-4) var(--space-6) var(--space-8); display: grid; gap: var(--space-4); }
+/* min(): a phone is narrower than one 340px column, and a fixed minimum
+   pushed the whole page sideways there */
+.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: var(--space-4); }
 
 .card {
-  background: var(--panel); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 16px 18px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5);
+  /* A grid item will not shrink below its content, so a wide table or a row
+     of fields made the card -- and the page -- wider than a phone. With
+     min-width: 0 the card keeps to its column and its content scrolls. */
+  min-width: 0; overflow-x: auto;
 }
 .card h2 {
-  margin: 0 0 10px; font-size: var(--t-mid); font-weight: 600;
+  margin: 0 0 var(--space-3); font-size: var(--text-md); font-weight: var(--weight-semibold);
 }
 .cardHead {
   display: flex; align-items: baseline; justify-content: space-between;
-  gap: var(--gap); flex-wrap: wrap; margin-bottom: 10px;
+  gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-3);
 }
 .cardHead h2 { margin: 0; }
-.hint { margin: 8px 0 0; color: var(--ink-faint); font-size: var(--t-small); }
+.hint { margin: var(--space-2) 0 0; color: var(--color-text-subtle); font-size: var(--text-sm); }
 
 /* ----------------------------------------------------------------- forms */
 
-.row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
-.field { display: flex; flex-direction: column; gap: 4px; min-width: 120px; }
+.row { display: flex; gap: var(--space-3); align-items: flex-end; flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: var(--space-1); min-width: 120px; }
 .field.grow { flex: 1 1 220px; }
 .field.compact { min-width: 108px; }
 .field > span {
-  color: var(--ink-dim); font-size: var(--t-small);
-  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--color-text-muted); font-size: var(--text-sm);
+  text-transform: uppercase; letter-spacing: var(--tracking-wide);
 }
 
 input, select, button, .button {
-  font: 400 var(--t-body) var(--text);
-  background: var(--panel-2); color: var(--ink);
-  border: 1px solid var(--line); border-radius: 6px;
-  padding: 7px 10px;
+  font: var(--weight-regular) var(--text-base) var(--font-sans);
+  background: var(--color-surface-subtle); color: var(--color-text-primary);
+  /* a field's edge is what identifies it as one, so it takes the 3:1 border;
+     buttons are named by their label and go back to the quiet one below */
+  border: 1px solid var(--color-border-strong); border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
 }
 /* Anything numeric is monospace and tabular, in the form as well as the
  * table, so what you type lines up with what comes back. */
 input[inputmode="decimal"], input[type="date"], select#month {
-  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
 }
-input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+input:focus, select:focus { outline: 2px solid var(--color-accent); outline-offset: -1px; }
 
 button, .button {
-  cursor: pointer; background: var(--accent); border-color: var(--accent);
-  color: #0d1017; font-weight: 500; text-decoration: none;
+  cursor: pointer; background: var(--color-accent); border-color: var(--color-accent);
+  color: var(--color-text-on-accent); font-weight: var(--weight-medium); text-decoration: none;
 }
 button:hover, .button:hover { filter: brightness(1.08); }
+
+/* The theme toggle: a ghost button holding two icons, of which the theme
+ * block shows one -- the theme a press would switch to. Its name is set by
+ * theme.js ("Switch to light theme"), so the icons are aria-hidden. */
+.themeToggle { display: inline-grid; place-items: center; padding: var(--space-1) var(--space-2); }
+.themeToggle svg { width: 16px; height: 16px; }
+.themeToggle .iconSun { display: var(--icon-sun); }
+.themeToggle .iconMoon { display: var(--icon-moon); }
+.gate .themeToggle { position: fixed; top: var(--space-4); right: var(--space-4); }
 button.ghost, .ghost.button {
-  background: var(--panel-2); border-color: var(--line); color: var(--ink);
-  font-weight: 400;
+  background: var(--color-surface-subtle); border-color: var(--color-border); color: var(--color-text-primary);
+  font-weight: var(--weight-regular);
 }
 .search { min-width: 150px; }
-.check { display: flex; align-items: center; gap: 6px; color: var(--ink-dim); font-size: var(--t-small); }
+.check { display: flex; align-items: center; gap: var(--space-2); color: var(--color-text-muted); font-size: var(--text-sm); }
 .check input { padding: 0; }
 
 /* --------------------------------------------------------------- budgets */
 
-.budgets { display: grid; gap: 10px; }
-.budget { display: grid; gap: 6px; }
+.budgets { display: grid; gap: var(--space-3); }
+.budget { display: grid; gap: var(--space-2); }
 .budgetTop {
-  display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+  display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3);
 }
-.budgetName { font-weight: 500; }
+.budgetName { font-weight: var(--weight-medium); }
 .budgetFigures {
-  font-family: var(--mono); font-size: var(--t-small);
-  font-variant-numeric: tabular-nums; color: var(--ink-dim);
+  font-family: var(--font-mono); font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums; color: var(--color-text-muted);
 }
-.bar { height: 6px; background: var(--panel-2); border-radius: 3px; overflow: hidden; }
-.bar > span { display: block; height: 100%; border-radius: 3px; }
-.bar.fine > span { background: var(--fine); }
-.bar.close > span { background: var(--close); }
-.bar.over > span { background: var(--over); }
-.bar.untracked > span { background: var(--untracked); }
+.bar { height: 6px; background: var(--color-surface-subtle); border-radius: var(--radius-xs); overflow: hidden; }
+.bar > span { display: block; height: 100%; border-radius: var(--radius-xs); }
+.bar.fine > span { background: var(--color-success); }
+.bar.close > span { background: var(--color-warning); }
+.bar.over > span { background: var(--color-danger); }
+.bar.untracked > span { background: var(--color-untracked); }
 
 .tag {
-  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.04em;
-  text-transform: uppercase; padding: 1px 6px; border-radius: 4px;
-  border: 1px solid var(--line); color: var(--ink-dim);
+  font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--tracking-label);
+  text-transform: uppercase; padding: 1px var(--space-2); border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border); color: var(--color-text-muted);
 }
-.tag.over { color: var(--over); border-color: var(--over); }
-.tag.close { color: var(--close); border-color: var(--close); }
-.tag.under { color: var(--fine); border-color: var(--fine); }
+.tag.over { color: var(--color-danger); border-color: var(--color-danger); }
+.tag.close { color: var(--color-warning); border-color: var(--color-warning); }
+.tag.under { color: var(--color-success); border-color: var(--color-success); }
 
 /* --------------------------------------------------------------- tables */
 
-.grid { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.grid { width: 100%; border-collapse: collapse; margin-top: var(--space-1); }
 .grid th, .grid td {
-  text-align: left; padding: 7px 8px;
-  border-bottom: 1px solid var(--line); vertical-align: middle;
+  text-align: left; padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--color-border); vertical-align: middle;
 }
 .grid th {
-  color: var(--ink-dim); font-size: var(--t-small); font-weight: 500;
-  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--color-text-muted); font-size: var(--text-sm); font-weight: var(--weight-medium);
+  text-transform: uppercase; letter-spacing: var(--tracking-wide);
 }
-.grid td { font-size: var(--t-body); }
+.grid td { font-size: var(--text-base); }
 /* Dates, amounts and rates are all figures. */
 .grid td.num, .grid th.num { text-align: right; }
 .grid td.num, .grid td.date, .grid td.rate {
-  font-family: var(--mono); font-variant-numeric: tabular-nums;
-  font-size: var(--t-small);
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
 }
-.grid td.rate { color: var(--ink-faint); }
-.grid tr:hover td { background: var(--panel-2); }
-.grid.compact td, .grid.compact th { padding: 5px 8px; }
-.grid select { padding: 3px 6px; font-size: var(--t-small); }
-.money.out { color: var(--ink); }
-.money.in { color: var(--fine); }
-.lag { color: var(--close); }
+.grid td.rate { color: var(--color-text-subtle); }
+.grid tr:hover td { background: var(--color-surface-subtle); }
+.grid.compact td, .grid.compact th { padding: var(--space-1) var(--space-2); }
+.grid select { padding: 3px var(--space-2); font-size: var(--text-sm); }
+.money.out { color: var(--color-text-primary); }
+.money.in { color: var(--color-success); }
+.lag { color: var(--color-warning); }
 
 .iconButton {
-  background: none; border: none; color: var(--ink-faint);
-  cursor: pointer; padding: 2px 6px; font-size: var(--t-mid);
+  background: none; border: none; color: var(--color-text-subtle);
+  cursor: pointer; padding: 2px var(--space-2); font-size: var(--text-md);
 }
-.iconButton:hover { color: var(--over); }
+.iconButton:hover { color: var(--color-danger); }
 
 /* ---------------------------------------------------------------- lists */
 
-.rules { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+.rules { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: var(--space-2); }
 .rules li {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  background: var(--panel-2); border: 1px solid var(--line);
-  border-radius: 6px; padding: 6px 10px; font-size: var(--t-small);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  background: var(--color-surface-subtle); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); font-size: var(--text-sm);
 }
-.rules .keyword { font-family: var(--mono); }
+.rules .keyword { font-family: var(--font-mono); }
 .rules .amount {
-  font-family: var(--mono); font-variant-numeric: tabular-nums;
-  color: var(--ink-dim);
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
 }
-.empty { color: var(--ink-faint); font-size: var(--t-small); }
+.empty { color: var(--color-text-subtle); font-size: var(--text-sm); }
 
-.problems { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.problems { list-style: none; margin: var(--space-2) 0 0; padding: 0; display: grid; gap: var(--space-1); }
 .problems li {
-  color: var(--close); font-size: var(--t-small); font-family: var(--mono);
+  color: var(--color-warning); font-size: var(--text-sm); font-family: var(--font-mono);
 }
 
-.mapping { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.mapping { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-2); }
 
 /* ---------------------------------------------------------------- trend */
 
-.trend { display: grid; gap: 6px; }
-.trendRow { display: grid; grid-template-columns: 62px 1fr 92px; gap: 10px; align-items: center; }
+.trend { display: grid; gap: var(--space-2); }
+.trendRow { display: grid; grid-template-columns: 62px 1fr 92px; gap: var(--space-3); align-items: center; }
 .trendRow .m, .trendRow .v {
-  font-family: var(--mono); font-size: var(--t-small);
-  font-variant-numeric: tabular-nums; color: var(--ink-dim);
+  font-family: var(--font-mono); font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums; color: var(--color-text-muted);
 }
-.trendRow .v { text-align: right; color: var(--ink); }
-.trendBar { height: 8px; background: var(--panel-2); border-radius: 4px; overflow: hidden; }
-.trendBar > span { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+.trendRow .v { text-align: right; color: var(--color-text-primary); }
+.trendBar { height: 8px; background: var(--color-surface-subtle); border-radius: var(--radius-sm); overflow: hidden; }
+.trendBar > span { display: block; height: 100%; background: var(--color-accent); border-radius: var(--radius-sm); }
 
 /* --------------------------------------------------------------- notice */
 
 .notice {
-  margin: 0; padding: 9px 22px; font-size: var(--t-small);
-  background: #2a2118; color: var(--close);
-  border-bottom: 1px solid var(--line);
+  margin: 0; padding: var(--space-2) var(--space-6); font-size: var(--text-sm);
+  background: var(--color-warning-subtle); color: var(--color-warning);
+  border-bottom: 1px solid var(--color-border);
 }
-.notice.good { background: #16281f; color: var(--fine); }
-.notice.bad { background: #2b1a18; color: var(--over); }
+.notice.good { background: var(--color-success-subtle); color: var(--color-success); }
+.notice.bad { background: var(--color-danger-subtle); color: var(--color-danger); }
 
 .foot {
-  display: flex; justify-content: space-between; gap: var(--gap);
-  flex-wrap: wrap; padding: 12px 22px 24px;
-  border-top: 1px solid var(--line);
-  color: var(--ink-faint); font-family: var(--mono); font-size: var(--t-small);
+  display: flex; justify-content: space-between; gap: var(--space-4);
+  flex-wrap: wrap; padding: var(--space-3) var(--space-6) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-subtle); font-family: var(--font-mono); font-size: var(--text-sm);
 }
 
 /* ================================================== screenshots & finance */
@@ -257,119 +328,123 @@ button.ghost, .ghost.button {
  * goals. Reuses the tokens declared at the top of this file rather than
  * introducing a second palette. */
 
-.actions { display: flex; gap: 8px; align-items: flex-end; }
+.actions { display: flex; gap: var(--space-2); align-items: flex-end; }
 
 /* What the reader could not settle. Amber rather than red: nothing is wrong
  * yet, there is just a question to answer before saving. Every line names
  * the reason -- "the 7th of September or the 9th of July" is answerable and
  * "check the date" is not. */
 .needs {
-  margin: 10px 0 0; padding: 9px 12px;
-  background: #2a2118; border: 1px solid var(--line); border-radius: 6px;
-  color: var(--close); font-size: var(--t-small);
+  margin: var(--space-3) 0 0; padding: var(--space-2) var(--space-3);
+  background: var(--color-warning-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  color: var(--color-warning); font-size: var(--text-sm);
 }
-.needs p { margin: 0 0 4px; }
+.needs p { margin: 0 0 var(--space-1); }
 .needs p:last-child { margin-bottom: 0; }
 
 /* The uploaded screenshot, kept small: it is there to be glanced at while
  * checking the figures, not to be looked at. */
 .shotImage {
-  display: block; margin-top: 12px; max-width: 260px; max-height: 340px;
-  border: 1px solid var(--line); border-radius: 8px;
+  display: block; margin-top: var(--space-3); max-width: 260px; max-height: 340px;
+  border: 1px solid var(--color-border); border-radius: var(--radius-lg);
 }
 
 /* A button that reads as a link, for choosing one of the other figures the
  * screenshot offered. */
 .linky {
   background: none; border: none; padding: 0; cursor: pointer;
-  color: var(--accent); font: inherit; text-decoration: underline;
+  color: var(--color-accent); font: inherit; text-decoration: underline;
 }
-.linky:hover { color: var(--ink); }
+.linky:hover { color: var(--color-text-primary); }
 
 /* ---------------------------------------------------------- the estimate */
 .estimate {
-  margin-top: 12px; padding: 12px 14px;
-  background: var(--panel-2); border: 1px solid var(--line);
-  border-radius: 8px;
+  margin-top: var(--space-3); padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-subtle); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
 }
 .estimate .line {
-  display: flex; justify-content: space-between; gap: 12px;
-  padding: 4px 0; font-size: var(--t-small); color: var(--ink-dim);
+  display: flex; justify-content: space-between; gap: var(--space-3);
+  padding: var(--space-1) 0; font-size: var(--text-sm); color: var(--color-text-muted);
 }
 .estimate .line b {
-  font-family: var(--mono); font-variant-numeric: tabular-nums;
-  color: var(--ink);
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
 }
 .estimate .line.total {
-  border-top: 1px solid var(--line); margin-top: 4px; padding-top: 8px;
-  color: var(--ink);
+  border-top: 1px solid var(--color-border); margin-top: var(--space-1); padding-top: var(--space-2);
+  color: var(--color-text-primary);
 }
-.estimate .line.total b { font-size: var(--t-mid); }
+.estimate .line.total b { font-size: var(--text-md); }
 
 /* -------------------------------------------------- cards, subs and goals */
 /* One list shape for all three: a label and its detail on the left, a figure
  * on the right, controls after it. */
 .cards, .movers {
-  list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px;
+  list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: var(--space-2);
 }
 .cards li, .movers li, .rules li.subRow {
   display: flex; align-items: center; justify-content: space-between;
-  gap: 10px; background: var(--panel-2); border: 1px solid var(--line);
-  border-radius: 6px; padding: 8px 11px; font-size: var(--t-small);
+  gap: var(--space-3); background: var(--color-surface-subtle); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); font-size: var(--text-sm);
 }
 .what { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.when { color: var(--ink-faint); font-size: 10.5px; }
+.when { color: var(--color-text-subtle); font-size: var(--text-xs); }
 .much {
-  text-align: right; font-family: var(--mono);
+  text-align: right; font-family: var(--font-mono);
   font-variant-numeric: tabular-nums; white-space: nowrap;
 }
-.much .when { display: block; font-family: var(--text); }
-.acts { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.much .when { display: block; font-family: var(--font-sans); }
+.acts { display: flex; align-items: center; gap: var(--space-2); white-space: nowrap; }
 
 /* The status glyph beside a subscription, so state is never colour alone. */
-.g { font-family: var(--mono); font-size: 10.5px; }
-.rules li.subRow.expected { border-color: var(--close); }
-.rules li.subRow.lapsed { opacity: 0.6; }
-.rise { color: var(--close); font-size: 10.5px; }
+.g { font-family: var(--font-mono); font-size: var(--text-xs); }
+.rules li.subRow.expected { border-color: var(--color-warning); }
+/* Receded, but by colour rather than opacity: opacity 0.6 took the hint text
+   in a lapsed row to under 3:1, which no theme block could fix. The glyph
+   and the words "not seen lately" carry the state; the dashed edge is extra. */
+.rules li.subRow.lapsed { border-style: dashed; }
+.rules li.subRow.lapsed, .rules li.subRow.lapsed * { color: var(--color-text-subtle); }
+.rise { color: var(--color-warning); font-size: var(--text-xs); }
 
 /* A goal's progress. Same 6px bar as the budgets above, deliberately. */
 .meter {
-  height: 5px; margin-top: 4px; min-width: 120px;
-  background: var(--panel); border-radius: 3px; overflow: hidden;
+  height: 5px; margin-top: var(--space-1); min-width: 120px;
+  background: var(--color-surface); border-radius: var(--radius-xs); overflow: hidden;
 }
-.meter > span { display: block; height: 100%; background: var(--accent); }
+.meter > span { display: block; height: 100%; background: var(--color-accent); }
 
 /* ------------------------------------------------------------- the movers */
-.movers .much.up { color: var(--over); }
-.movers .much.down { color: var(--fine); }
-.movers li { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; }
+.movers .much.up { color: var(--color-danger); }
+.movers .much.down { color: var(--color-success); }
+.movers li { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--space-3); }
 .movers .when { grid-column: 1; }
 .movers .much { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
 
-.moverRows { margin-top: 12px; }
+.moverRows { margin-top: var(--space-3); }
 .moverRows h3 {
-  margin: 0 0 8px; font-size: var(--t-small); font-weight: 600;
-  color: var(--ink-dim);
+  margin: 0 0 var(--space-2); font-size: var(--text-sm); font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
 }
 .moverRows table { width: 100%; border-collapse: collapse; }
 .moverRows td {
-  padding: 5px 8px; border-bottom: 1px solid var(--line);
-  font-size: var(--t-small);
+  padding: var(--space-1) var(--space-2); border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-sm);
 }
 .moverRows td.num {
-  text-align: right; font-family: var(--mono);
+  text-align: right; font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
 /* The little month-by-month strip under a drilldown. Not .trend, which is a
  * grid expecting .trendRow children. */
 .spark {
-  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
-  font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint);
+  display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3);
+  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-subtle);
 }
 .spark span {
-  padding: 2px 6px; background: var(--panel-2);
-  border: 1px solid var(--line); border-radius: 4px;
+  padding: 2px var(--space-2); background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border); border-radius: var(--radius-sm);
 }
 
 /* ================================================== the stripped-back view */
@@ -385,37 +460,37 @@ button.ghost, .ghost.button {
 
 /* The date column in the recent list. The .num cells are already tabular;
  * a date is monospace for the same reason -- a column of them lines up. */
-.mono { font-family: var(--mono); font-size: var(--t-small); }
+.mono { font-family: var(--font-mono); font-size: var(--text-sm); }
 
 
 /* Links in the footer. Without this they inherit the browser default -- a
  * bright underlined blue in a monospace face, which reads as broken. */
-.foot a { color: var(--ink-dim); text-decoration: none; }
-.foot a:hover { color: var(--ink); text-decoration: underline; }
+.foot a { color: var(--color-text-muted); text-decoration: none; }
+.foot a:hover { color: var(--color-text-primary); text-decoration: underline; }
 
 /* The drop target on the stripped-back view. Large on purpose: it is the one
  * action on the page, so it should not look like a form field. */
 .totals.one { grid-template-columns: 1fr; }
 
 .drop {
-  display: grid; place-items: center; gap: 4px;
-  margin-top: 12px; padding: 30px 20px; cursor: pointer; text-align: center;
-  background: var(--panel-2); border: 1px dashed var(--line);
-  border-radius: 10px;
+  display: grid; place-items: center; gap: var(--space-1);
+  margin-top: var(--space-3); padding: var(--space-8) var(--space-5); cursor: pointer; text-align: center;
+  background: var(--color-surface-subtle); border: 1px dashed var(--color-border);
+  border-radius: var(--radius-xl);
 }
-.drop:hover, .drop.over { border-color: var(--accent); }
+.drop:hover, .drop.over { border-color: var(--color-accent); }
 .drop input[type="file"] {
   /* Hidden but reachable: the label wraps it, so a click or a keyboard
    * activation still opens the picker, and it stays in the tab order. */
   position: absolute; width: 1px; height: 1px; opacity: 0;
 }
-.dropBig { font-size: var(--t-mid); color: var(--ink); }
-.dropSmall { color: var(--ink-faint); font-size: var(--t-small); }
+.dropBig { font-size: var(--text-md); color: var(--color-text-primary); }
+.dropSmall { color: var(--color-text-subtle); font-size: var(--text-sm); }
 
 /* The reading: the image beside the fields, stacking on a narrow screen. */
 .readingTop {
-  display: grid; grid-template-columns: auto 1fr; gap: 16px;
-  align-items: start; margin-top: 14px;
+  display: grid; grid-template-columns: auto 1fr; gap: var(--space-4);
+  align-items: start; margin-top: var(--space-4);
 }
 .readingFields { min-width: 0; }
 @media (max-width: 700px) {
@@ -424,5 +499,5 @@ button.ghost, .ghost.button {
 
 .shotImage {
   display: block; max-width: 220px; max-height: 300px;
-  border: 1px solid var(--line); border-radius: 8px;
+  border: 1px solid var(--color-border); border-radius: var(--radius-lg);
 }

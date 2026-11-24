@@ -102,6 +102,12 @@ def build():
                   % POLICY, page, count=1)
     assert POLICY in page, "the policy meta tag was not where it was expected"
 
+    # The theme restore, borrowed from the wallet like fx.js, inline and
+    # still ahead of the stylesheets so a chosen theme never flashes.
+    page = page.replace('<script src="../../docs/app/theme.js"></script>',
+                        '<script>\n%s</script>' % read(APP, "theme.js"), 1)
+    assert 'theme.js"' not in page, "the theme script was not inlined"
+
     # Both stylesheets, inline and in the order the page loads them -- the
     # wallet's own first, then the handful of rules this page adds on top.
     page = page.replace(

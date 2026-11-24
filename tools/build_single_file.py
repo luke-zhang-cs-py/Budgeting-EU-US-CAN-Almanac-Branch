@@ -3,7 +3,7 @@
     python tools/build_single_file.py --out ../wallet.html
 
 One file, opened by double-clicking it. No server, no folder of assets, no
-network of any kind: the stylesheet, both scripts and the whole ECB rate
+network of any kind: the stylesheet, the scripts and the whole ECB rate
 history are inlined, and the result is a file you can copy to a USB stick or
 email to yourself and it still converts a purchase at the right historical
 rate.
@@ -80,6 +80,12 @@ def build():
                   '<meta http-equiv="Content-Security-Policy" content="%s">'
                   % POLICY, page, count=1)
     assert POLICY in page, "the policy meta tag was not where it was expected"
+
+    # The theme restore, inline and still ahead of the stylesheet, so a
+    # visitor who chose light does not see the file flash dark first.
+    page = page.replace('<script src="theme.js"></script>',
+                        '<script>\n%s</script>' % read(APP, "theme.js"), 1)
+    assert 'src="theme.js"' not in page, "the theme script was not inlined"
 
     # The stylesheet, inline.
     style = '<style>\n%s</style>' % read(APP, "style.css")

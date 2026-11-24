@@ -84,6 +84,9 @@ def test_everything_is_in_there(built):
     """Both stylesheets, all three scripts, and the rate history."""
     assert built.count("<style>") == 2, "both stylesheets should be inlined"
     assert ".limitBar" in built, "limit.css is not inlined"
+    assert "var THEMES = [" in built, "theme.js is not inlined"
+    assert built.index("var THEMES = [") < built.index("<style>"), (
+        "the theme restore has to run before the stylesheets")
     assert "var FX = (function" in built, "fx.js is not inlined"
     assert "var GBP = (function" in built, "gbp.js is not inlined"
     assert "function drawLimit(" in built, "app.js is not inlined"

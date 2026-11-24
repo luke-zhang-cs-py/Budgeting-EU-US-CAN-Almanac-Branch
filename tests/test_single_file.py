@@ -79,8 +79,12 @@ def test_the_builder_refuses_to_write_a_file_that_does_not(tmp_path):
 
 
 def test_everything_is_in_there(built):
-    """The stylesheet, both scripts and the rate history."""
+    """The stylesheet, the scripts and the rate history."""
     assert "<style>" in built and "</style>" in built
+    assert "var THEMES = [" in built, "theme.js is not inlined"
+    assert built.index("var THEMES = [") < built.index("<style>"), (
+        "the theme restore has to run before the stylesheet, or a visitor "
+        "who chose light sees the file flash dark first")
     assert "var FX = (function" in built, "fx.js is not inlined"
     assert "function drawRows()" in built, "app.js is not inlined"
 

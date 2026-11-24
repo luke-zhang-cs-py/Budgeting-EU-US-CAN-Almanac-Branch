@@ -33,9 +33,13 @@ def _at(*parts):
 # copy of the helpers both of them use.
 APP = {
     "name": "app",
-    "pages": [_at("templates", "index.html"), _at("templates", "simple.html")],
+    # login.html is here since it loads theme.js: it has no data and no ids
+    # of its own beyond the theme toggle, but a page that loads a script
+    # belongs to a bundle, and this is the bundle it is served with.
+    "pages": [_at("templates", "index.html"), _at("templates", "simple.html"),
+              _at("templates", "login.html")],
     "scripts": [_at("static", "js", name) for name in
-                ("common.js", "app.js", "finance.js", "simple.js")],
+                ("theme.js", "common.js", "app.js", "finance.js", "simple.js")],
     "styles": [_at("static", "css", "style.css")],
     "in_page": r"filename='js/([A-Za-z0-9_.-]+)'",
     # Ids the script creates itself rather than finding in the template.
@@ -47,8 +51,9 @@ APP = {
     "fragments": (r"esc\(|\(share|\(Math|width|options|pickers|flag|pace|lag|"
                   r"rate\b|picker|direction|query|month|search|rowsHtml|"
                   r"sparkHtml"),
-    # One deliberate exception to the type scale: the small uppercase tag.
-    "font_literals": {"10.5"},
+    # None: the small uppercase tag that used to be the one 10.5px literal
+    # is --text-xs now, like every other size.
+    "font_literals": set(),
 }
 
 # The published static page. It cannot load common.js: it is served by GitHub
@@ -59,12 +64,12 @@ CAPTURE = {
     "name": "capture",
     "pages": [_at("docs", "capture", "index.html")],
     "scripts": [_at("docs", "capture", name) for name in
-                ("rules.js", "app.js")],
+                ("theme.js", "rules.js", "app.js")],
     "styles": [_at("docs", "capture", "style.css")],
     "in_page": r'<script src="([A-Za-z0-9_.-]+)"',
     "created": set(),
     "fragments": r"esc\(",
-    "font_literals": {"10.5"},
+    "font_literals": set(),
 }
 
 # The published static wallet. Like the capture page it is served by GitHub
@@ -73,7 +78,8 @@ CAPTURE = {
 STATIC_WALLET = {
     "name": "static wallet",
     "pages": [_at("docs", "app", "index.html")],
-    "scripts": [_at("docs", "app", name) for name in ("fx.js", "app.js")],
+    "scripts": [_at("docs", "app", name)
+                for name in ("theme.js", "fx.js", "app.js")],
     "styles": [_at("docs", "app", "style.css")],
     "in_page": r'<script src="([A-Za-z0-9_.-]+)"',
     "created": set(),
@@ -81,7 +87,7 @@ STATIC_WALLET = {
     # the row, and width is a percentage computed from two integers -- the
     # same two allowances rowsHtml and width have in the app bundle.
     "fragments": r"esc\(|rateCell|width|authoredHtml",
-    "font_literals": {"10.5", "10"},
+    "font_literals": set(),
 }
 
 # The pound wallet. A fourth bundle rather than a variant of the third: it
@@ -92,7 +98,8 @@ STATIC_WALLET = {
 POUND_WALLET = {
     "name": "pound wallet",
     "pages": [_at("standalone", "pounds", "index.html")],
-    "scripts": [_at("docs", "app", "fx.js"),
+    "scripts": [_at("docs", "app", "theme.js"),
+                _at("docs", "app", "fx.js"),
                 _at("standalone", "pounds", "gbp.js"),
                 _at("standalone", "pounds", "app.js")],
     "styles": [_at("docs", "app", "style.css"),
@@ -105,7 +112,7 @@ POUND_WALLET = {
     # rateCell is built and escaped in drawRows before it is composed into
     # the row -- the same allowance, and the same name, as the static wallet.
     "fragments": r"esc\(|rateCell",
-    "font_literals": {"10.5", "10"},
+    "font_literals": set(),
 }
 
 BUNDLES = (APP, CAPTURE, STATIC_WALLET, POUND_WALLET)
@@ -327,9 +334,9 @@ def test_the_hidden_attribute_actually_hides(bundle):
 def test_money_is_set_in_a_monospace_face(bundle):
     """Money in a proportional font makes columns fail to line up, which is
     the one thing a column of money has to do."""
-    assert "--mono" in bundle["css"]
+    assert "--font-mono" in bundle["css"]
     assert "tabular-nums" in bundle["css"]
-    assert ".figure" in bundle["css"] and "var(--mono)" in bundle["css"]
+    assert ".figure" in bundle["css"] and "var(--font-mono)" in bundle["css"]
 
 
 # ------------------------------------------------------------ the app only
