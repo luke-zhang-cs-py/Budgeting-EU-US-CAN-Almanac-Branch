@@ -272,6 +272,31 @@ def test_no_rule_outside_the_theme_blocks_carries_a_raw_colour(name):
     assert not RAW_COLOUR.findall(inline), f"{name}: raw colour inline"
 
 
+# What each page's rules can see: its own rules and the stylesheets it loads.
+LOADED = {
+    "app": [APP_SHEETS["app"]],
+    "login": [APP_SHEETS["app"], _at("templates", "login.html")],
+    "static wallet": [APP_SHEETS["static wallet"]],
+    "pound wallet": [APP_SHEETS["static wallet"],
+                     _at("standalone", "pounds", "limit.css")],
+    "capture": [APP_SHEETS["capture"]],
+    "write-up": [WRITEUP],
+}
+
+
+@pytest.mark.parametrize("name", sorted(LOADED))
+def test_every_token_a_rule_reads_is_defined(name):
+    """var(--x) with no --x declared is not an error anywhere: the
+    declaration is just dropped. The sign-in card lost all its padding that
+    way when the spacing scale listed only the steps style.css itself used."""
+    css = "\n".join(_css(path) for path in LOADED[name])
+    page = "\n".join(" ".join(re.findall(r'style="([^"]*)"', _read(path)))
+                     for path in LOADED[name])
+    declared = set(re.findall(r"(--[\w-]+)\s*:", css))
+    read = set(re.findall(r"var\((--[\w-]+)\)", css + page))
+    assert read <= declared, f"{name} reads undefined {sorted(read - declared)}"
+
+
 @pytest.mark.parametrize("path", PAGES,
                          ids=[os.path.relpath(p, ROOT) for p in PAGES])
 def test_every_page_opens_dark_and_follows_no_system_setting(path):

@@ -21,7 +21,7 @@
    ====================================================================== */
 :root {
   /* spacing: --space-N is N x 4px, so a step can be added without renaming the rest */
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-7: 28px; --space-8: 32px;   /* 7: the sign-in card */
 
   /* typography */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
