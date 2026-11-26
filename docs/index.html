@@ -495,11 +495,11 @@ var MODULES = [
   { name: 'ingest/ofx.py',                lines: 212, stmts:  74, missed:  0, does: 'OFX/QFX, both dialects — the bank’s own rate' },
   { name: 'domain/trends.py',             lines: 201, stmts:  72, missed:  0, does: 'each category against its own average, with drilldown' },
   { name: 'ingest/ocr.py',                lines: 152, stmts:  60, missed:  0, does: 'image to text boxes; the optional engine sits behind it' },
+  { name: 'tools/build_pounds_file.py',   lines: 194, stmts:  59, missed:  0, does: 'folds the pound wallet into one self-contained file' },
   { name: 'tools/publish_pound_rates.py', lines: 130, stmts:  58, missed:  0, does: 'the pound wallet’s CAD and GBP rate file, and its cases' },
+  { name: 'tools/build_single_file.py',   lines: 169, stmts:  57, missed:  0, does: 'folds the euro wallet into one self-contained file' },
   { name: 'fx/fxcost.py',                 lines: 186, stmts:  50, missed:  0, does: 'what a conversion cost, and what the next will cost' },
   { name: 'domain/upcoming.py',           lines: 160, stmts:  47, missed:  0, does: 'subscriptions: due, landed, lapsed, and price rises' },
-  { name: 'tools/build_pounds_file.py',   lines: 171, stmts:  46, missed:  0, does: 'folds the pound wallet into one self-contained file' },
-  { name: 'tools/build_single_file.py',   lines: 146, stmts:  44, missed:  0, does: 'folds the euro wallet into one self-contained file' },
   { name: 'domain/export.py',             lines: 133, stmts:  40, missed:  0, does: 'the CSV, and whether it adds up to the ledger' },
   { name: 'domain/db.py',                 lines: 265, stmts:  39, missed:  0, does: 'six tables, and the additive migration' },
   { name: 'core/fetch.py',                lines:  52, stmts:  16, missed:  0, does: 'one way to get bytes: urllib, then curl' },
@@ -667,7 +667,7 @@ var RATE_HISTORY_DAYS = 7089;
 var TABLES = 6;
 var ROUTE_COUNT = 38;
 var ROUTE_GROUPS = 18;
-var TEST_LINES = 12033;
+var TEST_LINES = 12091;
 
 /* Which interpreter produced the statement counts above. It matters: coverage
  * counts a `with` block or a multi-line call differently between versions, so
