@@ -302,6 +302,25 @@ def test_the_stylesheet_has_one_type_scale(bundle):
     assert set(literals) <= bundle["font_literals"], (
         f"hardcoded font sizes in {bundle['name']}: {literals}")
 
+    # And one set of faces: the portfolio's three, self-hosted, every stack
+    # ending at the generic family -- no system face even as a fallback,
+    # since a fallback is what a page shows whenever the font is slow.
+    faces = dict(re.findall(r"(--font-[a-z]+)\s*:\s*([^;]+?)\s*;",
+                            _code(bundle["css"])))
+    assert faces == FACES, f"{bundle['name']} declares {faces}"
+    stray = BANNED_FACES.findall(bundle["css"] + bundle["html"])
+    assert not stray, f"{bundle['name']} names {sorted(set(stray))}"
+
+
+FACES = {"--font-display": '"Bricolage Grotesque", sans-serif',
+         "--font-sans": '"IBM Plex Sans", sans-serif',
+         "--font-mono": '"IBM Plex Mono", monospace'}
+# Shared with test_theme.py, which holds every page to the same list.
+BANNED_FACES = re.compile(r"\bInter\b|Roboto|Open Sans|Arial|system-ui|"
+                          r"apple-system|BlinkMacSystemFont|Segoe UI|"
+                          r"Helvetica|ui-monospace|SFMono|Menlo|"
+                          r"fonts\.googleapis|fonts\.gstatic")
+
 
 def test_the_hidden_attribute_actually_hides(bundle):
     """A page that ships elements `hidden` must enforce it in CSS.

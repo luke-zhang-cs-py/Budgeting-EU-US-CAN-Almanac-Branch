@@ -25,13 +25,18 @@
   /* spacing: --space-N is N x 4px, so a step can be added without renaming the rest */
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-7: 28px; --space-9: 36px;
 
-  /* typography */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --text-2xs: 10px; --text-xs: 10.5px; --text-sm: 11.5px; --text-base: 13px;
-  --text-md: 15px; --text-lg: 17px; --text-xl: 20px; --text-2xl: 26px;
+  /* typography: the portfolio's three families, self-hosted (docs/fonts.css,
+     which the page loads -- no external request), and its 3x scale -- 16px
+     body, 48px headings, 13px mono meta. md, lg and figure are this app's own
+     steps between, for a dense UI; display type is 200 or 800, never between. */
+  --font-display: "Bricolage Grotesque", sans-serif;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --text-2xs: 11px; --text-xs: 12px; --text-sm: 13px; --text-base: 16px;
+  --text-md: 18px; --text-lg: 20px; --text-figure: 26px; --text-xl: 48px; --text-display: clamp(64px, 14vw, 144px);
+  --weight-display-light: 200; --weight-display: 800;
   --leading-tight: 1.2; --leading-normal: 1.5; --leading-relaxed: 1.7;
-  --weight-regular: 400; --weight-medium: 500; --weight-semibold: 600;
+  --weight-regular: 400; --weight-medium: 600; --weight-semibold: 600;   /* Plex is self-hosted at 400 and 600 only */
   --tracking-tight: -0.2px; --tracking-wide: 0.05em; --tracking-caps: 0.06em;
 
   /* shape */
@@ -48,48 +53,53 @@
  * static/css/style.css, and tests/test_theme.py holds them identical. */
 :where(:root), .theme-dark {
   color-scheme: dark;
-  --color-bg: #12141a;               /* the page */
-  --color-surface: #1a1d26;          /* cards, the totals band */
-  --color-surface-subtle: #21252f;   /* fields, list rows, tracks, a hovered row */
-  --color-border: #2c313d;           /* separators and card edges */
-  --color-border-strong: #6b7387;    /* form-field edges: 3:1 on all three surfaces */
-  --color-text-primary: #e8eaf0;
-  --color-text-muted: #9aa2b4;       /* labels, column heads */
-  --color-text-subtle: #8b93a7;      /* hints, dates, the footer */
-  --color-accent: #6ea8fe;
-  --color-accent-hover: #93bdfe;
-  --color-accent-subtle: #1b2a44;
-  --color-text-on-accent: #0d1017;
-  --color-danger: #e8695d;           /* over a budget, a refused row */
-  --color-success: #4bbd8a;          /* within budget, money in */
-  --color-warning: #e8b04b;          /* getting close, a question to answer */
-  --color-untracked: #7c839a;        /* a bar for spending with no budget */
-  --color-danger-subtle: #2b1a18;    /* the backgrounds the three notices sit on */
-  --color-success-subtle: #16281f;
-  --color-warning-subtle: #2a2118;
+  /* the 13 core tokens: the Wallet palette (olive and rust) from the
+     portfolio's design/palettes.json, verbatim */
+  --color-bg: #1B1A0F;               /* the page */
+  --color-surface: #242317;          /* cards, the totals band */
+  --color-surface-subtle: #2D2C1F;   /* fields, list rows, tracks, a hovered row */
+  --color-border: #3A392B;           /* separators and card edges */
+  --color-border-strong: #6E6D5B;
+  --color-text-primary: #E9E8E0;
+  --color-text-muted: #B9B8AA;       /* labels, column heads */
+  --color-text-subtle: #A6A695;      /* hints, dates, the footer */
+  --color-accent: #DFA084;
+  --color-accent-hover: #F2B99F;
+  --color-accent-subtle: #442C22;
+  --color-text-on-accent: #26160F;
+  --color-danger: #DF7F78;           /* over a budget, a refused row, money going up */
+  /* this app's own, derived from the olive and the rust: OKLCH, low chroma */
+  --color-border-control: #7A7866;   /* form-field edges: 3:1 on all three surfaces */
+  --color-success: #91BF92;          /* within budget, money in */
+  --color-warning: #D6BB79;          /* getting close, a question to answer */
+  --color-untracked: #828170;        /* a bar for spending with no budget */
+  --color-danger-subtle: #3A211F;    /* the backgrounds the three notices sit on */
+  --color-success-subtle: #1E2E1E;
+  --color-warning-subtle: #302814;
   --icon-sun: block; --icon-moon: none;   /* the toggle shows where it will take you */
 }
 .theme-light {
   color-scheme: light;
-  --color-bg: #f3f4f7;
-  --color-surface: #ffffff;
-  --color-surface-subtle: #eceef3;
-  --color-border: #d8dce4;
-  --color-border-strong: #7d8597;
-  --color-text-primary: #151820;
-  --color-text-muted: #454c5c;
-  --color-text-subtle: #575f70;
-  --color-accent: #1d5fc4;
-  --color-accent-hover: #174d9f;
-  --color-accent-subtle: #e2ebfa;
-  --color-text-on-accent: #ffffff;
-  --color-danger: #b42a1f;
-  --color-success: #17744a;
-  --color-warning: #8a5800;
-  --color-untracked: #6b7387;
-  --color-danger-subtle: #fbe6e3;
-  --color-success-subtle: #e1f3e9;
-  --color-warning-subtle: #fbf0d9;
+  --color-bg: #F7F6EE;
+  --color-surface: #FCFCF8;
+  --color-surface-subtle: #EEEEE3;
+  --color-border: #DCDCCF;
+  --color-border-strong: #8E8D7B;
+  --color-text-primary: #28271D;
+  --color-text-muted: #5D5C4A;
+  --color-text-subtle: #6B6A58;
+  --color-accent: #91583E;
+  --color-accent-hover: #77432B;
+  --color-accent-subtle: #FADED2;
+  --color-text-on-accent: #FFF8F5;
+  --color-danger: #A83634;
+  --color-border-control: #858472;
+  --color-success: #3C673E;
+  --color-warning: #7D5D23;
+  --color-untracked: #828172;
+  --color-danger-subtle: #FFE4E1;
+  --color-success-subtle: #DDF2DD;
+  --color-warning-subtle: #F8EACE;
   --icon-sun: none; --icon-moon: block;
 }
 
@@ -117,7 +127,7 @@ body {
   gap: var(--space-3); padding: var(--space-5) var(--space-4) var(--space-3);
   border-bottom: 1px solid var(--color-border);
 }
-h1 { margin: 0; font-size: var(--text-xl); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+h1 { margin: 0; font: var(--weight-display) var(--text-xl)/1 var(--font-display); letter-spacing: var(--tracking-tight); }
 .sub { margin: 2px 0 0; color: var(--color-text-muted); font-size: var(--text-sm); font-family: var(--font-mono); }
 .acts { display: flex; gap: var(--space-2); }
 
@@ -132,7 +142,7 @@ h1 { margin: 0; font-size: var(--text-xl); font-weight: var(--weight-semibold); 
 }
 .figure {
   display: block; margin-top: 2px;
-  font: var(--weight-medium) var(--text-2xl)/var(--leading-tight) var(--font-mono); font-variant-numeric: tabular-nums;
+  font: var(--weight-semibold) var(--text-figure)/var(--leading-tight) var(--font-mono); font-variant-numeric: tabular-nums;
 }
 .figure.small { font-size: var(--text-md); color: var(--color-text-muted); }
 
@@ -154,7 +164,7 @@ main { padding: var(--space-3) var(--space-4) var(--space-7); display: grid; gap
      where it was meant to: on the table, which scrolls. */
   min-width: 0;
 }
-.card h2 { margin: 0 0 var(--space-2); font-size: var(--text-md); font-weight: var(--weight-semibold); }
+.card h2 { margin: 0 0 var(--space-2); font: var(--weight-display) var(--text-lg)/var(--leading-tight) var(--font-display); }
 .cardHead { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-2); }
 .cardHead h2 { margin: 0; }
 .hint { margin: var(--space-2) 0 0; color: var(--color-text-subtle); font-size: var(--text-sm); }
@@ -207,7 +217,7 @@ main { padding: var(--space-3) var(--space-4) var(--space-7); display: grid; gap
 input {
   min-height: var(--tap); font: var(--weight-regular) var(--text-base) var(--font-sans);
   background: var(--color-surface-subtle); color: var(--color-text-primary);
-  border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-control); border-radius: var(--radius-lg); padding: var(--space-2) var(--space-3);
 }
 input[type="date"] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 input:focus { outline: 2px solid var(--color-accent); outline-offset: -1px; }
@@ -334,7 +344,7 @@ pre {
 select {
   min-height: var(--tap); font: var(--weight-regular) var(--text-base) var(--font-sans);
   background: var(--color-surface-subtle); color: var(--color-text-primary);
-  border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-control); border-radius: var(--radius-lg); padding: var(--space-2) var(--space-3);
 }
 
 .limits { margin: var(--space-3) 0 0; padding-left: var(--space-5); }

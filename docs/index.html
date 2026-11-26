@@ -13,6 +13,7 @@ try {
   if (/^[a-z]+$/.test(savedTheme)) document.documentElement.classList.replace('theme-dark', 'theme-' + savedTheme);
 } catch (e) { /* storage blocked: stay dark */ }
 </script>
+<link rel="stylesheet" href="fonts.css">
 <title>Wallet — euro spending in CAD and USD — overview</title>
 <meta name="description" content="A local Flask app that converts euro spending at the rate that applied on the day it was spent, reads a purchase off a screenshot without the image leaving the machine, and measures what a card's foreign transaction fee actually costs.">
 <meta property="og:title" content="Wallet — euro spending in Canadian and US dollars">
@@ -34,27 +35,31 @@ try {
    To add a theme: copy a theme block, rename it .theme-<name>, set every
    token in it, and add <name> to THEMES in the script at the bottom.
 
-   The colour blocks are the family's shared write-up palette, identical in
-   every project's docs/index.html. Against the previous light palette two
-   values changed because they failed WCAG AA: the muted ink was 3.35:1 on the
-   plane, and the series blue 4.34:1 on the surface. Every text pairing below
-   is at least 4.5:1 and every UI pairing at least 3:1, in both themes, and
-   tests/test_theme.py checks that from these tokens.
+   The colour blocks are this project's palette from the portfolio's
+   DESIGN.md: olive as the dominant, rust as the one accent. The 13 core
+   tokens are design/palettes.json verbatim; success, warning, grid and track
+   are derived from the olive and the rust in OKLCH and kept at low chroma.
+   Every text pairing below is at least 4.5:1 and every UI pairing at least
+   3:1, in both themes, and tests/test_theme.py checks that from these tokens.
 
-   Amber (--color-warning) is sub-3:1 by design: it is a fill only, always
-   with a glyph and a word beside it, and never a text colour.
+   Amber (--color-warning) is an outline only, always with a glyph and a word
+   beside it, and never a text colour; it still clears 3:1 as a boundary.
    ====================================================================== */
 :root {
   /* spacing: --space-N is N x 4px */
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-7: 28px; --space-9: 36px; --space-11: 44px;
 
-  /* typography */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --text-2xs: 11px; --text-xs: 12px; --text-sm: 12.5px; --text-base: 13px; --text-md: 13.5px;
-  --text-lg: 14px; --text-body: 15px; --text-xl: 23px; --text-2xl: 27px;
-  --leading-tight: 1.12; --leading-body: 1.55; --leading-relaxed: 1.7;
-  --weight-regular: 400; --weight-medium: 500; --weight-semibold: 600;
+  /* typography: the portfolio's three families, self-hosted (fonts.css
+     beside this page -- no external request), and its 3x scale: 16px body,
+     48px section heads, one display headline. Display type is 200 or 800. */
+  --font-display: "Bricolage Grotesque", sans-serif;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --text-2xs: 11px; --text-xs: 12px; --text-sm: 13px; --text-base: 16px;
+  --text-figure: 32px; --text-xl: 48px; --text-display: clamp(64px, 14vw, 144px);
+  --weight-display-light: 200; --weight-display: 800;
+  --leading-display: .95; --leading-tight: 1.12; --leading-body: 1.55; --leading-relaxed: 1.7;
+  --weight-regular: 400; --weight-medium: 600; --weight-semibold: 600;   /* Plex is self-hosted at 400 and 600 only */
   --tracking-tight: -0.2px; --tracking-mono: .02em; --tracking-caps: .06em; --tracking-caps-wide: .07em;
 
   /* shape */
@@ -63,28 +68,28 @@ try {
 
 :where(:root), .theme-dark {
   color-scheme: dark;
-  --color-bg: #0d0d0d; --color-surface: #1a1a19; --color-surface-subtle: #21201e;
-  --color-border: #383835; --color-border-strong: #6e6c66;
-  --color-text-primary: #ffffff; --color-text-muted: #c3c2b7; --color-text-subtle: #959389;
-  --color-accent: #4b93ea; --color-accent-hover: #7ab0f0; --color-accent-subtle: #14263c; --color-text-on-accent: #0d0d0d;
-  --color-danger: #f06a6a; --color-success: #3cc13c; --color-warning: #fab219;
-  --color-grid: #2c2c2a; --color-track: #2c2c2a;
+  --color-bg: #1B1A0F; --color-surface: #242317; --color-surface-subtle: #2D2C1F;
+  --color-border: #3A392B; --color-border-strong: #6E6D5B;
+  --color-text-primary: #E9E8E0; --color-text-muted: #B9B8AA; --color-text-subtle: #A6A695;
+  --color-accent: #DFA084; --color-accent-hover: #F2B99F; --color-accent-subtle: #442C22; --color-text-on-accent: #26160F;
+  --color-danger: #DF7F78; --color-success: #91BF92; --color-warning: #D6BB79;
+  --color-grid: #323124; --color-track: #323124;
 }
 .theme-light {
   color-scheme: light;
-  --color-bg: #ece6d6; --color-surface: #fffdf7; --color-surface-subtle: #f6f1e4;
-  --color-border: #ded5bf; --color-border-strong: #7a7466;
-  --color-text-primary: #12161d; --color-text-muted: #3c4453; --color-text-subtle: #665632;
-  --color-accent: #1f63b8; --color-accent-hover: #174f94; --color-accent-subtle: #dfe9f7; --color-text-on-accent: #ffffff;
-  --color-danger: #b02e2e; --color-success: #0a6e0a; --color-warning: #fab219;
-  --color-grid: #ece6d6; --color-track: #ece6d6;
+  --color-bg: #F7F6EE; --color-surface: #FCFCF8; --color-surface-subtle: #EEEEE3;
+  --color-border: #DCDCCF; --color-border-strong: #8E8D7B;
+  --color-text-primary: #28271D; --color-text-muted: #5D5C4A; --color-text-subtle: #6B6A58;
+  --color-accent: #91583E; --color-accent-hover: #77432B; --color-accent-subtle: #FADED2; --color-text-on-accent: #FFF8F5;
+  --color-danger: #A83634; --color-success: #3C673E; --color-warning: #7D5D23;
+  --color-grid: #E8E7DB; --color-track: #E8E7DB;
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 .viz-root {
   padding: var(--space-9) var(--space-6) var(--space-11);
-  font: var(--text-body)/var(--leading-body) var(--font-sans);
+  font: var(--text-base)/var(--leading-body) var(--font-sans);
   background: var(--color-bg); color: var(--color-text-primary);
   min-height: 100vh;
 }
@@ -94,8 +99,12 @@ main { max-width: 980px; margin: 0 auto; }
   margin: 0 0 var(--space-2); font: var(--weight-regular) var(--text-xs) var(--font-mono); color: var(--color-text-subtle);
   letter-spacing: var(--tracking-mono);
 }
-h1 { font-size: var(--text-xl); margin: 0 0 var(--space-1); letter-spacing: var(--tracking-tight); }
-.lede { color: var(--color-text-muted); margin: 0; font-size: var(--text-body); max-width: 68ch; }
+/* The one headline: display size, light, against the heavy section heads. */
+h1 {
+  margin: 0 0 var(--space-4); font: var(--weight-display-light) var(--text-display)/var(--leading-display) var(--font-display);
+  letter-spacing: -0.02em; overflow-wrap: break-word;
+}
+.lede { color: var(--color-text-muted); margin: 0; font-size: var(--text-base); max-width: 68ch; }
 .head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-5); flex-wrap: wrap; }
 .controls { display: flex; gap: var(--space-2); flex-wrap: wrap; }
 button, .btn {
@@ -118,7 +127,7 @@ button[aria-pressed="true"] { border-color: var(--color-accent); color: var(--co
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(156px, 1fr)); gap: var(--space-3); margin: var(--space-7) 0 var(--space-3); }
 .tile { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl); padding: var(--space-4) var(--space-4); }
 .tile .k { display: block; color: var(--color-text-muted); font-size: var(--text-2xs); text-transform: uppercase; letter-spacing: var(--tracking-caps-wide); }
-.tile .v { display: block; margin-top: 3px; font: var(--weight-semibold) var(--text-2xl)/var(--leading-tight) var(--font-sans); font-variant-numeric: tabular-nums; }
+.tile .v { display: block; margin-top: 4px; font: var(--weight-semibold) var(--text-figure)/var(--leading-tight) var(--font-mono); font-variant-numeric: tabular-nums; }
 .tile .n { display: block; margin-top: 2px; color: var(--color-text-subtle); font-size: var(--text-xs); }
 
 .note { color: var(--color-text-subtle); font-size: var(--text-base); max-width: 80ch; margin: var(--space-3) 0 0; }
@@ -127,17 +136,20 @@ button[aria-pressed="true"] { border-color: var(--color-accent); color: var(--co
 .panel { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl); padding: var(--space-4) var(--space-5); margin-top: var(--space-6);
          /* a wide table scrolls inside its panel on a phone, not the page */
          min-width: 0; overflow-x: auto; }
-.panel h2 { margin: 0 0 2px; font-size: var(--text-body); }
-.panel h3 { margin: var(--space-5) 0 var(--space-2); font-size: var(--text-base); color: var(--color-text-muted); }
+.panel h2 { margin: 0 0 var(--space-2); font: var(--weight-display) var(--text-xl)/1.05 var(--font-display); letter-spacing: -0.01em; }
+.panel h3 { margin: var(--space-6) 0 var(--space-2); font: var(--weight-display) var(--text-base)/var(--leading-tight) var(--font-display); color: var(--color-text-muted); }
 .panel .sub { margin: 0 0 var(--space-4); color: var(--color-text-muted); font-size: var(--text-base); max-width: 76ch; }
-.panel p { font-size: var(--text-lg); color: var(--color-text-muted); max-width: 76ch; }
+.panel p { font-size: var(--text-base); color: var(--color-text-muted); max-width: 76ch; }
 .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr)); gap: var(--space-6); }
 
 /* Thin marks on a recessive track, 4px rounding on the data end only so the
  * mark stays anchored flat to the baseline it grows from. */
 .bars { display: grid; gap: var(--space-2); }
-.bar { display: grid; grid-template-columns: 118px 1fr 92px; gap: var(--space-3); align-items: center; }
-.bar .lab { font: var(--weight-regular) var(--text-sm) var(--font-mono); color: var(--color-text-muted); }
+/* 144px holds "ingest/receipts.py" at 13px mono; a longer name is cut with
+ * an ellipsis rather than running under its own bar. */
+.bar { display: grid; grid-template-columns: 144px 1fr 92px; gap: var(--space-3); align-items: center; }
+.bar .lab { font: var(--weight-regular) var(--text-sm) var(--font-mono); color: var(--color-text-muted);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bar .rail { position: relative; height: 12px; background: var(--color-track); border-radius: var(--radius-xs); }
 .bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--color-accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
 .bar .val { text-align: right; font: var(--weight-medium) var(--text-xs) var(--font-mono); font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
@@ -162,7 +174,7 @@ pre {
 
 /* Numbered steps, reused from the previous version of this page. */
 .flow { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; gap: var(--space-3); }
-.flow li { display: grid; grid-template-columns: 26px 1fr; gap: var(--space-3); font-size: var(--text-md); color: var(--color-text-muted); }
+.flow li { display: grid; grid-template-columns: 26px 1fr; gap: var(--space-3); font-size: var(--text-base); color: var(--color-text-muted); }
 .step {
   font: var(--weight-medium) var(--text-2xs) var(--font-mono); color: var(--color-accent);
   border: 1px solid var(--color-border); border-radius: var(--radius-md);
@@ -189,7 +201,7 @@ footer { margin-top: var(--space-7); color: var(--color-text-subtle); font-size:
 </style>
 </head>
 
-<body class="viz-root" data-palette="#2a78d6">
+<body class="viz-root" data-palette="#DFA084">
 <main>
 
 <div class="head">
@@ -357,7 +369,7 @@ footer { margin-top: var(--space-7); color: var(--color-text-subtle); font-size:
     <h2>What it does</h2>
     <ul class="flow" id="doesList" style="gap:var(--space-2)"></ul>
     <h3>Money is integer cents, everywhere</h3>
-    <p style="font-size:var(--text-md)">
+    <p style="font-size:var(--text-base)">
       Floats are the wrong type for money and it shows fast. At the real rate
       of 1.6033, &euro;50.00 is exactly 8016.5 cents: <code>Decimal</code>
       half-up gives CA$80.17, and naive float arithmetic gives CA$80.16. The
@@ -399,7 +411,7 @@ footer { margin-top: var(--space-7); color: var(--color-text-subtle); font-size:
       the 7th had not happened when the money was spent.
     </p>
     <h3>A transaction and a total are different questions</h3>
-    <p style="font-size:var(--text-md)">
+    <p style="font-size:var(--text-base)">
       A purchase carries a date, so converting it at a rate that did not exist
       yet is hindsight. A month-to-date total carries none &mdash;
       &ldquo;today&rdquo; there just means &ldquo;now&rdquo; &mdash; so the

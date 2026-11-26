@@ -25,18 +25,21 @@ injected script to send anything, and the only untrusted text on the page
 (descriptions, categories) goes through esc().
 """
 import argparse
+import base64
 import io
 import json
 import os
 import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APP = os.path.join(ROOT, "docs", "app")
+DOCS = os.path.join(ROOT, "docs")
+APP = os.path.join(DOCS, "app")
 
 POLICY = (
     "default-src 'none'; "
     "script-src 'unsafe-inline'; "
     "style-src 'unsafe-inline'; "
+    "font-src data:; "
     "img-src data:; "
     "base-uri 'none'; "
     "form-action 'none'; "
@@ -49,10 +52,10 @@ BANNER = """<!--
   Built by tools/build_single_file.py from docs/app/ -- edit the sources
   there and rebuild rather than editing this, which is generated.
 
-  Everything is inside this file: the stylesheet, the code, and %s business
-  days of European Central Bank reference rates from %s to %s. It makes no
-  network requests and its Content-Security-Policy forbids them, so nothing
-  you record here can leave this file. Purchases are kept in the browser's
+  Everything is inside this file: the stylesheet and its fonts, the code,
+  and %s business days of European Central Bank reference rates from %s
+  to %s. It makes no network requests and its Content-Security-Policy
+  forbids them, so nothing you record here can leave this file. Purchases are kept in the browser's
   localStorage for whatever page opened it.
 
   The rates are a snapshot. A purchase dated after %s on a weekday is
@@ -65,6 +68,24 @@ BANNER = """<!--
 def read(*parts):
     with io.open(os.path.join(*parts), encoding="utf-8") as handle:
         return handle.read()
+
+
+def inline_fonts():
+    """docs/fonts.css with each url() replaced by the font itself, as a
+    data: URI. The served pages load the self-hosted fonts beside them; a
+    file opened from anywhere has nothing beside it, and fetching a font is
+    a request -- so the faces travel inside the file, and the policy allows
+    fonts from data: and nowhere else."""
+    css = read(DOCS, "fonts.css")
+
+    def embed(found):
+        with io.open(os.path.join(DOCS, found.group(1)), "rb") as handle:
+            data = base64.b64encode(handle.read()).decode("ascii")
+        return 'url("data:font/woff2;base64,%s")' % data
+
+    css, count = re.subn(r'url\("([^"]+\.woff2)"\)', embed, css)
+    assert count, "fonts.css names no font to inline"
+    return css
 
 
 def build():
@@ -87,8 +108,10 @@ def build():
                         '<script>\n%s</script>' % read(APP, "theme.js"), 1)
     assert 'src="theme.js"' not in page, "the theme script was not inlined"
 
-    # The stylesheet, inline.
-    style = '<style>\n%s</style>' % read(APP, "style.css")
+    # The stylesheet, inline, with the fonts it names inside it.
+    page = page.replace('<link rel="stylesheet" href="../fonts.css">\n', '', 1)
+    assert 'fonts.css"' not in page, "the fonts link was not where expected"
+    style = '<style>\n%s\n%s</style>' % (inline_fonts(), read(APP, "style.css"))
     page = page.replace('<link rel="stylesheet" href="style.css">', style, 1)
     assert "<style>" in page, "the stylesheet link was not replaced"
 

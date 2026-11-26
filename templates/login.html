@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Wallet — sign in</title>
 <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <style>
 /* The login page carries its own handful of rules rather than adding a
@@ -15,7 +16,7 @@
   background: var(--color-surface); border: 1px solid var(--color-border);
   border-radius: var(--radius-2xl); padding: var(--space-7) var(--space-7); width: 100%; max-width: 380px;
 }
-.gateCard h1 { margin: 0 0 var(--space-1); font-size: var(--text-lg); }
+.gateCard h1 { margin: 0 0 var(--space-2); font: var(--weight-display) var(--text-xl)/1 var(--font-display); }
 .gateCard .sub { margin: 0 0 var(--space-5); color: var(--color-text-muted); font-size: var(--text-sm); }
 .gateCard label { display: block; margin-bottom: var(--space-4); }
 .gateCard label span {

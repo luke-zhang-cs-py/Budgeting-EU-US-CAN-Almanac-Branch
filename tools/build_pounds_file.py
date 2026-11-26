@@ -30,19 +30,22 @@ injected script to send anything, and the only untrusted text on the page
 (descriptions, categories) goes through esc().
 """
 import argparse
+import base64
 import io
 import json
 import os
 import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APP = os.path.join(ROOT, "docs", "app")
+DOCS = os.path.join(ROOT, "docs")
+APP = os.path.join(DOCS, "app")
 PAGE = os.path.join(ROOT, "standalone", "pounds")
 
 POLICY = (
     "default-src 'none'; "
     "script-src 'unsafe-inline'; "
     "style-src 'unsafe-inline'; "
+    "font-src data:; "
     "img-src data:; "
     "base-uri 'none'; "
     "form-action 'none'; "
@@ -62,10 +65,10 @@ BANNER = """<!--
   out rather than taken off the pounds -- see fx/pounds.py for why those are
   different numbers.
 
-  Everything is inside this file: the stylesheets, the code, and %s business
-  days of rates from %s to %s. It makes no network requests and its
-  Content-Security-Policy forbids them, so nothing you record here can leave
-  this file. Conversions are kept in the browser's localStorage for whatever
+  Everything is inside this file: the stylesheets and their fonts, the code,
+  and %s business days of rates from %s to %s. It makes no network
+  requests and its Content-Security-Policy forbids them, so nothing you
+  record here can leave this file. Conversions are kept in the browser's localStorage for whatever
   page opened it, under "wallet.pounds.v1" -- its own key, so it does not mix
   with the euro wallet's ledger.
 
@@ -78,6 +81,22 @@ BANNER = """<!--
 def read(*parts):
     with io.open(os.path.join(*parts), encoding="utf-8") as handle:
         return handle.read()
+
+
+def inline_fonts():
+    """docs/fonts.css with each url() replaced by the font itself, as a
+    data: URI -- the same as the euro builder's, for the same reason: a font
+    fetched from beside the file is a request, and this file makes none."""
+    css = read(DOCS, "fonts.css")
+
+    def embed(found):
+        with io.open(os.path.join(DOCS, found.group(1)), "rb") as handle:
+            data = base64.b64encode(handle.read()).decode("ascii")
+        return 'url("data:font/woff2;base64,%s")' % data
+
+    css, count = re.subn(r'url\("([^"]+\.woff2)"\)', embed, css)
+    assert count, "fonts.css names no font to inline"
+    return css
 
 
 def build():
@@ -109,12 +128,16 @@ def build():
     assert 'theme.js"' not in page, "the theme script was not inlined"
 
     # Both stylesheets, inline and in the order the page loads them -- the
-    # wallet's own first, then the handful of rules this page adds on top.
+    # wallet's own first, carrying the fonts it names, then the handful of
+    # rules this page adds on top.
+    page = page.replace('<link rel="stylesheet" href="../../docs/fonts.css">\n',
+                        '', 1)
+    assert 'fonts.css"' not in page, "the fonts link was not where expected"
     page = page.replace(
         '<link rel="stylesheet" href="../../docs/app/style.css">\n'
         '<link rel="stylesheet" href="limit.css">',
-        '<style>\n%s</style>\n<style>\n%s</style>'
-        % (read(APP, "style.css"), read(PAGE, "limit.css")), 1)
+        '<style>\n%s\n%s</style>\n<style>\n%s</style>'
+        % (inline_fonts(), read(APP, "style.css"), read(PAGE, "limit.css")), 1)
     assert "<style>" in page, "the stylesheet links were not replaced"
 
     # The rates and all three scripts, in load order.

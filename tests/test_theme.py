@@ -88,35 +88,49 @@ PAGES = [_at("docs", "app", "index.html"), _at("docs", "capture", "index.html"),
 
 SURFACES = ("bg", "surface", "surface-subtle")
 
+# --color-accent-subtle is in the shared token contract, but no rule here
+# paints a background with it: the core palette guarantees body text on it
+# (and that pairing is checked below), not every ink. The test of the pairings
+# fails if a rule starts using it as a background, which is the moment the
+# other inks on it would need checking.
+UNUSED_SURFACES = ("accent-subtle",)
+
 # fg on bg, as the rules use them. Text needs 4.5:1; every size on these
 # pages is under the 24px large-text line except the totals, and they are
 # held to 4.5 anyway.
 APP_TEXT = (
     [(f, b) for f in ("text-primary", "text-muted", "text-subtle", "accent",
                       "danger", "success", "warning")
-     for b in SURFACES + ("accent-subtle",)]
-    + [("text-on-accent", "accent"), ("text-on-accent", "accent-hover"),
+     for b in SURFACES]
+    + [("text-primary", "accent-subtle"),
+       ("text-on-accent", "accent"), ("text-on-accent", "accent-hover"),
        # the three notices, the reader's questions, the sign-in error
        ("warning", "warning-subtle"), ("success", "success-subtle"),
        ("danger", "danger-subtle"), ("accent", "warning-subtle"),
        ("accent-hover", "bg"), ("accent-hover", "surface")])
 # Boundaries that identify something, at 3:1: a field's edge, the focus
 # ring, and every bar that carries a meaning (budget state, the limit, a
-# category's share) against the track and the cards it sits on.
-APP_UI = [(f, b) for f in ("border-strong", "accent", "success", "warning",
+# category's share) against the track and the cards it sits on. A field's
+# edge is --color-border-control, derived for this app: the core
+# --color-border-strong is 3:1 on the page and the cards but not on the
+# subtle surface a field and a hovered row are drawn in.
+APP_UI = [(f, b) for f in ("border-control", "accent", "success", "warning",
                            "danger", "untracked")
-          for b in SURFACES]
+          for b in SURFACES] + [("border-strong", "bg"),
+                                ("border-strong", "surface")]
 
 WRITEUP_TEXT = (
     [(f, b) for f in ("text-primary", "text-muted", "text-subtle", "accent")
-     for b in SURFACES + ("accent-subtle",)]
-    + [("text-on-accent", "accent"), ("text-on-accent", "accent-hover"),
+     for b in SURFACES]
+    + [("text-primary", "accent-subtle"), ("text-on-accent", "accent"), ("text-on-accent", "accent-hover"),
        ("success", "surface"), ("success", "bg"),
        ("danger", "surface"), ("danger", "bg")])
 WRITEUP_UI = [("border-strong", "bg"), ("border-strong", "surface"),
               ("accent", "bg"), ("accent", "surface"), ("accent", "track"),
               ("text-subtle", "surface"), ("success", "surface"),
-              ("danger", "surface")]
+              ("danger", "surface"),
+              # the outline of a "warn" flag, the one place amber is drawn
+              ("warning", "surface"), ("warning", "bg")]
 
 
 # ------------------------------------------------------------- reading them
@@ -240,19 +254,31 @@ def test_every_pairing_meets_wcag_aa_in_every_theme(palette):
         for theme in themes:
             short = shortfalls(blocks[theme], text_pairs, ui_pairs)
             assert not short, f"{name}, {theme} theme: {short}"
+    for name, path in ALL_STYLE.items():
+        for token in UNUSED_SURFACES:
+            painted = re.findall(r"background[\w-]*\s*:[^;}]*--color-%s\b"
+                                 % token, _css(path))
+            assert not painted, (
+                f"{name} now paints a background in --color-{token}; check "
+                f"every ink that sits on it before allowing it")
 
 
 def test_that_check_would_notice_a_failing_pair():
     """The negative control, kept rather than run once by hand: the old dark
-    hint colour, which was 3.23:1 on a list row."""
+    hint colour, which was 3.23:1 on a list row on the first palette and is
+    2.97:1 on this one's olive."""
     block = dict(theme_blocks(_css(APP_SHEETS["app"]))["dark"])
     assert not shortfalls(block, APP_TEXT, APP_UI)
     block["--color-text-subtle"] = "#6b7387"
     assert shortfalls(block, APP_TEXT, APP_UI) == [
-        "text-subtle on bg 3.88:1 (needs 4.5)",
-        "text-subtle on surface 3.55:1 (needs 4.5)",
-        "text-subtle on surface-subtle 3.23:1 (needs 4.5)",
-        "text-subtle on accent-subtle 3.03:1 (needs 4.5)"]
+        "text-subtle on bg 3.69:1 (needs 4.5)",
+        "text-subtle on surface 3.33:1 (needs 4.5)",
+        "text-subtle on surface-subtle 2.97:1 (needs 4.5)"]
+    # and the same for a boundary: the core border-strong as a field's edge
+    block = dict(theme_blocks(_css(APP_SHEETS["app"]))["dark"])
+    block["--color-border-control"] = block["--color-border-strong"]
+    assert shortfalls(block, APP_TEXT, APP_UI) == [
+        "border-control on surface-subtle 2.68:1 (needs 3.0)"]
 
 
 RAW_COLOUR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\(")
@@ -314,6 +340,19 @@ def test_every_page_opens_dark_and_follows_no_system_setting(path):
         "visitor who chose light never sees the page flash dark")
     assert re.search(r'<button[^>]*id="themeBtn"[^>]*type="button"|'
                      r'<button[^>]*type="button"[^>]*id="themeBtn"', page)
+    # The type is part of the first paint too: the self-hosted faces are
+    # declared in <head>, and no page names a system or a hosted font.
+    assert re.search(r'<link rel="stylesheet" href="[^"]*fonts\.css', head), (
+        "the page does not load fonts.css")
+    assert not BANNED_FACES.findall(page), BANNED_FACES.findall(page)
+
+
+# The same list as test_frontend.py's: the faces DESIGN.md rules out, even
+# as fallbacks, and the hosted font service the pages used to load from.
+BANNED_FACES = re.compile(r"\bInter\b|Roboto|Open Sans|Arial|system-ui|"
+                          r"apple-system|BlinkMacSystemFont|Segoe UI|"
+                          r"Helvetica|ui-monospace|SFMono|Menlo|"
+                          r"fonts\.googleapis|fonts\.gstatic")
 
 
 @pytest.mark.parametrize("path", list(APP_SHEETS.values()) + [

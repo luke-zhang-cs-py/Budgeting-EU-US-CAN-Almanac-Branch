@@ -337,8 +337,8 @@ def harden(response, public):
     response.headers.setdefault("Content-Security-Policy", "; ".join([
         "default-src 'self'",
         "script-src 'self'",
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-        "font-src 'self' https://fonts.gstatic.com",
+        "style-src 'self' 'unsafe-inline'",
+        "font-src 'self'",
         "img-src 'self' data:",
         "connect-src 'self'",
         "form-action 'self'",
